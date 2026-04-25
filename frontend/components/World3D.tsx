@@ -1,20 +1,19 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import type { WorldSpec, FurnitureItem } from "@/lib/worldSpec";
-import { fetchProductColor } from "@/lib/api";
+import type { WorldSpec } from "@/lib/worldSpec";
+import { expandWallSegments } from "@/lib/wallSegments";
+import Plot from "./Plot";
+import Roof from "./Roof";
 import Wall from "./Wall";
 import Furniture from "./Furniture";
 import PlayerControls from "./PlayerControls";
 import CrosshairHUD from "./CrosshairHUD";
-import FurniturePanel from "./FurniturePanel";
 import StatusBar from "./StatusBar";
 import ChatPanel from "./ChatPanel";
 
 export default function World3D({ spec }: { spec: WorldSpec }) {
-  const [selected, setSelected] = useState<FurnitureItem | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
-  const [productColors, setProductColors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -24,50 +23,45 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const ids = spec.furniture
-        .map((f) => f.selectedProductId)
-        .filter((id): id is string => !!id && !productColors[id]);
-      const unique = Array.from(new Set(ids));
-      await Promise.all(unique.map(async (id) => {
-        const p = spec.products[id];
-        if (!p?.imageUrl) return;
-        const color = await fetchProductColor(p.imageUrl, p.url);
-        if (!cancelled && color) {
-          setProductColors((prev) => ({ ...prev, [id]: color }));
-        }
-      }));
-    })();
-    return () => { cancelled = true; };
-  }, [spec]);
-
   const prims = spec.geometry?.primitives ?? [];
-  const walls = prims.filter((p) => p.type === "wall");
-  const floors = prims.filter((p) => p.type === "floor");
+  const ground   = prims.filter((p) => p.type === "ground");
+  const exterior = prims.filter((p) => p.type === "exterior_wall");
+  const roof     = prims.filter((p) => p.type === "roof");
+  const walls    = prims.filter((p) => p.type === "wall");
+  const floors   = prims.filter((p) => p.type === "floor");
   const ceilings = prims.filter((p) => p.type === "ceiling");
-  const stairs = prims.filter((p) => p.type === "stair");
+  const stairs   = prims.filter((p) => p.type === "stair");
+
+  const colliders = [
+    ...exterior.flatMap(expandWallSegments),
+    ...walls.flatMap(expandWallSegments),
+  ];
 
   const matFloor = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.floor;
-  const matWall = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.wall ?? "#e7e1d5";
-  const matCeil = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.ceiling ?? "#ffffff";
+  const matWall  = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.wall ?? "#e7e1d5";
+  const matCeil  = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.ceiling ?? "#ffffff";
 
-  const spawn = spec.navigation?.spawnPoint ?? [0, 1.7, 0];
+  const spawn = spec.navigation?.spawnPoint ?? [50, 1.7, -47];
+  const groundColor = spec.site?.plot?.groundColor ?? "#5a7c3a";
 
   return (
-    <div className="fixed inset-0 bg-black">
-      <Canvas camera={{ fov: 70, position: spawn as any, near: 0.05, far: 200 }} shadows={false}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[20, 30, 20]} intensity={0.6} />
+    <div className="fixed inset-0">
+      <Canvas camera={{ fov: 70, position: spawn as any, near: 0.05, far: 300 }}>
+        <color attach="background" args={["#a8c8e8"]} />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[60, 80, 40]} intensity={0.9} />
 
         {Object.entries(spec.lighting?.byRoom ?? {}).flatMap(([rid, lights]) =>
           lights.map((l, i) => (
-            <pointLight key={`${rid}-${i}`} position={l.position as any} color={l.color} intensity={l.intensity} distance={12} />
+            <pointLight key={`${rid}-${i}`} position={l.position as any}
+                        color={l.color} intensity={l.intensity} distance={12} />
           ))
         )}
 
         <Suspense fallback={null}>
+          {ground.map((p, i) => (
+            <Plot key={`g${i}`} size={[p.size[0], p.size[2]]} color={groundColor} />
+          ))}
           {floors.map((p, i) => (
             <mesh key={`f${i}`} position={p.position as any}>
               <boxGeometry args={p.size as any} />
@@ -80,43 +74,26 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
               <meshStandardMaterial color={matCeil(p.roomId)} />
             </mesh>
           ))}
-          {walls.map((p, i) => (
-            <Wall key={`w${i}`} prim={p} color={matWall(p.roomId)} />
-          ))}
+          {walls.map((p, i)    => <Wall key={`w${i}`} prim={p} color={matWall(p.roomId)} />)}
+          {exterior.map((p, i) => <Wall key={`e${i}`} prim={p} color="#d8d4c6" />)}
+          {roof.map((p, i)     => <Roof key={`r${i}`} prim={p} color="#3a3a3a" />)}
           {stairs.map((p, i) => (
-            <mesh key={`s${i}`} position={p.position as any} rotation={[0, p.rotation ?? 0, 0]}>
+            <mesh key={`s${i}`} position={p.position as any}
+                  rotation={[0, p.rotation ?? 0, 0]}>
               <boxGeometry args={[p.size[0], 0.2, p.size[2]]} />
               <meshStandardMaterial color="#7c5a3a" />
             </mesh>
           ))}
-          {spec.furniture.map((f) => {
-            const fetched = f.selectedProductId ? productColors[f.selectedProductId] : undefined;
-            const tint = fetched ?? tintForProduct(spec, f);
-            return (
-              <Furniture
-                key={f.id}
-                item={f}
-                tint={tint}
-                onClick={() => setSelected(f)}
-              />
-            );
-          })}
+          {spec.furniture.map((f) => (
+            <Furniture key={f.id} item={f} />
+          ))}
         </Suspense>
 
-        <PlayerControls walls={walls} spawn={spawn as any} />
+        <PlayerControls walls={colliders} spawn={spawn as any} />
       </Canvas>
 
       <CrosshairHUD />
       <StatusBar spec={spec} />
-
-      {selected && (
-        <FurniturePanel
-          spec={spec}
-          item={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
-
       <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} worldId={spec.worldId} />
     </div>
   );
@@ -133,13 +110,4 @@ function floorColor(token?: string): string {
     dark_wood: "#4b2e1a",
   };
   return map[token ?? ""] ?? "#9b8466";
-}
-
-function tintForProduct(spec: WorldSpec, f: FurnitureItem): string | undefined {
-  if (!f.selectedProductId) return undefined;
-  const p = spec.products[f.selectedProductId];
-  if (!p) return undefined;
-  let h = 0; for (const c of p.name) h = (h * 31 + c.charCodeAt(0)) | 0;
-  const hue = Math.abs(h) % 360;
-  return `hsl(${hue}, 30%, 55%)`;
 }
