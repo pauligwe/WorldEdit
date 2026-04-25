@@ -26,13 +26,24 @@ def _extract_json(s: str) -> dict | None:
     return None
 
 
-def _url_alive(url: str, timeout: float = 4.0) -> bool:
+_BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,*/*",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def _url_alive(url: str, timeout: float = 6.0) -> bool:
     try:
-        r = httpx.head(url, follow_redirects=True, timeout=timeout)
-        if r.status_code == 200:
-            return True
-        r = httpx.get(url, follow_redirects=True, timeout=timeout)
-        return r.status_code == 200
+        r = httpx.get(url, follow_redirects=True, timeout=timeout, headers=_BROWSER_HEADERS)
+        if r.status_code != 200:
+            return False
+        body = r.text.lower()
+        if "out of stock" in body and "currently unavailable" in body:
+            return False
+        if "we can't find the page" in body or "page not found" in body or "this item is no longer available" in body:
+            return False
+        return True
     except Exception:
         return False
 

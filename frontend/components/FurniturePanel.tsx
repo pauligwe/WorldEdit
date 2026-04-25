@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { WorldSpec, FurnitureItem } from "@/lib/worldSpec";
-import { selectProduct } from "@/lib/api";
+import { selectProduct, proxiedImage } from "@/lib/api";
 
 export default function FurniturePanel({ spec, item, onClose }: { spec: WorldSpec; item: FurnitureItem; onClose: () => void; }) {
   const [selectedId, setSelectedId] = useState(item.selectedProductId);
@@ -20,7 +20,12 @@ export default function FurniturePanel({ spec, item, onClose }: { spec: WorldSpe
           onClick={async () => { setSelectedId(id); await selectProduct(spec.worldId, item.id, id); item.selectedProductId = id; }}
           className={`text-left bg-zinc-900 border rounded p-2 hover:border-violet-400 ${selectedId === id ? "border-violet-400" : "border-zinc-800"}`}
         >
-          {p.imageUrl && <img src={p.imageUrl} alt="" className="w-full h-32 object-cover rounded mb-2" />}
+          <img
+            src={p.imageUrl ? proxiedImage(p.imageUrl, p.url) : ""}
+            alt=""
+            className="w-full h-32 object-cover rounded mb-2 bg-zinc-800"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
           <div className="font-bold text-sm">{p.name}</div>
           <div className="text-zinc-400 text-xs">{p.vendor} · {p.price ? `$${p.price}` : "—"}</div>
           {p.url && <a href={p.url} target="_blank" rel="noopener" className="text-cyan-400 text-xs">View</a>}

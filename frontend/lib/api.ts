@@ -31,6 +31,11 @@ export async function selectProduct(worldId: string, furnitureId: string, produc
   if (!r.ok) throw new Error(`select-product: ${r.status}`);
 }
 
+export function proxiedImage(url: string, productUrl?: string): string {
+  const u = `${BRIDGE}/api/img?url=${encodeURIComponent(url)}`;
+  return productUrl ? `${u}&product=${encodeURIComponent(productUrl)}` : u;
+}
+
 export async function getWorld(worldId: string): Promise<WorldSpec> {
   const r = await fetch(`${BRIDGE}/api/world/${worldId}`);
   if (!r.ok) throw new Error(`world: ${r.status}`);
