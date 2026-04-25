@@ -1,4 +1,4 @@
-# World Build
+# Configure
 
 Type a prompt like *"a small cozy cabin"* or *"a two-story modern house"* and get a walkable 3D building rendered in your browser. A pipeline of Gemini-backed agents turns the prompt into a structured building spec — rooms, walls, lighting, materials, furniture — and the frontend renders it with React Three Fiber so you can spawn inside and walk around.
 
