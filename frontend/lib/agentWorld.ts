@@ -96,32 +96,18 @@ const AGENT_META: AgentMeta[] = [
     station: [-2.1, 0.45, 3.6],
   },
   {
-    key: "product_scout",
-    name: "Product Scout",
-    description: "Finds product alternates for generated furniture items.",
-    phase: "post-processing",
-    station: [0.6, 0.45, 3.6],
-  },
-  {
-    key: "style_matcher",
-    name: "Style Matcher",
-    description: "Aligns furniture options with the desired room style.",
-    phase: "post-processing",
-    station: [3.2, 0.45, 3.6],
-  },
-  {
     key: "pricing_estimator",
     name: "Pricing Estimator",
     description: "Computes per-room and total cost estimates.",
     phase: "post-processing",
-    station: [5.8, 0.45, 3.6],
+    station: [3.2, 0.45, 3.6],
   },
   {
     key: "navigation_planner",
     name: "Navigation Planner",
     description: "Creates spawn and walkable navigation metadata.",
     phase: "post-processing",
-    station: [8.3, 0.45, 3.6],
+    station: [5.8, 0.45, 3.6],
   },
 ];
 
@@ -243,10 +229,6 @@ function runningLabel(key: string): string {
       return "Placing furniture candidates";
     case "placement_validator":
       return "Checking spacing and collisions";
-    case "product_scout":
-      return "Searching product alternates";
-    case "style_matcher":
-      return "Matching style signatures";
     case "pricing_estimator":
       return "Calculating cost totals";
     case "navigation_planner":
