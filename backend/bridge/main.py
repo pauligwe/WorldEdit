@@ -14,6 +14,8 @@ from core.world_spec import WorldSpec
 from core.status_bus import StatusBus, AgentStatus
 from agents.orchestrator import run_pipeline
 from agents.chat_edit_coordinator import run as chat_edit_run
+from agents_v2.orchestrator import run_dag
+from agents_v2.messages import PerceptionInput
 
 load_dotenv()
 
@@ -31,6 +33,11 @@ app.add_middleware(
 bus = StatusBus()
 worlds: dict[str, WorldSpec] = {}
 running: set[str] = set()
+
+FRONTEND_WORLDS_DIR = Path(__file__).parent.parent.parent / "frontend" / "public" / "worlds"
+
+# world_id -> "queued" | "running" | "done" | "error"
+_analyze_state: dict[str, str] = {}
 
 
 @app.on_event("startup")
@@ -162,3 +169,49 @@ def perception_frames(req: PerceptionFramesReq):
     (views_dir / "view_120.jpg").write_bytes(_decode_data_url(req.view_120))
     (views_dir / "view_240.jpg").write_bytes(_decode_data_url(req.view_240))
     return {"ok": True, "path": str(views_dir)}
+
+
+class AnalyzeReq(BaseModel):
+    prompt: str = ""
+
+
+async def _drive_analyze(world_id: str, prompt: str) -> None:
+    _analyze_state[world_id] = "running"
+    try:
+        views_dir = WORLDS_DIR / world_id / "views"
+        view_paths = [str(views_dir / f"view_{n}.jpg") for n in (0, 120, 240)]
+        result = await run_dag(PerceptionInput(
+            world_id=world_id, prompt=prompt, view_paths=view_paths,
+        ))
+        FRONTEND_WORLDS_DIR.mkdir(parents=True, exist_ok=True)
+        out_path = FRONTEND_WORLDS_DIR / f"{world_id}.agents.json"
+        out_path.write_text(json.dumps(result, indent=2))
+        _analyze_state[world_id] = "done"
+    except Exception as e:
+        _analyze_state[world_id] = "error"
+        raise
+
+
+@app.post("/api/analyze/{world_id}", status_code=202)
+async def analyze(world_id: str, req: AnalyzeReq):
+    if not PERCEPTION_ID_RE.match(world_id):
+        raise HTTPException(status_code=400, detail="bad world_id")
+    views_dir = WORLDS_DIR / world_id / "views"
+    if not views_dir.exists():
+        raise HTTPException(status_code=404, detail="perception frames not found")
+    if _analyze_state.get(world_id) == "running":
+        raise HTTPException(status_code=409, detail="already running")
+    _analyze_state[world_id] = "queued"
+    asyncio.create_task(_drive_analyze(world_id, req.prompt))
+    return {"ok": True, "state": "queued"}
+
+
+@app.get("/api/analyze/{world_id}/status")
+def analyze_status(world_id: str):
+    state = _analyze_state.get(world_id)
+    if state is None:
+        out_path = FRONTEND_WORLDS_DIR / f"{world_id}.agents.json"
+        if out_path.exists():
+            return {"state": "done"}
+        return {"state": "unknown"}
+    return {"state": state}
