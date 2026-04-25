@@ -2,7 +2,7 @@
 
 interface Props { size: [number, number, number]; color: string }
 
-export default function Whiteboard({ size, color: _color }: Props) {
+export default function Whiteboard({ size }: Props) {
   const [w, h, d] = size;
   return (
     <group>
