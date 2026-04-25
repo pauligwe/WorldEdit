@@ -1,6 +1,6 @@
 from core.world_spec import WorldSpec, Blueprint
 from core.floor_packer import BuildingTemplateSelection
-from core.bsp_packer import bsp_pack_floor
+from core.maze_packer import maze_pack_floor
 from core.archetype_packer import RESIDENTIAL_ARCHETYPES, archetype_pack_floor
 from core.room_library import ROOM_LIBRARY
 from core.gemini_client import structured
@@ -51,7 +51,7 @@ def _run_residential(spec: WorldSpec) -> WorldSpec:
     return spec
 
 
-def _run_grid_bsp(spec: WorldSpec) -> WorldSpec:
+def _run_grid_maze(spec: WorldSpec) -> WorldSpec:
     catalog = "\n".join(
         f"- {name}: {t.description} ({t.width}m x {t.depth}m, type={t.type})"
         for name, t in ROOM_LIBRARY.items()
@@ -68,20 +68,36 @@ def _run_grid_bsp(spec: WorldSpec) -> WorldSpec:
     )
     selection = structured(user_prompt, BuildingTemplateSelection, system=SYSTEM)
 
-    stair_x = (fw - 3.0) / 2
-    stair_y = (fd - 4.0) / 2
-    stair_rect = (stair_x, stair_y, 3.0, 4.0) if spec.intent.floors > 1 else None
+    entrance_offset = spec.site.entrance.offset
 
     floors = []
-    for fl_sel in selection.floors:
-        floor = bsp_pack_floor(
+    # Stair from level N becomes the seed/landing position on level N+1.
+    next_stair_seed: tuple[float, float, float, float] | None = None
+    multi_floor = spec.intent.floors > 1
+
+    for fl_sel in sorted(selection.floors, key=lambda f: f.level):
+        is_last_level = fl_sel.level == spec.intent.floors - 1
+        # Multi-floor: every level except the topmost emits stairs upward.
+        stair_position = next_stair_seed
+        if multi_floor and not is_last_level and stair_position is None:
+            # Sentinel so maze_pack_floor knows it should place stairs.
+            stair_position = ((fw - 3.0) / 2, (fd - 4.0) / 2, 3.0, 4.0)
+
+        floor, stair_xy = maze_pack_floor(
             fl_sel.template_names,
             (fw, fd),
             level=fl_sel.level,
             ceiling_height=3.0,
-            stair_position=stair_rect,
+            stair_position=stair_position,
+            entrance_offset=entrance_offset if fl_sel.level == 0 else None,
+            seed=fl_sel.level + 1,
         )
         floors.append(floor)
+
+        if stair_xy is not None and not is_last_level:
+            next_stair_seed = (stair_xy[0], stair_xy[1], 3.0, 4.0)
+        else:
+            next_stair_seed = None
 
     spec.blueprint = Blueprint(gridSize=0.5, floors=floors)
     return spec
@@ -95,4 +111,4 @@ def run(spec: WorldSpec) -> WorldSpec:
 
     if _is_residential(spec):
         return _run_residential(spec)
-    return _run_grid_bsp(spec)
+    return _run_grid_maze(spec)
