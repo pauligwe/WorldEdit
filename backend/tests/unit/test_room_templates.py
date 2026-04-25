@@ -43,3 +43,25 @@ def test_apply_template_unknown_type_returns_empty():
                 doors=[Door(wall="south", offset=2, width=1)])
     items = apply_template(room, level_y=0.0, anchor=(0.0, 0.0))
     assert items == []
+
+
+def test_apply_template_uses_room_library_when_id_matches():
+    # Use a real template name from ROOM_LIBRARY
+    room = Room(id="conference_small_0_0", type="conference_room",
+                x=0, y=0, width=5, depth=4,
+                doors=[Door(wall="south", offset=2.5, width=1)])
+    items = apply_template(room, level_y=0.0, anchor=(30.0, 30.0))
+    types = [i.type for i in items]
+    # conference_small template includes a conference_table
+    assert "conference_table" in types
+
+
+def test_apply_template_falls_back_to_room_type_for_unknown_id():
+    # ID that doesn't match any template name pattern
+    room = Room(id="some_arbitrary_id", type="office",
+                x=0, y=0, width=4, depth=4,
+                doors=[Door(wall="south", offset=2, width=1)])
+    items = apply_template(room, level_y=0.0, anchor=(30.0, 30.0))
+    types = [i.type for i in items]
+    # Falls back to ROOM_FURNITURE["office"] which has desk + office_chair
+    assert "desk" in types

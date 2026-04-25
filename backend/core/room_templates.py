@@ -66,15 +66,35 @@ ROOM_FURNITURE: dict[str, list[FurnitureTemplate]] = {
 }
 
 
+def _template_name_from_room_id(room_id: str) -> str | None:
+    """room.id is '{template_name}_{level}_{slot}'. Strip the trailing _N_N."""
+    parts = room_id.rsplit("_", 2)
+    if len(parts) == 3 and parts[1].isdigit() and parts[2].isdigit():
+        return parts[0]
+    return None
+
+
 def apply_template(room: Room, level_y: float,
                    anchor: tuple[float, float]) -> list[FurnitureItem]:
-    """Pure-code: produce FurnitureItems for a room from its type template.
+    """Pure-code: produce FurnitureItems for a room from its template OR type.
 
     `anchor` is buildingAnchor (plot-world offset). Room positions are
     building-local. Output positions are plot-world. Items whose template
     offset+size would exceed room dimensions are skipped.
+
+    Prefers hand-designed furniture from `ROOM_LIBRARY` when room.id encodes
+    a known template name (e.g. "office_private_small_0_2"); otherwise falls
+    back to the generic per-type list in `ROOM_FURNITURE`.
     """
-    template = ROOM_FURNITURE.get(room.type, [])
+    # Local import to avoid a circular import at module load time
+    # (room_library imports FurnitureTemplate from this module).
+    from .room_library import ROOM_LIBRARY
+
+    tname = _template_name_from_room_id(room.id)
+    if tname and tname in ROOM_LIBRARY:
+        template = ROOM_LIBRARY[tname].furniture
+    else:
+        template = ROOM_FURNITURE.get(room.type, [])
     items: list[FurnitureItem] = []
     ax, ay = anchor
     for i, t in enumerate(template):
