@@ -40,18 +40,32 @@ def text(prompt: str, system: str | None = None, model: str = DEFAULT_MODEL) -> 
 
 
 def structured(prompt: str, schema: Type[T], system: str | None = None, model: str = DEFAULT_MODEL) -> T:
-    """Send prompt expecting JSON matching the given Pydantic schema."""
+    """Send prompt expecting JSON matching the given Pydantic schema.
+
+    First tries response_schema; falls back to response_mime_type=json + Pydantic
+    parse if Gemini rejects the schema (some Pydantic constraints aren't supported).
+    """
     client = _require_client()
-    cfg = gtypes.GenerateContentConfig(
-        system_instruction=system,
-        response_mime_type="application/json",
-        response_schema=schema,
-    )
-    resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
-    parsed = resp.parsed
-    if isinstance(parsed, schema):
-        return parsed
-    raw = resp.text or ""
+    try:
+        cfg = gtypes.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json",
+            response_schema=schema,
+        )
+        resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
+        parsed = resp.parsed
+        if isinstance(parsed, schema):
+            return parsed
+        raw = resp.text or ""
+    except Exception:
+        cfg = gtypes.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json",
+        )
+        resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
+        raw = resp.text or ""
+
+    raw = raw.strip()
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as e:
