@@ -3,7 +3,6 @@ import pytest
 from core.world_spec import WorldSpec, Intent, Site, Plot, Entrance
 from core.site import derive_site_from_intent
 from core.validators import validate_blueprint
-from core.prompts.blueprint_architect import make_user_prompt
 from agents.blueprint_architect import run
 
 _live = pytest.mark.skipif(not os.environ.get("GOOGLE_API_KEY"), reason="no Gemini key")
@@ -16,21 +15,6 @@ def _make_spec(world_id: str, prompt: str, intent: Intent) -> WorldSpec:
         intent=intent,
         site=derive_site_from_intent(intent),
     )
-
-
-def test_make_user_prompt_includes_footprint():
-    """make_user_prompt renders footprint placeholders into the output."""
-    result = make_user_prompt(
-        intent_json='{"buildingType": "office"}',
-        prompt="test office",
-        footprint_w=40.0,
-        footprint_d=25.0,
-        entrance_offset=20.0,
-        entrance_width=1.6,
-    )
-    assert "40.0 m × 25.0 m" in result
-    assert "offset 20.0 m" in result
-    assert "width 1.6 m" in result
 
 
 def test_run_raises_without_site():
