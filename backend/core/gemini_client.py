@@ -89,3 +89,39 @@ def grounded_search(prompt: str, system: str | None = None, model: str = DEFAULT
     )
     resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
     return resp.text
+
+
+def vision(
+    prompt: str,
+    images: list[tuple[str, bytes]],
+    schema: Type[T],
+    system: str | None = None,
+    model: str = DEFAULT_MODEL,
+) -> T:
+    """Send a multimodal prompt with N inline images, expecting JSON matching schema.
+
+    images: list of (mime_type, raw_bytes) tuples — typically 'image/jpeg'.
+    """
+    client = _require_client()
+    parts: list = [gtypes.Part.from_text(text=prompt)]
+    for mime, data in images:
+        parts.append(gtypes.Part.from_bytes(data=data, mime_type=mime))
+    contents = [gtypes.Content(role="user", parts=parts)]
+    cfg = gtypes.GenerateContentConfig(
+        system_instruction=system,
+        response_mime_type="application/json",
+        response_schema=schema,
+    )
+    resp = client.models.generate_content(model=model, contents=contents, config=cfg)
+    parsed = resp.parsed
+    if isinstance(parsed, schema):
+        return parsed
+    raw = (resp.text or "").strip()
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise GeminiError(f"Gemini returned non-JSON: {raw[:500]}") from e
+    try:
+        return schema(**data)
+    except ValidationError as e:
+        raise GeminiError(f"Gemini JSON failed schema validation: {e}\nRaw: {raw[:500]}") from e
