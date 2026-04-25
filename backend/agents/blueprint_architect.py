@@ -7,8 +7,22 @@ from core.prompts.blueprint_architect import SYSTEM, make_user_prompt, REPAIR_TM
 def run(spec: WorldSpec) -> WorldSpec:
     if spec.intent is None:
         raise ValueError("blueprint_architect requires intent")
+    if spec.site is None:
+        raise ValueError("blueprint_architect requires site")
     intent_json = spec.intent.model_dump_json(indent=2)
-    bp = structured(make_user_prompt(intent_json, spec.prompt), Blueprint, system=SYSTEM)
+    fw, fd = spec.site.buildingFootprint
+    bp = structured(
+        make_user_prompt(
+            intent_json,
+            spec.prompt,
+            footprint_w=fw,
+            footprint_d=fd,
+            entrance_offset=spec.site.entrance.offset,
+            entrance_width=spec.site.entrance.width,
+        ),
+        Blueprint,
+        system=SYSTEM,
+    )
 
     report = validate_blueprint(bp)
     if not report.ok:
