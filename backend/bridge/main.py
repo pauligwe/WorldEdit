@@ -129,6 +129,30 @@ _OG_RE_REV = re.compile(rb'<meta\s+[^>]*content=["\']([^"\']+)["\'][^>]*property
 _TWITTER_RE = re.compile(rb'<meta\s+[^>]*name=["\']twitter:image["\'][^>]*content=["\']([^"\']+)["\']', re.IGNORECASE)
 _image_cache: dict[str, bytes | None] = {}
 _image_ct_cache: dict[str, str] = {}
+_color_cache: dict[str, str | None] = {}
+
+
+def _dominant_color(image_bytes: bytes) -> str | None:
+    from io import BytesIO
+    from PIL import Image
+    try:
+        img = Image.open(BytesIO(image_bytes)).convert("RGB")
+    except Exception:
+        return None
+    img.thumbnail((96, 96))
+    pixels = list(img.getdata())
+    buckets: dict[tuple[int, int, int], int] = {}
+    for r, g, b in pixels:
+        # skip near-white background and near-black
+        if r > 235 and g > 235 and b > 235: continue
+        if r < 20 and g < 20 and b < 20: continue
+        # quantize to reduce noise
+        key = (r >> 4 << 4, g >> 4 << 4, b >> 4 << 4)
+        buckets[key] = buckets.get(key, 0) + 1
+    if not buckets:
+        return None
+    (r, g, b), _ = max(buckets.items(), key=lambda kv: kv[1])
+    return f"#{r:02x}{g:02x}{b:02x}"
 
 
 def _browser_headers(referer: str) -> dict[str, str]:
@@ -205,6 +229,31 @@ async def proxy_image(url: str = Query(...), product: str | None = Query(None)) 
     _image_cache[cache_key] = body
     _image_ct_cache[cache_key] = ct
     return Response(content=body, media_type=ct, headers={"cache-control": "public, max-age=86400"})
+
+
+@app.get("/api/img-color")
+async def image_color(url: str = Query(...), product: str | None = Query(None)) -> dict:
+    cache_key = product or url
+    if cache_key in _color_cache:
+        c = _color_cache[cache_key]
+        if c is None:
+            raise HTTPException(404, "no color")
+        return {"color": c}
+    # ensure image is fetched + cached, then derive color from cached bytes
+    try:
+        await proxy_image(url=url, product=product)
+    except HTTPException:
+        _color_cache[cache_key] = None
+        raise HTTPException(404, "no color")
+    body = _image_cache.get(cache_key)
+    if not body:
+        _color_cache[cache_key] = None
+        raise HTTPException(404, "no color")
+    color = _dominant_color(body)
+    _color_cache[cache_key] = color
+    if color is None:
+        raise HTTPException(404, "no color")
+    return {"color": color}
 
 
 @app.get("/api/world/{world_id}")

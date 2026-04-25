@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { WorldSpec, FurnitureItem } from "@/lib/worldSpec";
+import { fetchProductColor } from "@/lib/api";
 import Wall from "./Wall";
 import Furniture from "./Furniture";
 import PlayerControls from "./PlayerControls";
@@ -13,6 +14,7 @@ import ChatPanel from "./ChatPanel";
 export default function World3D({ spec }: { spec: WorldSpec }) {
   const [selected, setSelected] = useState<FurnitureItem | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [productColors, setProductColors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -21,6 +23,25 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const ids = spec.furniture
+        .map((f) => f.selectedProductId)
+        .filter((id): id is string => !!id && !productColors[id]);
+      const unique = Array.from(new Set(ids));
+      await Promise.all(unique.map(async (id) => {
+        const p = spec.products[id];
+        if (!p?.imageUrl) return;
+        const color = await fetchProductColor(p.imageUrl, p.url);
+        if (!cancelled && color) {
+          setProductColors((prev) => ({ ...prev, [id]: color }));
+        }
+      }));
+    })();
+    return () => { cancelled = true; };
+  }, [spec]);
 
   const prims = spec.geometry?.primitives ?? [];
   const walls = prims.filter((p) => p.type === "wall");
@@ -69,7 +90,8 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
             </mesh>
           ))}
           {spec.furniture.map((f) => {
-            const tint = tintForProduct(spec, f);
+            const fetched = f.selectedProductId ? productColors[f.selectedProductId] : undefined;
+            const tint = fetched ?? tintForProduct(spec, f);
             return (
               <Furniture
                 key={f.id}

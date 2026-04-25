@@ -36,6 +36,18 @@ export function proxiedImage(url: string, productUrl?: string): string {
   return productUrl ? `${u}&product=${encodeURIComponent(productUrl)}` : u;
 }
 
+export async function fetchProductColor(imageUrl: string, productUrl?: string): Promise<string | null> {
+  const u = new URL(`${BRIDGE}/api/img-color`);
+  u.searchParams.set("url", imageUrl);
+  if (productUrl) u.searchParams.set("product", productUrl);
+  try {
+    const r = await fetch(u.toString());
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.color ?? null;
+  } catch { return null; }
+}
+
 export async function getWorld(worldId: string): Promise<WorldSpec> {
   const r = await fetch(`${BRIDGE}/api/world/${worldId}`);
   if (!r.ok) throw new Error(`world: ${r.status}`);
