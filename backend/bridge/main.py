@@ -31,6 +31,14 @@ worlds: dict[str, WorldSpec] = {}
 running: set[str] = set()
 
 
+@app.on_event("startup")
+def _start_uagents():
+    if os.environ.get("WORLD_BUILD_DISABLE_UAGENTS") == "1":
+        return
+    from agents.uagent_runner import start_all_in_background
+    start_all_in_background()
+
+
 class GenerateReq(BaseModel):
     prompt: str
 
