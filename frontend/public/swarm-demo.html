@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Conjure — Agent Swarm Demo</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0b0b0c; color: #ddd; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; }
+  #ui { position: fixed; top: 16px; left: 16px; z-index: 10; display: flex; gap: 8px; }
+  button { background: #1a1a1d; color: #ddd; border: 1px solid #333; padding: 8px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  button:hover { background: #25252a; }
+  #caption { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); font-size: 13px; color: #888; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0; transition: opacity 0.4s; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="ui">
+  <button id="replay">Replay</button>
+</div>
+<div id="caption"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ---------- Agent manifest (mirrors frontend/lib/agentManifest.ts) ----------
+const AGENTS = [
+  { id: "scene_describer",     label: "Scene Describer",     tier: 0, deps: [],                                              col: 0, row: 1 },
+  { id: "object_inventory",    label: "Object Inventory",    tier: 0, deps: [],                                              col: 2, row: 1 },
+  { id: "spatial_layout",      label: "Spatial Layout",      tier: 0, deps: [],                                              col: 4, row: 1 },
+  { id: "geolocator",          label: "Geolocator",          tier: 1, deps: ["scene_describer"],                             col: 0, row: 2 },
+  { id: "filming_scout",       label: "Filming Scout",       tier: 1, deps: ["geolocator","scene_describer"],                col: 1, row: 2 },
+  { id: "era_estimator",       label: "Era",                 tier: 1, deps: ["scene_describer"],                             col: 2, row: 2 },
+  { id: "architectural_style", label: "Architectural Style", tier: 1, deps: ["scene_describer"],                             col: 3, row: 2 },
+  { id: "shot_list",           label: "Shot List",           tier: 2, deps: ["spatial_layout","scene_describer"],            col: 0, row: 3 },
+  { id: "mood_palette",        label: "Mood & Palette",      tier: 2, deps: ["scene_describer"],                             col: 1, row: 3 },
+  { id: "soundscape",          label: "Soundscape",          tier: 2, deps: ["scene_describer"],                             col: 2, row: 3 },
+  { id: "prop_shopping",       label: "Prop Shopping",       tier: 2, deps: ["object_inventory"],                            col: 3, row: 3 },
+  { id: "set_dressing",        label: "Set Dressing",        tier: 2, deps: ["scene_describer","object_inventory"],         col: 4, row: 3 },
+  { id: "story_seed",          label: "Story Seeds",         tier: 3, deps: ["scene_describer","era_estimator"],             col: 0, row: 4 },
+  { id: "character_suggester", label: "Characters",          tier: 3, deps: ["scene_describer"],                             col: 2, row: 4 },
+  { id: "npc_dialogue",        label: "NPC Dialogue",        tier: 3, deps: ["character_suggester"],                         col: 3, row: 4 },
+  { id: "real_estate",         label: "Real Estate",         tier: 4, deps: ["geolocator","spatial_layout"],                 col: 0, row: 5 },
+  { id: "hazard_audit",        label: "Hazards",             tier: 4, deps: ["object_inventory","spatial_layout"],           col: 1, row: 5 },
+  { id: "accessibility",       label: "Accessibility",       tier: 4, deps: ["spatial_layout","scene_describer"],            col: 2, row: 5 },
+  { id: "carbon_score",        label: "Carbon Score",        tier: 4, deps: ["object_inventory","scene_describer"],          col: 4, row: 5 },
+];
+const BY_ID = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+
+// ---------- Scene setup ----------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0b0c);
+scene.fog = new THREE.Fog(0x0b0b0c, 18, 60);
+
+const stage = document.getElementById('stage');
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+stage.appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+stage.appendChild(labelRenderer.domElement);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+dir.position.set(8, 14, 6);
+scene.add(dir);
+const rim = new THREE.DirectionalLight(0x4a90ff, 0.35);
+rim.position.set(-8, 8, -6);
+scene.add(rim);
+
+// Ground
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x131316, roughness: 0.95, metalness: 0.0 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = 0;
+scene.add(ground);
+
+// Subtle grid
+const grid = new THREE.GridHelper(80, 40, 0x222226, 0x1a1a1d);
+grid.position.y = 0.01;
+scene.add(grid);
+
+// ---------- Build node + edge graph ----------
+const SPACING_X = 4.5;
+const SPACING_Z = 4.5;
+
+// Position helpers — center the col grid around 0 and put rows along -Z
+function posFor(col, row) {
+  const x = (col - 2) * SPACING_X;
+  const z = (row - 1) * SPACING_Z;
+  return { x, z };
+}
+
+// Three.js group of all swarm objects
+const swarmGroup = new THREE.Group();
+scene.add(swarmGroup);
+
+// ---- Nodes (cylinders) ----
+const NODE_RADIUS = 0.9;
+const NODE_HEIGHT = 0.7;
+const nodes = {}; // id -> { mesh, label, position }
+
+function makeNodeMaterial(active) {
+  return new THREE.MeshStandardMaterial({
+    color: active ? 0xffffff : 0xf2f2f2,
+    roughness: 0.4,
+    metalness: 0.05,
+    emissive: active ? 0x4a90ff : 0x000000,
+    emissiveIntensity: active ? 0.18 : 0,
+  });
+}
+
+function buildNode(agent) {
+  const { x, z } = posFor(agent.col, agent.row);
+  const geom = new THREE.CylinderGeometry(NODE_RADIUS, NODE_RADIUS, NODE_HEIGHT, 28);
+  const mat = makeNodeMaterial(false);
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.set(x, NODE_HEIGHT / 2, z);
+  swarmGroup.add(mesh);
+
+  // Outline: dark thin band around top edge
+  const ringGeom = new THREE.TorusGeometry(NODE_RADIUS, 0.025, 8, 36);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x222226 });
+  const ring = new THREE.Mesh(ringGeom, ringMat);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.set(x, NODE_HEIGHT, z);
+  swarmGroup.add(ring);
+
+  // Label
+  const div = document.createElement('div');
+  div.style.color = '#aaa';
+  div.style.fontSize = '11px';
+  div.style.fontFamily = '-apple-system, system-ui, sans-serif';
+  div.style.letterSpacing = '0.04em';
+  div.style.textShadow = '0 1px 2px #000';
+  div.style.whiteSpace = 'nowrap';
+  div.textContent = agent.label;
+  const label = new CSS2DObject(div);
+  label.position.set(x, NODE_HEIGHT + 0.5, z);
+  swarmGroup.add(label);
+
+  nodes[agent.id] = { mesh, ring, mat, labelDiv: div, position: new THREE.Vector3(x, 0, z) };
+}
+
+AGENTS.forEach(buildNode);
+
+// ---- Edges (lines on the floor, with a blue progress overlay) ----
+// We render each edge as two lines:
+// - a dim grey base line (always visible)
+// - a blue progress line that we shrink/grow by adjusting its geometry
+const EDGE_Y = 0.02;
+const edges = []; // [{from, to, base, progress, dashed}]
+
+function buildEdge(fromId, toId) {
+  const a = nodes[fromId].position.clone(); a.y = EDGE_Y;
+  const b = nodes[toId].position.clone();   b.y = EDGE_Y;
+  // Pull endpoints in to the rim of each cylinder so lines don't bury under nodes
+  const dir = new THREE.Vector3().subVectors(b, a).normalize();
+  const start = a.clone().add(dir.clone().multiplyScalar(NODE_RADIUS));
+  const end   = b.clone().add(dir.clone().multiplyScalar(-NODE_RADIUS));
+
+  // Base line
+  const baseGeom = new THREE.BufferGeometry().setFromPoints([start, end]);
+  const baseMat = new THREE.LineBasicMaterial({ color: 0x2c2c30 });
+  const base = new THREE.Line(baseGeom, baseMat);
+  swarmGroup.add(base);
+
+  // Progress line (dynamic)
+  const progGeom = new THREE.BufferGeometry().setFromPoints([start, start.clone()]);
+  const progMat = new THREE.LineBasicMaterial({ color: 0x4a90ff, linewidth: 2 });
+  const progress = new THREE.Line(progGeom, progMat);
+  swarmGroup.add(progress);
+
+  // Glow trail (slightly thicker, semi-transparent above the line)
+  const glowGeom = new THREE.BufferGeometry().setFromPoints([start, start.clone()]);
+  const glowMat = new THREE.LineBasicMaterial({ color: 0x4a90ff, transparent: true, opacity: 0.35 });
+  const glow = new THREE.Line(glowGeom, glowMat);
+  glow.position.y = 0.001;
+  swarmGroup.add(glow);
+
+  edges.push({
+    fromId, toId, start, end,
+    progressGeom: progGeom, glowGeom,
+    progressLine: progress, glowLine: glow,
+    baseMat,
+  });
+}
+
+AGENTS.forEach(a => a.deps.forEach(d => buildEdge(d, a.id)));
+
+// ---------- Animation engine ----------
+// We drive a single global clock and per-edge progress in [0, 1].
+const edgeFracs = new Map();   // edgeKey -> 0..1
+const nodeLit   = new Map();   // id -> bool
+
+function edgeKey(fromId, toId) { return fromId + '->' + toId; }
+
+function setEdgeFrac(fromId, toId, frac) {
+  edgeFracs.set(edgeKey(fromId, toId), frac);
+  const e = edges.find(x => x.fromId === fromId && x.toId === toId);
+  if (!e) return;
+  const p = new THREE.Vector3().lerpVectors(e.start, e.end, frac);
+  e.progressGeom.setFromPoints([e.start, p]);
+  e.progressGeom.attributes.position.needsUpdate = true;
+  e.glowGeom.setFromPoints([e.start, p]);
+  e.glowGeom.attributes.position.needsUpdate = true;
+}
+
+function setNodeLit(id, lit) {
+  nodeLit.set(id, lit);
+  const n = nodes[id];
+  if (!n) return;
+  n.mesh.material.dispose();
+  n.mesh.material = makeNodeMaterial(lit);
+  n.labelDiv.style.color = lit ? '#fff' : '#888';
+}
+
+function resetGraph() {
+  edges.forEach(e => {
+    e.progressGeom.setFromPoints([e.start, e.start.clone()]);
+    e.progressGeom.attributes.position.needsUpdate = true;
+    e.glowGeom.setFromPoints([e.start, e.start.clone()]);
+    e.glowGeom.attributes.position.needsUpdate = true;
+  });
+  AGENTS.forEach(a => setNodeLit(a.id, false));
+  edgeFracs.clear();
+  nodeLit.clear();
+  // Tier 0 nodes are conceptually "seeded" by capture — light them up softly
+  // when we reach view 3, but start dim.
+}
+
+// ---- easing ----
+const easeInOut = t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;
+const easeOut   = t => 1 - Math.pow(1 - t, 3);
+
+// ---- Camera tween helpers ----
+let cameraTween = null;
+function tweenCamera(toPos, toLook, duration, ease = easeInOut) {
+  return new Promise(resolve => {
+    const fromPos = camera.position.clone();
+    const fromLook = currentLook.clone();
+    const start = performance.now();
+    cameraTween = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const e = ease(t);
+      camera.position.lerpVectors(fromPos, toPos, e);
+      currentLook.lerpVectors(fromLook, toLook, e);
+      camera.lookAt(currentLook);
+      if (t >= 1) { cameraTween = null; resolve(); }
+    };
+  });
+}
+const currentLook = new THREE.Vector3(0, 0, 0);
+
+function setCamera(pos, look) {
+  camera.position.copy(pos);
+  currentLook.copy(look);
+  camera.lookAt(currentLook);
+}
+
+// ---- caption ----
+const captionEl = document.getElementById('caption');
+function setCaption(text) {
+  captionEl.textContent = text;
+  captionEl.style.opacity = text ? '1' : '0';
+}
+
+// ---- progress tween for an edge over duration ms ----
+function fillEdge(fromId, toId, duration) {
+  return new Promise(resolve => {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const e = easeOut(t);
+      setEdgeFrac(fromId, toId, e);
+      if (t >= 1) {
+        setNodeLit(toId, true);
+        resolve();
+      } else requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+// ---- delay helper ----
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ---------- Camera positions for each view ----------
+// We pick positions that roughly match the sketch.
+// Positions are in world space; nodes live around y=0.5.
+function getViews() {
+  const sceneP = nodes.scene_describer.position;   // col 0, row 1
+  const geoP   = nodes.geolocator.position;        // col 0, row 2
+  const filmP  = nodes.filming_scout.position;     // col 1, row 2
+  const eraP   = nodes.era_estimator.position;     // col 2, row 2
+  const archP  = nodes.architectural_style.position; // col 3, row 2
+
+  // VIEW 1: close-up two nodes (filming_scout near, geolocator behind)
+  // We want to look "along the edge" from filming_scout -> geolocator.
+  const v1Look = new THREE.Vector3((filmP.x + geoP.x)/2, 0.5, (filmP.z + geoP.z)/2);
+  const v1Pos  = new THREE.Vector3(filmP.x + 1.6, 1.6, filmP.z + 3.0);
+
+  // VIEW 1b: zoomed/dollied closer to geo as the line travels
+  const v1bLook = new THREE.Vector3(geoP.x, 0.6, geoP.z);
+  const v1bPos  = new THREE.Vector3(geoP.x + 0.7, 1.4, geoP.z + 2.6);
+
+  // VIEW 2: slanted view, geolocator at the bottom of frame, three children behind it
+  // Camera lower and behind geolocator, looking "north" toward filming_scout/era/architectural row.
+  const v2Look = new THREE.Vector3((filmP.x + archP.x)/2, 0.6, (filmP.z + archP.z)/2);
+  const v2Pos  = new THREE.Vector3((filmP.x + archP.x)/2, 3.5, geoP.z + 5.5);
+
+  // VIEW 3: top-down on entire graph
+  const v3Look = new THREE.Vector3(0, 0, (1 + 5)/2 * SPACING_Z * 0.5 - SPACING_Z);
+  const v3Pos  = new THREE.Vector3(0, 28, 6);
+
+  return { v1Pos, v1Look, v1bPos, v1bLook, v2Pos, v2Look, v3Pos, v3Look,
+           filmP, geoP, eraP, archP };
+}
+
+// ---------- Animation script ----------
+async function runAnimation() {
+  resetGraph();
+  setCaption('');
+  const V = getViews();
+
+  // -------- VIEW 1: filming_scout -> geolocator --------
+  setCamera(V.v1Pos, V.v1Look);
+  setNodeLit('filming_scout', true);
+  await wait(400);
+  setCaption('Tier 1 — Real-world grounding');
+
+  // Fill the edge filming_scout -> geolocator while camera dollies in toward geo.
+  const fillP = fillEdge('filming_scout', 'geolocator', 2200);
+  // Camera tween in parallel
+  await Promise.all([
+    fillP,
+    tweenCamera(V.v1bPos, V.v1bLook, 2200),
+  ]);
+  await wait(450);
+
+  // -------- VIEW 2: spin/pan to slanted view, geolocator becomes parent --------
+  // We want the camera to rotate around so geolocator ends up at bottom of frame,
+  // with three children (filming_scout, era, architectural) further back.
+  // From V1b we tween up + back, look at the row-2 children.
+  setCaption('From one node to many — fanning out the DAG');
+  await tweenCamera(V.v2Pos, V.v2Look, 2400);
+  await wait(250);
+
+  // Fill three edges from scene_describer -> [geolocator (already lit), era, architectural]
+  // and from geolocator -> filming_scout (already lit). For the visual, fill three
+  // edges that emanate from a "parent" node toward 3 children. We use scene_describer
+  // (row 1, col 0) -> [geolocator, era, architectural] which fans out across row 2.
+  setNodeLit('scene_describer', true);
+  await Promise.all([
+    fillEdge('scene_describer', 'era_estimator', 1800),
+    fillEdge('scene_describer', 'architectural_style', 1800),
+    // geolocator is already lit, but re-fill its incoming edge for visual symmetry
+    (async () => {
+      // Reset its edge first (was filled in view 1) then refill
+      setEdgeFrac('scene_describer', 'geolocator', 0);
+      await fillEdge('scene_describer', 'geolocator', 1800);
+    })(),
+  ]);
+  await wait(500);
+
+  // -------- VIEW 3: pull back to top-down, full graph fades in --------
+  setCaption('Full orchestration — 19 agents in parallel');
+  await tweenCamera(V.v3Pos, V.v3Look, 2400);
+  await wait(200);
+
+  // Now light up everything in DAG-tier order, with edges filling per tier.
+  // Tier 0 already partly lit (scene_describer). Light remaining tier 0.
+  setNodeLit('object_inventory', true);
+  setNodeLit('spatial_layout', true);
+  await wait(150);
+
+  // Walk through tiers 1 -> 4. For each tier, fill all incoming edges in
+  // parallel, then mark the tier's nodes lit (handled by fillEdge).
+  const tiers = [1, 2, 3, 4];
+  for (const tier of tiers) {
+    const tierAgents = AGENTS.filter(a => a.tier === tier);
+    const fills = [];
+    for (const a of tierAgents) {
+      for (const dep of a.deps) {
+        // Skip any edges already filled (e.g. scene_describer->era which we did)
+        if (edgeFracs.get(edgeKey(dep, a.id)) >= 0.999) continue;
+        fills.push(fillEdge(dep, a.id, 1100 + Math.random() * 600));
+      }
+    }
+    await Promise.all(fills);
+    await wait(180);
+  }
+
+  await wait(800);
+  setCaption('');
+}
+
+// ---------- Render loop ----------
+function animate(now) {
+  if (cameraTween) cameraTween(now);
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+// ---------- Wire replay button + autoplay ----------
+document.getElementById('replay').addEventListener('click', () => runAnimation());
+
+// Initial position so first paint isn't at origin
+setCamera(new THREE.Vector3(0, 18, 14), new THREE.Vector3(0, 0, 4));
+
+// Autoplay on load
+runAnimation();
+</script>
+</body>
+</html>

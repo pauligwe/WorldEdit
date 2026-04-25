@@ -1,25 +1,30 @@
-"""We don't actually start uagents in tests (would bind ports). We test the
-factory that builds agent instances from the manifest."""
-from unittest.mock import patch
-from agents_v2 import runner
+"""Sanity-check that the agentverse registry covers every post-gen agent
+in the v2 manifest. The manifest drives orchestration; the registry drives
+mailbox/Agentverse presence — they need to stay in lockstep.
+"""
 from agents_v2.manifest import AGENTS
+from agentverse.registry import POST_GEN_BY_ID, POST_GEN_WORKERS
 
 
-def test_builds_one_agent_per_manifest_entry():
-    """build_agents returns one Agent object per manifest row, on the right port."""
-    with patch.object(runner, "Agent") as MockAgent, \
-         patch.object(runner, "Protocol") as MockProto:
-        agents = runner.build_agents()
-    assert len(agents) == 19
-    seen_ports = sorted([call.kwargs["port"] for call in MockAgent.call_args_list])
-    assert seen_ports == sorted([a.port for a in AGENTS])
+def test_registry_covers_every_manifest_agent():
+    """Every v2-orchestrator agent has a matching mailbox-backed wrapper."""
+    manifest_ids = {a.id for a in AGENTS}
+    registry_ids = set(POST_GEN_BY_ID)
+    missing = manifest_ids - registry_ids
+    extra = registry_ids - manifest_ids
+    assert not missing, f"manifest agents missing from registry: {missing}"
+    assert not extra, f"registry agents not in manifest: {extra}"
 
 
-def test_agent_names_are_namespaced():
-    """We use 'conjure_<id>' so old + new agents don't collide on Agentverse."""
-    with patch.object(runner, "Agent") as MockAgent, \
-         patch.object(runner, "Protocol"):
-        runner.build_agents()
-    seen_names = {call.kwargs["name"] for call in MockAgent.call_args_list}
-    assert "conjure_scene_describer" in seen_names
-    assert "conjure_carbon_score" in seen_names
+def test_post_gen_ports_are_unique_and_in_band():
+    """Ports 8101-8119 are reserved for post-gen mailbox wrappers."""
+    ports = [a.port for a in POST_GEN_WORKERS]
+    assert len(set(ports)) == len(ports), "duplicate ports"
+    for p in ports:
+        assert 8100 <= p <= 8199, f"post-gen port {p} outside 81xx band"
+
+
+def test_post_gen_seeds_are_unique():
+    """Distinct seeds → distinct on-network addresses."""
+    seeds = [a.seed for a in POST_GEN_WORKERS]
+    assert len(set(seeds)) == len(seeds), "duplicate seeds would collide on Agentverse"

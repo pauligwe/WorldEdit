@@ -5,12 +5,12 @@ import { PointerLockControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { GeometryPrimitive } from "@/lib/worldSpec";
 
-interface Props { walls: GeometryPrimitive[]; spawn: [number, number, number]; }
+interface Props { walls: GeometryPrimitive[]; spawn: [number, number, number]; enabled?: boolean; }
 
 const SPEED = 6.0;
 const SPRINT = 14.0;
 
-export default function PlayerControls({ walls: _walls, spawn }: Props) {
+export default function PlayerControls({ walls: _walls, spawn, enabled = true }: Props) {
   const { camera } = useThree();
   const pressed = useRef<Record<string, boolean>>({});
   const initialized = useRef(false);
@@ -54,5 +54,12 @@ export default function PlayerControls({ walls: _walls, spawn }: Props) {
     camera.position.add(dir);
   });
 
-  return <PointerLockControls />;
+  // selector="#splat-lock-target" — drei's default attaches the click-to-lock
+  // listener to `document`, which means clicking ANY UI element (sidebar
+  // button, modal, etc.) re-grabs the lock. Scoping it to the canvas means
+  // only clicks on empty canvas area lock — UI overlays at higher z-index
+  // swallow their own clicks first. The `enabled` prop is unused here, kept
+  // in case we want to gate movement separately later.
+  void enabled;
+  return <PointerLockControls selector="#splat-lock-target" />;
 }

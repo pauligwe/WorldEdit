@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import PlayerControls from "./PlayerControls";
 import CrosshairHUD from "./CrosshairHUD";
-import AgentSidebar from "./AgentSidebar";
+import AgentSidebar, { AGENT_SIDEBAR_WIDTH } from "./AgentSidebar";
 import { loadSpark } from "@/lib/sparkLoader";
 
 interface Pose {
@@ -18,7 +18,7 @@ interface Props {
   yaw?: number;
   pitch?: number;
   thumbnailUrl?: string;
-  captureMode?: { id: string; force?: boolean };
+  captureMode?: { id: string; force?: boolean; reset?: boolean };
 }
 
 function SplatObject({ url }: { url: string }) {
@@ -105,29 +105,48 @@ function CaptureBridge({ captureRef }: { captureRef: React.MutableRefObject<(() 
   return null;
 }
 
-type Capture3Fn = () => { thumbnail: string | null; views: [string, string, string] | null };
+type Capture3Result = { thumbnail: string | null; views: [string, string, string] | null };
+type Capture3Fn = () => Promise<Capture3Result>;
 
+// Async capture: rotates the camera across yaw thirds, waits a few RAFs between
+// each so Spark's splat material has a chance to redraw at the new angle, and
+// reads the canvas after each settled frame. Synchronous gl.render() alone
+// produced black frames because Spark's per-frame state hadn't updated.
 function PerceptionCaptureBridge({
   captureRef,
 }: { captureRef: React.MutableRefObject<Capture3Fn | null> }) {
   const { gl, scene, camera } = useThree();
   useEffect(() => {
-    captureRef.current = () => {
+    const waitFrames = (n: number) =>
+      new Promise<void>((resolve) => {
+        let i = 0;
+        function tick() {
+          if (++i >= n) resolve();
+          else requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+
+    captureRef.current = async () => {
       try {
-        const originalYaw = camera.rotation.y;
+        const cam = camera as any;
+        const originalYaw = cam.rotation.y;
+        await waitFrames(3);
         gl.render(scene, camera);
         const thumbnail = gl.domElement.toDataURL("image/jpeg", 0.85);
 
         const views: string[] = [];
         const yawOffsets = [0, (2 * Math.PI) / 3, (4 * Math.PI) / 3];
         for (const off of yawOffsets) {
-          camera.rotation.y = originalYaw + off;
-          camera.updateMatrixWorld(true);
+          cam.rotation.y = originalYaw + off;
+          cam.updateMatrixWorld(true);
+          await waitFrames(3);
           gl.render(scene, camera);
           views.push(gl.domElement.toDataURL("image/jpeg", 0.85));
         }
-        camera.rotation.y = originalYaw;
-        camera.updateMatrixWorld(true);
+        cam.rotation.y = originalYaw;
+        cam.updateMatrixWorld(true);
+        await waitFrames(2);
         gl.render(scene, camera);
 
         return { thumbnail, views: [views[0], views[1], views[2]] as [string, string, string] };
@@ -153,6 +172,7 @@ export default function SplatScene({
   const [captureMsg, setCaptureMsg] = useState<string | null>(null);
   const [pose, setPose] = useState<Pose>({ spawn, yaw, pitch });
   const [copied, setCopied] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const captureRef = useRef<(() => string | null) | null>(null);
   const perceptionRef = useRef<Capture3Fn | null>(null);
   const autoFiredRef = useRef(false);
@@ -190,6 +210,14 @@ export default function SplatScene({
 
     let cancelled = false;
     (async () => {
+      if (captureMode.reset) {
+        setCaptureMsg("resetting…");
+        try {
+          await fetch(`http://localhost:8000/api/analyze/${captureMode.id}/reset`, {
+            method: "POST",
+          });
+        } catch {}
+      }
       if (!captureMode.force && thumbnailUrl) {
         try {
           const head = await fetch(thumbnailUrl, { method: "HEAD" });
@@ -201,7 +229,8 @@ export default function SplatScene({
 
       const fn = perceptionRef.current;
       if (!fn) return;
-      const { thumbnail, views } = fn();
+      const { thumbnail, views } = await fn();
+      if (cancelled) return;
       if (!thumbnail || !views) {
         setCaptureMsg("capture failed");
         return;
@@ -256,9 +285,25 @@ export default function SplatScene({
     };
   }, [captureMode, sparkReady, thumbnailUrl]);
 
+  const sceneInset = sidebarOpen ? AGENT_SIDEBAR_WIDTH : 0;
+
+  // When the sidebar opens, release pointer lock so the user can interact with
+  // the panel (clicking cards, agent nodes) without the camera moving. We also
+  // disable pointer-events on the scene container so a stray click on the
+  // canvas behind the panel doesn't re-grab the lock.
+  useEffect(() => {
+    if (sidebarOpen && document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+  }, [sidebarOpen]);
+
   return (
-    <div className="fixed inset-0 bg-black">
+    <div
+      className="fixed inset-0 bg-black transition-[right] duration-300"
+      style={{ right: sceneInset }}
+    >
       <Canvas
+        id="splat-lock-target"
         camera={{ fov: 70, position: spawn, near: 0.05, far: 500 }}
         dpr={[1, 1.5]}
         gl={{
@@ -273,7 +318,7 @@ export default function SplatScene({
         <ambientLight intensity={1.0} />
         {sparkReady && <SplatObject url={splatUrl} />}
         <CameraSpawn spawn={spawn} yaw={yaw} pitch={pitch} />
-        <PlayerControls walls={[]} spawn={spawn} />
+        <PlayerControls walls={[]} spawn={spawn} enabled={!sidebarOpen} />
         {captureMode && <CaptureBridge captureRef={captureRef} />}
         {captureMode && <PerceptionCaptureBridge captureRef={perceptionRef} />}
         <PoseReadout onChange={onPoseChange} />
@@ -281,20 +326,20 @@ export default function SplatScene({
       <CrosshairHUD />
       {!sparkReady && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-zinc-300 text-sm font-mono bg-black/60 px-4 py-2 rounded-full">
+          <div className="text-zinc-300 text-sm font-sans bg-black/60 px-4 py-2 rounded-full">
             loading…
           </div>
         </div>
       )}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs font-mono text-zinc-300 bg-black/70 px-3 py-2 rounded pointer-events-none">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs font-sans text-zinc-300 bg-black/70 px-3 py-2 rounded pointer-events-none">
         click to lock · WASD · Space up · Ctrl down · Esc to release
       </div>
       {captureMode && captureMsg && (
-        <div className="absolute top-4 right-4 z-10 text-xs font-mono bg-white/90 text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant pointer-events-none">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-xs font-sans bg-white/90 text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant pointer-events-none">
           {captureMsg}
         </div>
       )}
-      <div className="absolute bottom-4 right-4 z-10 text-xs font-mono bg-white/90 text-on-surface px-3 py-2 rounded shadow-soft border border-outline-variant pointer-events-auto flex items-center gap-2">
+      <div className="absolute bottom-4 right-4 z-10 text-xs font-sans bg-white/90 text-on-surface px-3 py-2 rounded shadow-soft border border-outline-variant pointer-events-auto flex items-center gap-2">
         <span>
           spawn: [{pose.spawn[0].toFixed(2)}, {pose.spawn[1].toFixed(2)}, {pose.spawn[2].toFixed(2)}] · yaw: {pose.yaw.toFixed(3)} · pitch: {pose.pitch.toFixed(3)}
         </span>
@@ -302,7 +347,13 @@ export default function SplatScene({
           {copied ? "copied" : "copy"}
         </button>
       </div>
-      {captureMode && <AgentSidebar worldId={captureMode.id} />}
+      {captureMode && (
+        <AgentSidebar
+          worldId={captureMode.id}
+          open={sidebarOpen}
+          onOpenChange={setSidebarOpen}
+        />
+      )}
     </div>
   );
 }

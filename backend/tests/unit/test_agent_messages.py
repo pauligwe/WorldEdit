@@ -62,4 +62,4 @@ def test_geolocation_candidate_shape():
     g = GeolocationResult(candidates=[
         {"region": "PNW", "confidence": 0.7, "reasoning": "conifers"},
     ])
-    assert g.candidates[0]["confidence"] == 0.7
+    assert g.candidates[0].confidence == 0.7

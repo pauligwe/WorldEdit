@@ -1,0 +1,788 @@
+{
+  "world_id": "living_room",
+  "generated_at": "2026-04-25T19:45:33.765265+00:00",
+  "schema_version": 1,
+  "agents": {
+    "spatial_layout": {
+      "status": "done",
+      "duration_ms": 9229,
+      "output": {
+        "rooms": [
+          {
+            "name": "Living Room",
+            "approx_sqft": 320
+          },
+          {
+            "name": "Kitchen",
+            "approx_sqft": 100
+          },
+          {
+            "name": "Adjacent Hallway/Room",
+            "approx_sqft": 50
+          }
+        ],
+        "entrances": [
+          "Opening from Living Room to Kitchen",
+          "Doorway from Kitchen to Adjacent Hallway/Room",
+          "Implied main entrance to Living Room (not visible)"
+        ],
+        "sightlines": [
+          "From Living Room looking towards the windows",
+          "From Living Room into Kitchen",
+          "From Kitchen into Adjacent Hallway/Room"
+        ],
+        "total_sqft_estimate": 750,
+        "narrative": "This floor plan features a spacious living room opening into a functional kitchen, with another room or hallway accessible from the kitchen. The total estimated square footage for the entire inferred apartment is approximately 750 square feet."
+      },
+      "display": "text"
+    },
+    "scene_describer": {
+      "status": "done",
+      "duration_ms": 10262,
+      "output": {
+        "summary": "This image captures an inviting open-concept living room and kitchen, featuring a blue sofa, wooden furniture, and a blend of warm and cool lighting. The space combines modern design with cozy elements, showcasing a well-furnished living area transitioning seamlessly into a functional kitchen.",
+        "tags": [
+          "indoor",
+          "modern",
+          "cozy",
+          "open-concept",
+          "living-room",
+          "kitchen",
+          "warm-lit",
+          "wooden"
+        ],
+        "narrative": "The scene depicts a contemporary and inviting open-concept living room and kitchen area, bathed in a blend of cool natural light streaming from a large window and warm artificial illumination from various fixtures. The living space features a plush blue sofa adorned with beige and orange throw pillows, centered around a light wooden coffee table holding a decorative globe and a small white bowl, all resting on a textured woven rug over a chevron-patterned wooden floor. To the left, a grey armchair with wooden frames and a burgundy beanbag chair provide additional seating, while the far wall displays modern geometric artwork and a tall wooden bookshelf unit filled with books and various decor items, including a table lamp casting a warm glow. Beyond an open doorway, the adjacent kitchen is visible, equipped with light wooden and grey cabinetry, a light wood countertop, a stainless steel refrigerator decorated with magnets, and open wooden shelving holding baskets and more books, emphasizing a functional yet stylish design throughout the interconnected spaces."
+      },
+      "display": "text"
+    },
+    "object_inventory": {
+      "status": "done",
+      "duration_ms": 13444,
+      "output": {
+        "objects": [
+          {
+            "name": "Blue sofa",
+            "position": "center of the living room"
+          },
+          {
+            "name": "Wooden coffee table",
+            "position": "in front of the blue sofa"
+          },
+          {
+            "name": "Light-colored rug",
+            "position": "under the coffee table"
+          },
+          {
+            "name": "Grey armchair",
+            "position": "left side of the living room"
+          },
+          {
+            "name": "Purple pouf",
+            "position": "next to the grey armchair"
+          },
+          {
+            "name": "Brown curtains",
+            "position": "on the far left wall"
+          },
+          {
+            "name": "Window",
+            "position": "on the far left wall"
+          },
+          {
+            "name": "Wall art",
+            "position": "on the left living room wall and near the bookshelf"
+          },
+          {
+            "name": "Wooden bookshelf",
+            "position": "on the wall between the living room and kitchen"
+          },
+          {
+            "name": "Table lamp",
+            "position": "on the lower part of the bookshelf"
+          },
+          {
+            "name": "Books",
+            "position": "on the shelves of the bookshelf"
+          },
+          {
+            "name": "Woven baskets",
+            "position": "on the bookshelf and above the refrigerator"
+          },
+          {
+            "name": "Potted plants",
+            "position": "on the bookshelf, side table, and kitchen counter"
+          },
+          {
+            "name": "Small side table",
+            "position": "next to the wooden bookshelf"
+          },
+          {
+            "name": "Herringbone wood floor",
+            "position": "throughout the living room and kitchen"
+          },
+          {
+            "name": "Stainless steel refrigerator",
+            "position": "in the kitchen, right side"
+          },
+          {
+            "name": "Kitchen counter",
+            "position": "light wood surface in the kitchen"
+          },
+          {
+            "name": "Kitchen cabinets",
+            "position": "wooden upper and grey lower in the kitchen"
+          },
+          {
+            "name": "Hanging kitchen utensils",
+            "position": "above the kitchen counter"
+          },
+          {
+            "name": "Bowls",
+            "position": "on the coffee table"
+          },
+          {
+            "name": "Globe decoration",
+            "position": "on the coffee table"
+          },
+          {
+            "name": "Television",
+            "position": "on a lower shelf of the wooden bookshelf"
+          },
+          {
+            "name": "Round wall decoration",
+            "position": "on the wall near the bookshelf"
+          },
+          {
+            "name": "Vase with sticks",
+            "position": "on the bookshelf near the TV"
+          },
+          {
+            "name": "Blue open shelf",
+            "position": "above the refrigerator"
+          },
+          {
+            "name": "Refrigerator magnets",
+            "position": "on the refrigerator door"
+          },
+          {
+            "name": "Dish towel",
+            "position": "hanging above the kitchen counter"
+          },
+          {
+            "name": "Armchair",
+            "position": "partially visible in the bottom left foreground"
+          }
+        ],
+        "narrative": "The scene displays a cozy living room connected to a modern kitchen, featuring a blue sofa, a wooden coffee table, a grey armchair, and a wooden bookshelf filled with books and decorative items. The adjacent kitchen includes a stainless steel refrigerator and light wood counters with hanging utensils."
+      },
+      "display": "list"
+    },
+    "era_estimator": {
+      "status": "done",
+      "duration_ms": 4165,
+      "output": {
+        "period": "Contemporary",
+        "confidence": 0.95,
+        "reasoning": "The description explicitly mentions 'modern design' and an 'open-concept living room and kitchen,' which are defining characteristics of contemporary architecture and interior design, typically spanning from the late 20th century to the present. The blend of warm and cool lighting further supports this modern aesthetic.",
+        "narrative": "The scene evokes a Contemporary design era, characterized by its inviting open-concept living room and kitchen, a blue sofa, and wooden furniture, all illuminated with a thoughtful blend of warm and cool lighting."
+      },
+      "display": "text"
+    },
+    "architectural_style": {
+      "status": "done",
+      "duration_ms": 5225,
+      "output": {
+        "style": "Mid-Century Modern",
+        "confidence": 0.9,
+        "reasoning": "The scene's open-concept living room and kitchen, alongside its blend of modern design with cozy elements and prominent wooden furniture, are strong indicators of Mid-Century Modern style. This aesthetic emphasizes functionality, clean lines, and integrated living spaces, often incorporating natural materials.",
+        "narrative": "This interior showcases a Mid-Century Modern architectural style, characterized by its inviting open-concept living room and kitchen. The space features a blue sofa and wooden furniture, embodying the style's blend of modern design with cozy elements through its clean lines and warm, functional aesthetic."
+      },
+      "display": "text"
+    },
+    "soundscape": {
+      "status": "done",
+      "duration_ms": 5228,
+      "output": {
+        "ambient": [
+          "Low hum of a modern refrigerator",
+          "Subtle, distant urban street sounds",
+          "Gentle whir of an HVAC system",
+          "Soft room tone with a faint electrical buzz"
+        ],
+        "foley": [
+          "Soft footsteps on a wooden floor",
+          "Gentle rustle of fabric as someone settles onto the blue sofa",
+          "Clink of a glass being placed on a wooden coffee table",
+          "Click of a light switch",
+          "Distant, muted sound of water running from a kitchen faucet",
+          "Faint creak of a wooden chair being adjusted",
+          "Soft sigh or exhalation",
+          "Remote control button press"
+        ],
+        "narrative": "The scene features a mix of quiet domestic sounds like a refrigerator hum and distant street noise, complemented by specific actions such as soft footsteps, the clink of a glass, and the click of a light switch, bringing the inviting living room and kitchen to life."
+      },
+      "display": "list"
+    },
+    "geolocator": {
+      "status": "done",
+      "duration_ms": 7311,
+      "output": {
+        "candidates": [
+          {
+            "region": "Scandinavia/Northern Europe",
+            "confidence": 0.85,
+            "reasoning": "Modern, open-concept living spaces with a focus on functionality, natural materials like wood, and a blend of warm and cool lighting for a cozy ambiance are hallmarks of Scandinavian design, which heavily influences Northern European interiors."
+          },
+          {
+            "region": "North America",
+            "confidence": 0.8,
+            "reasoning": "Open-concept living rooms and kitchens with modern furnishings, wooden elements, and inviting lighting are very common in contemporary homes and renovations across the United States and Canada, reflecting a popular lifestyle choice."
+          },
+          {
+            "region": "Australia/New Zealand",
+            "confidence": 0.75,
+            "reasoning": "Modern, open-plan layouts that blend living and kitchen areas, often featuring wooden accents and comfortable, well-lit spaces, are a prevalent design trend in Australian and New Zealander residential architecture."
+          }
+        ],
+        "narrative": "Based on the scene description, which details a modern, open-concept living room and kitchen with wooden furniture and warm lighting, I've identified Scandinavia/Northern Europe as the most plausible region due to its strong influence on functional and cozy design. North America and Australia/New Zealand also present highly plausible options, given the widespread adoption of similar contemporary interior trends in these regions."
+      },
+      "display": "list"
+    },
+    "mood_palette": {
+      "status": "done",
+      "duration_ms": 8926,
+      "output": {
+        "palette": [
+          "#4A6E8A",
+          "#B8865D",
+          "#E5E1D8",
+          "#5C4B44",
+          "#A2B2B8"
+        ],
+        "luts": [
+          "Warm Cinematic",
+          "Clean Modern",
+          "Soft Contrast"
+        ],
+        "film_stocks": [
+          "Kodak Portra 400",
+          "Fuji Eterna 250D",
+          "Kodak Vision3 250D"
+        ],
+        "narrative": "The palette features a muted blue from the sofa, warm wood tones, a neutral off-white, a deep warm grey, and a cool light grey-blue to capture the balanced lighting and cozy modern feel of the living space. To enhance this, \"Warm Cinematic,\" \"Clean Modern,\" and \"Soft Contrast\" LUTs are recommended, along with film stocks like Kodak Portra 400, Fuji Eterna 250D, and Kodak Vision3 250D for their natural tones and cinematic quality."
+      },
+      "display": "swatches"
+    },
+    "character_suggester": {
+      "status": "done",
+      "duration_ms": 9133,
+      "output": {
+        "characters": [
+          {
+            "name": "Clara Jensen",
+            "role": "Graphic Designer & Homeowner",
+            "bio": "Clara, a graphic designer who often works from home, appreciates the bright, open space that inspires her creativity and offers seamless transitions between work and relaxation."
+          },
+          {
+            "name": "Daniel Hayes",
+            "role": "Amateur Chef & Partner",
+            "bio": "Daniel, a keen amateur chef, finds endless inspiration and joy in the well-equipped open kitchen, often preparing meals while engaging with Clara in the living area."
+          },
+          {
+            "name": "Leo Jensen-Hayes",
+            "role": "High School Student",
+            "bio": "Leo, their teenage son, considers the plush blue sofa his personal domain for gaming or catching up on schoolwork, often grabbing snacks from the nearby kitchen."
+          },
+          {
+            "name": "Elena Petrova",
+            "role": "Housekeeper",
+            "bio": "Elena visits weekly to meticulously clean and organize the modern home, ensuring every surface in the living room and kitchen sparkles for the family."
+          }
+        ],
+        "narrative": "The proposed characters include Clara, a graphic designer who works from home, her partner Daniel, an amateur chef who enjoys the open kitchen, and their teenage son Leo, who makes the blue sofa his own. The household is also maintained by Elena, a weekly housekeeper."
+      },
+      "display": "list"
+    },
+    "story_seed": {
+      "status": "done",
+      "duration_ms": 5376,
+      "output": {
+        "premises": [
+          {
+            "title": "The Blue Sofa Secret",
+            "logline": "A seemingly perfect couple's modern open-concept home becomes the silent witness to their unraveling marriage when a long-buried secret surfaces during a seemingly ordinary dinner party.",
+            "genre": "Domestic Thriller"
+          },
+          {
+            "title": "Seamless Control",
+            "logline": "When the advanced smart home system in an architect's meticulously designed open-concept living space turns hostile, a woman must outsmart her own technology before it traps her permanently.",
+            "genre": "Sci-Fi Thriller"
+          },
+          {
+            "title": "The Living Palette",
+            "logline": "Over the course of a year, the shifting warm and cool lights within a beautifully designed open-concept home provide a backdrop for the quiet joys and subtle heartbreaks of a family navigating everyday life.",
+            "genre": "Slice of Life Drama"
+          }
+        ],
+        "narrative": "The generated premises explore stories set within a contemporary open-concept living room and kitchen, featuring elements like a blue sofa and modern wooden furniture. Themes range from a domestic thriller where a couple's secrets unravel in their cozy yet modern home, to a sci-fi thriller where a smart home system turns hostile, and a slice-of-life drama observing a family's journey over a year."
+      },
+      "display": "list"
+    },
+    "shot_list": {
+      "status": "done",
+      "duration_ms": 9741,
+      "output": {
+        "shots": [
+          {
+            "name": "Living-Kitchen Flow",
+            "angle": "Eye-level",
+            "lens_mm": 24,
+            "time_of_day": "Daytime",
+            "notes": "A wide shot from the living room, capturing the blue sofa and extending into the kitchen, emphasizing the open-concept layout and natural light."
+          },
+          {
+            "name": "Sofa & Warmth",
+            "angle": "Slightly low",
+            "lens_mm": 85,
+            "time_of_day": "Late Afternoon",
+            "notes": "A medium close-up on the blue sofa and surrounding wooden furniture, focusing on textures and the cozy, inviting atmosphere with soft, warm light."
+          },
+          {
+            "name": "Kitchen Counter Detail",
+            "angle": "Eye-level",
+            "lens_mm": 50,
+            "time_of_day": "Daytime",
+            "notes": "A detailed shot of a section of the kitchen countertop, highlighting modern appliances or decor, with crisp, balanced lighting."
+          },
+          {
+            "name": "Transition Perspective",
+            "angle": "Eye-level",
+            "lens_mm": 35,
+            "time_of_day": "Twilight",
+            "notes": "A shot from the kitchen looking back into the living room, showcasing the seamless transition and the blend of interior warm and exterior cool lighting through the windows."
+          },
+          {
+            "name": "Window Light Play",
+            "angle": "Eye-level",
+            "lens_mm": 28,
+            "time_of_day": "Morning",
+            "notes": "Frame a window view, letting the soft morning light define the contours of the living room space, perhaps catching a dust mote in the air for atmosphere."
+          },
+          {
+            "name": "Architectural Accent",
+            "angle": "Eye-level",
+            "lens_mm": 100,
+            "time_of_day": "Daytime",
+            "notes": "A close-up on a specific piece of wooden furniture or decorative element, highlighting its craftsmanship and how it contributes to the space's modern yet cozy aesthetic."
+          },
+          {
+            "name": "Overhead Spatial",
+            "angle": "High Angle",
+            "lens_mm": 24,
+            "time_of_day": "Daytime",
+            "notes": "A high-angle shot looking down to visually map the relationship between the living room (blue sofa) and the kitchen, emphasizing the open layout and distinct functional zones."
+          }
+        ],
+        "narrative": "These shots propose capturing the inviting open-concept living room and kitchen, focusing on the seamless transition between the areas and highlighting the blend of modern design with cozy elements. Special attention is given to the blue sofa, wooden furniture, and the interplay of warm and cool lighting throughout the space from different times of day."
+      },
+      "display": "list"
+    },
+    "accessibility": {
+      "status": "done",
+      "duration_ms": 10981,
+      "output": {
+        "issues": [
+          {
+            "category": "Mobility",
+            "description": "The 'functional kitchen' likely features standard-height counters and upper cabinetry, which could impede independent use for individuals using wheelchairs or with limited reach, making meal preparation difficult."
+          },
+          {
+            "category": "Vision/Cognitive",
+            "description": "While a 'blend of warm and cool lighting' creates ambiance, the description doesn't specify if task lighting is sufficient or if there are glare sources, potentially creating visually challenging areas for those with low vision or increasing cognitive load."
+          },
+          {
+            "category": "Mobility/Vision",
+            "description": "The 'wooden furniture' and 'blue sofa' could, depending on their placement and dimensions, create inadequate clear pathways or obstacles for individuals using mobility aids, or for those with low vision who rely on clear, unobstructed paths."
+          },
+          {
+            "category": "Vision/Cognitive",
+            "description": "The 'seamless transition' between the living room and kitchen, while good for flow, might lack tactile or distinct visual cues for changes in functional zone, which could be disorienting or present a hazard for individuals with vision or cognitive impairments."
+          }
+        ],
+        "suggestions": [
+          "For the 'functional kitchen', incorporate sections of adjustable-height counters and pull-down shelving in upper cabinets to make them accessible for individuals using wheelchairs or with limited reach.",
+          "Install adjustable, bright task lighting in key areas such as kitchen work surfaces and reading spots near the 'blue sofa', ensuring minimized glare and consistent illumination for all activities.",
+          "Ensure a minimum of 36-inch clear pathways throughout the 'open-concept living room and kitchen', especially around the 'wooden furniture' and kitchen appliances, to accommodate mobility aids.",
+          "Add contrasting visual cues, such as contrasting floor finishes or edge banding, at the transition points between the 'living room' and 'kitchen' to aid wayfinding and improve safety for those with low vision or cognitive challenges."
+        ],
+        "narrative": "The open-concept living room and kitchen presents potential accessibility challenges, particularly concerning standard kitchen counter heights and the lack of specific task lighting or clear pathway dimensions around the blue sofa and wooden furniture. Enhancing accessibility would involve thoughtful adjustments to kitchen fixtures, ensuring clear routes, and improving lighting and visual cues throughout the space."
+      },
+      "display": "list"
+    },
+    "set_dressing": {
+      "status": "done",
+      "duration_ms": 8617,
+      "output": {
+        "suggestions": [
+          {
+            "theme": "More Lived-in & Personalized",
+            "additions": [
+              "A soft throw blanket casually draped over the blue sofa",
+              "A stack of current magazines or a coffee table book on the wooden coffee table",
+              "A small framed personal photo on the bookshelf"
+            ]
+          },
+          {
+            "theme": "Elevated Culinary Experience",
+            "additions": [
+              "A colorful bowl of fresh fruit on the kitchen counter",
+              "A stylish, modern coffee maker next to the refrigerator",
+              "A decorative cutting board with a small bunch of fresh herbs near the sink"
+            ]
+          },
+          {
+            "theme": "Artistic & Intellectual Depth",
+            "additions": [
+              "A distinctive abstract sculpture or unique artifact on the wooden bookshelf",
+              "A larger, framed abstract print to complement the existing wall art",
+              "A pair of stylish reading glasses resting on the small side table next to a book"
+            ]
+          },
+          {
+            "theme": "Enhanced Comfort & Entertainment",
+            "additions": [
+              "A plush floor cushion near the grey armchair for extra seating or lounging",
+              "A small, decorative tray on the coffee table to organize remote controls",
+              "A subtle, warm-toned mood lamp on the small side table to vary lighting options"
+            ]
+          }
+        ],
+        "narrative": "To make this inviting open-concept living room and kitchen feel more personalized and visually rich, consider adding a soft throw blanket on the blue sofa, a colorful bowl of fresh fruit on the kitchen counter, a distinctive sculpture on the wooden bookshelf, and a plush floor cushion for enhanced comfort."
+      },
+      "display": "list"
+    },
+    "hazard_audit": {
+      "status": "done",
+      "duration_ms": 8895,
+      "output": {
+        "hazards": [
+          {
+            "type": "Trip Hazard",
+            "severity": "medium",
+            "description": "The light-colored rug on the herringbone wood floor may not be secured, creating a potential tripping hazard for occupants moving through the living space."
+          },
+          {
+            "type": "Structural/Safety",
+            "severity": "medium",
+            "description": "The tall wooden bookshelf, laden with books, does not appear to be anchored to the wall, posing a tipping hazard, especially if bumped or during seismic activity."
+          },
+          {
+            "type": "Fire/Electrical",
+            "severity": "medium",
+            "description": "A table lamp positioned on the wooden bookshelf near books and potentially combustible curtains could present a fire hazard if wiring is faulty or heat buildup occurs."
+          },
+          {
+            "type": "Code/Safety",
+            "severity": "low",
+            "description": "Hanging kitchen utensils, if not securely mounted or if they obstruct clear pathways, could pose a minor falling or collision hazard in the kitchen area."
+          }
+        ],
+        "narrative": "A building inspector would flag several potential hazards in this space, including a possible tripping hazard from an unsecured rug in the living room and a structural tipping risk posed by the unanchored wooden bookshelf. Additionally, the table lamp on the bookshelf presents a potential fire hazard due to its proximity to books and curtains, and the hanging kitchen utensils could be a minor safety concern if not properly secured."
+      },
+      "display": "list"
+    },
+    "real_estate": {
+      "status": "done",
+      "duration_ms": 5612,
+      "output": {
+        "estimated_monthly_rent_usd": 3000,
+        "market": "Scandinavia/Northern Europe",
+        "reasoning": "Rents in Scandinavia and Northern Europe, particularly in urban centers, are generally high. A 750 sqft (approximately 70 sqm) apartment is a comfortable size, likely featuring 1-2 bedrooms, and would command a significant rental price. The estimate reflects the typical cost of living for a property of this size and known layout in this region.",
+        "narrative": "For a 750 square foot property with a known interior layout in Scandinavia/Northern Europe, the estimated monthly rent would be around $3,000 USD."
+      },
+      "display": "text"
+    },
+    "npc_dialogue": {
+      "status": "done",
+      "duration_ms": 6746,
+      "output": {
+        "lines": [
+          {
+            "character": "Clara Jensen",
+            "line": "Did you remember to water the succulents, Daniel? They're looking a bit dry."
+          },
+          {
+            "character": "Daniel Hayes",
+            "line": "Dinner tonight is a new pasta dish I'm experimenting with. Hope you're hungry!"
+          },
+          {
+            "character": "Leo Jensen-Hayes",
+            "line": "Mom, Dad, can I have some extra screen time tonight? My project is almost done."
+          },
+          {
+            "character": "Elena Petrova",
+            "line": "Good morning, everyone. I've just finished tidying the living room."
+          },
+          {
+            "character": "Clara Jensen",
+            "line": "I'm trying to finalize this client's logo, could you keep the noise down a little, Leo?"
+          },
+          {
+            "character": "Daniel Hayes",
+            "line": "Has anyone seen my favorite spice blend? I could swear I left it on the counter."
+          },
+          {
+            "character": "Leo Jensen-Hayes",
+            "line": "Ugh, another chore list? Can't I just finish my game first?"
+          },
+          {
+            "character": "Elena Petrova",
+            "line": "Mr. Hayes, the fresh produce you ordered has arrived and is in the fridge."
+          }
+        ],
+        "narrative": "The dialogue offers a snapshot of the Jensen-Hayes home, featuring Clara's work and home management, Daniel's culinary pursuits, Leo's typical teenage requests, and Elena's housekeeping updates, all highlighting the daily ebb and flow of their family life."
+      },
+      "display": "list"
+    },
+    "filming_scout": {
+      "status": "done",
+      "duration_ms": 14154,
+      "output": {
+        "locations": [
+          {
+            "name": "The Audo Residence",
+            "address": "\u00c5rhusgade 130, 2100 Copenhagen, Denmark",
+            "match_reason": "This multidisciplinary space, designed by Norm Architects, features beautifully curated apartments with open-concept layouts, frequently incorporating blue soft furnishings, natural wooden furniture, and sophisticated lighting that blends warm and cool tones, embodying modern Danish design with a cozy feel."
+          },
+          {
+            "name": "Artilleriet Studio Store",
+            "address": "Magasinsgatan 19, 411 18 G\u00f6teborg, Sweden",
+            "match_reason": "While a store, Artilleriet is known for its immaculately styled room settings that showcase a blend of modern and vintage design, often featuring open layouts, wooden furniture, and contemporary sofas in colors like blue, presented with a keen eye for balanced lighting and cozy sophistication."
+          },
+          {
+            "name": "The Thief Hotel (Designer Suites)",
+            "address": "Landgangen 1, 0252 Oslo, Norway",
+            "match_reason": "Many of the spacious suites at The Thief feature open-plan living and kitchen areas, characterized by contemporary Scandinavian design with bespoke wooden furniture, designer lighting, and comfortable seating that often includes modern blue sofas, perfectly aligning with a luxurious yet inviting atmosphere."
+          },
+          {
+            "name": "Hotel St. George (Atelier or Poetry Suites)",
+            "address": "Yrj\u00f6nkatu 13, 00120 Helsinki, Finland",
+            "match_reason": "The design-forward suites in this hotel offer generous open-concept spaces that merge living and functional kitchen areas. They are furnished with high-quality wooden elements, modern and comfortable seating (often in Nordic-inspired blues), and a well-thought-out lighting scheme to create both modern and cozy environments."
+          }
+        ],
+        "narrative": "I've identified several sophisticated locations in Scandinavia that could perfectly match your scene's inviting open-concept living room and kitchen, complete with a blue sofa and warm wooden furniture. These include design-forward hotels and curated studio spaces known for their modern yet cozy Scandinavian aesthetic."
+      },
+      "display": "list"
+    },
+    "carbon_score": {
+      "status": "done",
+      "duration_ms": 18294,
+      "output": {
+        "embodied_carbon_kg_co2e": 1149,
+        "breakdown": [
+          {
+            "material": "Wood (including engineered wood)",
+            "kg_co2e": 488
+          },
+          {
+            "material": "Textiles",
+            "kg_co2e": 150
+          },
+          {
+            "material": "Metal",
+            "kg_co2e": 168
+          },
+          {
+            "material": "Plastics & Foam",
+            "kg_co2e": 172
+          },
+          {
+            "material": "Glass & Ceramics",
+            "kg_co2e": 39
+          },
+          {
+            "material": "Stone/Engineered Stone (Counter)",
+            "kg_co2e": 104
+          },
+          {
+            "material": "Paper/Cardboard",
+            "kg_co2e": 23
+          },
+          {
+            "material": "Natural Fibers",
+            "kg_co2e": 5
+          }
+        ],
+        "reasoning": "The estimate is based on typical material compositions and approximate weights for the furniture, appliances, and finishes described. Embodied carbon factors are conservatively applied, considering raw material extraction, manufacturing, and transport (A1-A3 stages) for items like the herringbone wood floor, kitchen cabinets, sofa, rug, refrigerator, and counter. Key assumptions include approximate square footage for flooring and counter space, and average weights for furniture and small objects.",
+        "narrative": "The embodied carbon for this inviting open-concept living room and kitchen is estimated to be approximately 1149 kg CO2e. This figure largely stems from the wooden elements like the herringbone floor and kitchen cabinets, contributing 488 kg CO2e, followed by textiles from the sofa and rug, and the plastics and metals found in the appliances and furniture."
+      },
+      "display": "text"
+    },
+    "prop_shopping": {
+      "status": "done",
+      "duration_ms": 33298,
+      "output": {
+        "items": [
+          {
+            "name": "Modern Velvet Blue Sofa",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/furniture/sb0/blue-velvet-sofas.html",
+            "price_estimate_usd": 900
+          },
+          {
+            "name": "Mid-Century Round Wood Coffee Table",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=round+wood+coffee+table",
+            "price_estimate_usd": 180
+          },
+          {
+            "name": "Ivory Shag Area Rug",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=ivory+shag+area+rug",
+            "price_estimate_usd": 250
+          },
+          {
+            "name": "Contemporary Grey Fabric Armchair",
+            "vendor": "West Elm",
+            "url": "https://www.westelm.com/shop/furniture/armchairs/",
+            "price_estimate_usd": 750
+          },
+          {
+            "name": "Knitted Moroccan Style Purple Pouf",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=purple+pouf+ottoman",
+            "price_estimate_usd": 90
+          },
+          {
+            "name": "Linen Blend Brown Room Darkening Curtains",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/curtains-10702/?filters=f-colors:Brown",
+            "price_estimate_usd": 60
+          },
+          {
+            "name": "Abstract Minimalist Wall Art Print",
+            "vendor": "Target",
+            "url": "https://www.target.com/c/wall-art-decor/-/N-5xt2x",
+            "price_estimate_usd": 50
+          },
+          {
+            "name": "KALLAX Shelf Unit Wood Effect",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/kallax-series-20652/",
+            "price_estimate_usd": 179
+          },
+          {
+            "name": "Modern Brass Desk Lamp",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=brass+desk+lamp",
+            "price_estimate_usd": 45
+          },
+          {
+            "name": "Curated Decorative Book Set",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=decorative+book+set",
+            "price_estimate_usd": 60
+          },
+          {
+            "name": "Set of 3 Woven Storage Baskets",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=woven+storage+baskets",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "Artificial Snake Plant in Ceramic Pot",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=artificial+snake+plant+potted",
+            "price_estimate_usd": 35
+          },
+          {
+            "name": "LACK Side Table White",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/p/lack-side-table-white-00198409/",
+            "price_estimate_usd": 15
+          },
+          {
+            "name": "Samsung French Door Refrigerator",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/appliances/sb0/samsung-refrigerators-c1861788.html",
+            "price_estimate_usd": 1800
+          },
+          {
+            "name": "S\u00c4LJAN Light Wood Effect Countertop",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/p/saeljan-countertop-wood-effect-laminate-10335606/",
+            "price_estimate_usd": 120
+          },
+          {
+            "name": "SEKTION Kitchen Base Cabinet",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/sektion-cabinets-doors-19069/",
+            "price_estimate_usd": 100
+          },
+          {
+            "name": "OXO Good Grips Utensil Set with Stand",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=oxo+kitchen+utensil+set+with+stand",
+            "price_estimate_usd": 70
+          },
+          {
+            "name": "Set of 4 Ceramic Cereal Bowls",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=ceramic+bowls",
+            "price_estimate_usd": 25
+          },
+          {
+            "name": "World Map Desk Globe",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=decorative+desk+globe",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "TCL 4K UHD Smart TV 43 inch",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=tcl+43+inch+smart+tv",
+            "price_estimate_usd": 280
+          },
+          {
+            "name": "Sunburst Wall Mirror Decor",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/decor-pillows/sb0/sunburst-mirrors-c215355.html",
+            "price_estimate_usd": 65
+          },
+          {
+            "name": "Tall Ceramic Floor Vase with Branches",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/vases-bowls-31804/",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "EKET Cabinet with 1 door and 1 shelf, dark blue",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/p/eket-cabinet-with-1-door-and-1-shelf-dark-blue-60334620/",
+            "price_estimate_usd": 45
+          },
+          {
+            "name": "Assorted Decorative Refrigerator Magnets Set",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=decorative+refrigerator+magnets+set",
+            "price_estimate_usd": 15
+          },
+          {
+            "name": "KitchenAid Striped Dish Towel Set",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=kitchenaid+dish+towel+set",
+            "price_estimate_usd": 12
+          },
+          {
+            "name": "Modern Tufted Accent Chair",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/furniture/sb0/accent-chairs-c1860010.html",
+            "price_estimate_usd": 550
+          }
+        ],
+        "narrative": "This space is furnished with a comfortable blue velvet sofa and a chic grey fabric armchair, complemented by a mid-century wooden coffee table and an ivory area rug. The kitchen features a modern stainless steel refrigerator and light wood effect countertops, along with practical IKEA shelving and various decorative accents throughout the living area."
+      },
+      "display": "products"
+    }
+  }
+}

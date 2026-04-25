@@ -8,6 +8,7 @@ If an upstream agent errors, all downstream agents are marked 'skipped' with
 reason='upstream_failed'. Independent agents continue.
 """
 import asyncio
+import random
 import time
 from datetime import datetime, timezone
 from agents_v2.manifest import AGENTS, by_id
@@ -15,10 +16,19 @@ from agents_v2.messages import PerceptionInput, AgentRequest
 from agents_v2 import registry
 
 
+# Per-agent jitter range. Pads each agent with a randomized delay so the live
+# graph reveal is visible and Gemini rate limits get a breather. Tune by
+# changing these bounds; set both to 0 to disable.
+JITTER_MIN_S = 0.8
+JITTER_MAX_S = 2.5
+
+
 async def _run_one(agent_id: str, req: AgentRequest) -> dict:
     fn = registry.AGENT_RUNS[agent_id]
     started = time.monotonic()
     try:
+        if JITTER_MAX_S > 0:
+            await asyncio.sleep(random.uniform(JITTER_MIN_S, JITTER_MAX_S))
         output = await asyncio.to_thread(fn, req)
         duration_ms = int((time.monotonic() - started) * 1000)
         return {"status": "done", "duration_ms": duration_ms, "output": output}
@@ -27,8 +37,24 @@ async def _run_one(agent_id: str, req: AgentRequest) -> dict:
         return {"status": "error", "duration_ms": duration_ms, "error_message": str(e)}
 
 
-async def run_dag(perception: PerceptionInput) -> dict:
-    """Run all 19 agents respecting dependency order. Returns the final JSON dict."""
+def _build_snapshot(world_id: str, results: dict[str, dict], by) -> dict:
+    snapshot = {aid: dict(entry) for aid, entry in results.items()}
+    for aid, entry in snapshot.items():
+        entry.setdefault("display", by[aid].display)
+    return {
+        "world_id": world_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "schema_version": 1,
+        "agents": snapshot,
+    }
+
+
+async def run_dag(perception: PerceptionInput, on_progress=None) -> dict:
+    """Run all 19 agents respecting dependency order. Returns the final JSON dict.
+
+    on_progress: optional callable(snapshot_dict) invoked every time an agent
+    completes (or is skipped), so callers can persist incremental progress.
+    """
     defs = list(AGENTS)
     by = by_id()
     results: dict[str, dict] = {}
@@ -44,6 +70,14 @@ async def run_dag(perception: PerceptionInput) -> dict:
         return any(results.get(d, {}).get("status") in ("error", "skipped")
                    for d in by[agent_id].dependencies)
 
+    def _emit():
+        if on_progress is None:
+            return
+        try:
+            on_progress(_build_snapshot(perception.world_id, results, by))
+        except Exception:
+            pass
+
     def _start(agent_id: str):
         if _any_dep_failed(agent_id):
             results[agent_id] = {
@@ -51,6 +85,7 @@ async def run_dag(perception: PerceptionInput) -> dict:
                 "duration_ms": 0,
                 "reason": "upstream_failed",
             }
+            _emit()
             return
         upstream = {dep: results[dep]["output"] for dep in by[agent_id].dependencies}
         req = AgentRequest(
@@ -78,13 +113,6 @@ async def run_dag(perception: PerceptionInput) -> dict:
             aid = next(k for k, v in in_flight.items() if v is task)
             results[aid] = task.result()
             del in_flight[aid]
+            _emit()
 
-    for aid, entry in results.items():
-        entry.setdefault("display", by[aid].display)
-
-    return {
-        "world_id": perception.world_id,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "schema_version": 1,
-        "agents": results,
-    }
+    return _build_snapshot(perception.world_id, results, by)

@@ -1,94 +1,160 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AGENTS, CATEGORIES } from "@/lib/agentManifest";
-import { fetchAgentResults, pollAnalyzeStatus, type AgentResults } from "@/lib/agentResults";
+import { AGENTS, AGENTS_BY_ID, CATEGORIES } from "@/lib/agentManifest";
+import { agentverseProfileUrl } from "@/lib/agentAddresses";
+import { fetchAgentResults, type AgentEntry, type AgentResults } from "@/lib/agentResults";
 import { renderAgentCard } from "./agent-cards";
 import AgentNetworkGraph from "./AgentNetworkGraph";
+import AgentDetailModal from "./AgentDetailModal";
 
-export default function AgentSidebar({ worldId }: { worldId: string }) {
-  const [open, setOpen] = useState(false);
+export const AGENT_SIDEBAR_WIDTH = 440;
+
+export default function AgentSidebar({
+  worldId,
+  open,
+  onOpenChange,
+}: {
+  worldId: string;
+  open: boolean;
+  onOpenChange: (next: boolean) => void;
+}) {
   const [results, setResults] = useState<AgentResults | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  // All sections collapsed by default — user expands what they want to see.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
+  // Poll the agents.json file directly every 2s. Stop polling once we have all
+  // 19 agents reported. We don't trust /api/analyze/status alone because the
+  // bridge state can be transient (e.g. server restart loses _analyze_state),
+  // and the file is the canonical source.
   useEffect(() => {
     let cancelled = false;
     let interval: any;
-    async function load() {
-      setLoading(true);
+    async function tick() {
       const r = await fetchAgentResults(worldId).catch(() => null);
       if (cancelled) return;
       if (r) {
         setResults(r);
-        setLoading(false);
-        return;
-      }
-      interval = setInterval(async () => {
-        const state = await pollAnalyzeStatus(worldId).catch(() => "unknown");
-        if (state === "done") {
-          const r2 = await fetchAgentResults(worldId).catch(() => null);
-          if (r2) {
-            setResults(r2);
-            setLoading(false);
-            clearInterval(interval);
-          }
+        if (Object.keys(r.agents).length >= AGENTS.length) {
+          clearInterval(interval);
         }
-      }, 2000);
+      }
     }
-    load();
+    tick();
+    interval = setInterval(tick, 2000);
     return () => {
       cancelled = true;
       if (interval) clearInterval(interval);
     };
   }, [worldId]);
 
+  const doneCount = results ? Object.values(results.agents).filter((e) => e.status === "done").length : 0;
+  const selectedEntry: AgentEntry | undefined = selectedAgentId ? results?.agents[selectedAgentId] : undefined;
+  const selectedDef = selectedAgentId ? AGENTS_BY_ID[selectedAgentId] : undefined;
+
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
-        className="fixed top-4 right-4 z-20 text-xs font-mono bg-white/90 text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant hover:bg-white"
+        onPointerDown={(e) => {
+          // Stop the canvas's pointerlock listener from firing on this click.
+          e.stopPropagation();
+          if (document.pointerLockElement) document.exitPointerLock();
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenChange(!open);
+        }}
+        className="fixed top-4 right-4 z-30 text-xs font-sans bg-white text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant hover:bg-zinc-50"
+        style={open ? { right: AGENT_SIDEBAR_WIDTH + 16 } : undefined}
       >
         {open ? "× close" : "agents"}
       </button>
       <div
         className={
-          "fixed top-0 right-0 h-full w-[420px] bg-white/98 border-l border-outline-variant z-10 overflow-y-auto transition-transform duration-300 " +
+          "fixed top-0 right-0 h-full bg-white border-l border-outline-variant shadow-2xl z-20 overflow-y-auto transition-transform duration-300 " +
           (open ? "translate-x-0" : "translate-x-full")
         }
+        style={{ width: AGENT_SIDEBAR_WIDTH }}
       >
         <div className="p-6 space-y-6">
           <div>
             <h2 className="label-caps tracking-[0.18em] text-base">AGENT SWARM</h2>
-            <div className="text-xs text-on-surface-variant mt-1 font-mono">
-              {results ? `${Object.keys(results.agents).length} / 19` : loading ? "running…" : "queued"}
+            <div className="text-xs text-on-surface-variant mt-1 font-sans">
+              {results ? `${doneCount} / ${AGENTS.length} done` : "running…"}
             </div>
           </div>
 
-          {open && <AgentNetworkGraph results={results} />}
+          {open && (
+            <AgentNetworkGraph
+              results={results}
+              onNodeClick={(id) => {
+                const url = agentverseProfileUrl(id);
+                if (url) window.open(url, "_blank", "noopener,noreferrer");
+              }}
+            />
+          )}
 
           {CATEGORIES.map((cat) => {
             const agentsInCat = AGENTS.filter((a) => a.category === cat.name);
+            const catDone = agentsInCat.filter(
+              (a) => results?.agents[a.id]?.status === "done",
+            ).length;
+            const isOpen = !!expanded[cat.name];
             return (
               <section key={cat.name}>
-                <h3 className="label-caps text-on-surface-variant text-xs mb-3">{cat.name}</h3>
-                <div className="space-y-3">
-                  {agentsInCat.map((a) => {
-                    const entry = results?.agents[a.id];
-                    return (
-                      <div key={a.id} className="border border-outline-variant rounded p-3 bg-surface">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-sm font-medium">{a.label}</div>
-                          <StatusBadge status={entry?.status ?? "pending"} />
-                        </div>
-                        {entry ? renderAgentCard(entry) : <PendingPlaceholder />}
-                      </div>
-                    );
-                  })}
-                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExpanded((prev) => ({ ...prev, [cat.name]: !prev[cat.name] }))
+                  }
+                  className="w-full flex items-center justify-between mb-3 group"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-on-surface-variant text-xs font-sans transition-transform"
+                      style={{ transform: isOpen ? "rotate(90deg)" : "none" }}
+                    >
+                      ▶
+                    </span>
+                    <h3 className="label-caps text-on-surface-variant text-xs">{cat.name}</h3>
+                  </div>
+                  <span className="text-[10px] font-sans text-on-surface-variant">
+                    {catDone} / {agentsInCat.length}
+                  </span>
+                </button>
+                {isOpen && (
+                  <div className="space-y-3">
+                    {agentsInCat.map((a) => {
+                      const entry = results?.agents[a.id];
+                      return (
+                        <button
+                          key={a.id}
+                          onClick={() => setSelectedAgentId(a.id)}
+                          className="w-full text-left border border-outline-variant rounded p-3 bg-surface hover:bg-zinc-50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-sm font-medium">{a.label}</div>
+                            <StatusBadge status={entry?.status ?? "pending"} />
+                          </div>
+                          {entry ? renderAgentCard(entry) : <PendingPlaceholder />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             );
           })}
         </div>
       </div>
+
+      {selectedAgentId && selectedDef && (
+        <AgentDetailModal
+          agentDef={selectedDef}
+          entry={selectedEntry}
+          onClose={() => setSelectedAgentId(null)}
+        />
+      )}
     </>
   );
 }

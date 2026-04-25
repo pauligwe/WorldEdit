@@ -2,7 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Computer Modern via the cm-web-fonts package on jsdelivr — the closest
+   thing to a CDN-served Computer Modern Serif. */
+@import url("https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css");
+
 :root {
+  /* Body serif font. Toggle by changing this single line.
+     Options:
+       Fraunces:        var(--font-fraunces), Georgia, serif
+       Computer Modern: "Computer Modern Serif", Georgia, serif
+       Browser default: Georgia, serif
+  */
+  --font-body: "Computer Modern Serif", Georgia, serif;
+
   --background: #f9f9f9;
   --foreground: #1b1b1b;
   --surface: #f9f9f9;
@@ -20,6 +32,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: var(--font-body);
   font-feature-settings: "ss01", "cv11";
 }
 

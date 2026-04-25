@@ -12,7 +12,12 @@ from core.gemini_client import vision
 SYSTEM = (
     "You are an architectural surveyor. From 3 views of a 3D space, infer "
     "the floor plan: list rooms with rough square footage, list visible "
-    "entrances, list notable sightlines, and estimate total square footage."
+    "entrances, list notable sightlines, and estimate total square footage. "
+    "If the views only show the exterior of a building (no visible interior "
+    "rooms), do NOT fabricate interior rooms. Instead list inferred zones "
+    "like 'ground floor', 'upper floors', use a wide footprint estimate "
+    "based on visible facade, and explicitly say in the narrative that "
+    "interior layout is unknown from exterior views."
 )
 
 

@@ -7,7 +7,7 @@ export default function WorldPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { capture?: string };
+  searchParams: { capture?: string; reset?: string };
 }) {
   const world = WORLDS[params.id];
   if (!world) {
@@ -21,8 +21,10 @@ export default function WorldPage({
 
   // Auto-capture is on by default — the scene decides whether to actually fire
   // (skips if a thumbnail already exists at world.thumbnail). `?capture=1`
-  // forces a re-capture even if the thumbnail is already there.
-  const captureMode = { id: world.id, force: searchParams.capture === "1" };
+  // forces a re-capture even if the thumbnail is already there. `?reset=1`
+  // additionally clears the cached agents.json so the DAG runs fresh.
+  const reset = searchParams.reset === "1";
+  const captureMode = { id: world.id, force: searchParams.capture === "1" || reset, reset };
 
   return (
     <>
@@ -37,7 +39,7 @@ export default function WorldPage({
       <div className="fixed top-4 left-4 z-10 pointer-events-auto">
         <Link
           href="/"
-          className="text-xs font-mono bg-white/90 text-on-surface px-3 py-1.5 rounded shadow-soft hover:bg-white border border-outline-variant"
+          className="text-xs font-sans bg-white/90 text-on-surface px-3 py-1.5 rounded shadow-soft hover:bg-white border border-outline-variant"
         >
           ← {world.title}
         </Link>

@@ -41,12 +41,10 @@ FRONTEND_WORLDS_DIR = Path(__file__).parent.parent.parent / "frontend" / "public
 _analyze_state: dict[str, str] = {}
 
 
-@app.on_event("startup")
-def _start_uagents():
-    if os.environ.get("WORLD_BUILD_DISABLE_UAGENTS") == "1":
-        return
-    from agents_v2.runner import start_all_in_background
-    start_all_in_background()
+# NOTE: post-gen uagent processes are no longer auto-started inside the
+# FastAPI bridge. They run as a standalone fleet via:
+#     python -m agentverse.post_gen
+# The bridge's job is just orchestration; mailbox presence is separate.
 
 
 class GenerateReq(BaseModel):
@@ -181,12 +179,21 @@ async def _drive_analyze(world_id: str, prompt: str) -> None:
     try:
         views_dir = WORLDS_DIR / world_id / "views"
         view_paths = [str(views_dir / f"view_{n}.jpg") for n in (0, 120, 240)]
-        result = await run_dag(PerceptionInput(
-            world_id=world_id, prompt=prompt, view_paths=view_paths,
-        ))
         FRONTEND_WORLDS_DIR.mkdir(parents=True, exist_ok=True)
         out_path = FRONTEND_WORLDS_DIR / f"{world_id}.agents.json"
-        out_path.write_text(json.dumps(result, indent=2))
+
+        # Atomic write so the frontend never sees a partial JSON file. Each
+        # agent completion triggers this, so the sidebar fills in live.
+        def _persist(snapshot: dict) -> None:
+            tmp = out_path.with_suffix(out_path.suffix + ".tmp")
+            tmp.write_text(json.dumps(snapshot, indent=2))
+            tmp.replace(out_path)
+
+        result = await run_dag(
+            PerceptionInput(world_id=world_id, prompt=prompt, view_paths=view_paths),
+            on_progress=_persist,
+        )
+        _persist(result)
         _analyze_state[world_id] = "done"
     except Exception as e:
         _analyze_state[world_id] = "error"
@@ -227,3 +234,18 @@ def analyze_status(world_id: str):
             return {"state": "done"}
         return {"state": "unknown"}
     return {"state": state}
+
+
+# Demo helper: deletes the saved agents.json and clears in-memory state so the
+# next page load with ?capture=1 forces a fresh DAG run. Linked from the
+# frontend reset URL.
+@app.post("/api/analyze/{world_id}/reset")
+def analyze_reset(world_id: str):
+    if not PERCEPTION_ID_RE.match(world_id):
+        raise HTTPException(status_code=400, detail="bad world_id")
+    if _analyze_state.get(world_id) == "running":
+        raise HTTPException(status_code=409, detail="run in progress")
+    out_path = FRONTEND_WORLDS_DIR / f"{world_id}.agents.json"
+    out_path.unlink(missing_ok=True)
+    _analyze_state.pop(world_id, None)
+    return {"ok": True}

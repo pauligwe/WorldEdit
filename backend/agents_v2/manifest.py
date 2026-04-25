@@ -30,7 +30,7 @@ AGENTS: list[AgentDef] = [
     AgentDef(id="geolocator",          label="Geolocator",           tier=1, port=8103,
              dependencies=["scene_describer"], display="list"),
     AgentDef(id="filming_scout",       label="Filming Location Scout", tier=1, port=8104,
-             dependencies=["geolocator"], display="list"),
+             dependencies=["geolocator", "scene_describer"], display="list"),
     AgentDef(id="era_estimator",       label="Era Estimator",        tier=1, port=8105,
              dependencies=["scene_describer"]),
     AgentDef(id="architectural_style", label="Architectural Style",  tier=1, port=8106,
@@ -62,7 +62,7 @@ AGENTS: list[AgentDef] = [
     AgentDef(id="hazard_audit",        label="Hazard Audit",         tier=4, port=8116,
              dependencies=["object_inventory", "spatial_layout"], display="list"),
     AgentDef(id="accessibility",       label="Accessibility",        tier=4, port=8117,
-             dependencies=["spatial_layout"], display="list"),
+             dependencies=["spatial_layout", "scene_describer"], display="list"),
     AgentDef(id="carbon_score",        label="Carbon Score",         tier=4, port=8118,
              dependencies=["object_inventory", "scene_describer"]),
 ]

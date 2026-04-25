@@ -40,7 +40,7 @@ export default function AgentActivityPanel({ states, messages }: Props) {
             return (
               <div
                 key={a.name}
-                className={`px-3 py-2 rounded border text-sm font-mono w-56 ${STATE_STYLES[s]}`}
+                className={`px-3 py-2 rounded border text-sm font-sans w-56 ${STATE_STYLES[s]}`}
               >
                 <div className="font-bold">{a.name}</div>
                 <div className="text-xs opacity-70 truncate">{messages[a.name] ?? s}</div>
