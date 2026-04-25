@@ -7,7 +7,86 @@ layouts per generation.
 """
 
 from core.maze_packer import maze_pack_floor
-from core.world_spec import Blueprint, WorldSpec
+from core.world_spec import Blueprint, Door, Entrance, Site, WorldSpec
+
+
+_GRID = 0.5
+_FOYER_DOOR_WIDTH = 1.6
+
+
+def _snap(v: float) -> float:
+    return round(v / _GRID) * _GRID
+
+
+def _shrink_site_to_rooms(spec: WorldSpec) -> None:
+    """Tighten the building footprint to the bounding box of placed rooms,
+    shift all rooms+stairs so the bbox starts at (0, 0), recenter the building
+    on the plot, and add a south-wall door to the foyer matching the entrance.
+
+    Without this, the maze packer leaves large unused regions inside the
+    building's exterior walls; doorways into those regions appear to "lead to
+    grass" because no room floor covers the gap.
+    """
+    bp = spec.blueprint
+    if bp is None or not bp.floors:
+        return
+
+    xs0, ys0, xs1, ys1 = [], [], [], []
+    for fl in bp.floors:
+        for r in fl.rooms:
+            xs0.append(r.x); ys0.append(r.y)
+            xs1.append(r.x + r.width); ys1.append(r.y + r.depth)
+    if not xs0:
+        return
+
+    min_x = _snap(min(xs0))
+    min_y = _snap(min(ys0))
+    max_x = _snap(max(xs1))
+    max_y = _snap(max(ys1))
+    new_w = max_x - min_x
+    new_d = max_y - min_y
+
+    for fl in bp.floors:
+        for r in fl.rooms:
+            r.x = _snap(r.x - min_x)
+            r.y = _snap(r.y - min_y)
+        for s in fl.stairs:
+            s.x = _snap(s.x - min_x)
+            s.y = _snap(s.y - min_y)
+
+    site = spec.site
+    plot_w = site.plot.width
+    plot_d = site.plot.depth
+    ax = (plot_w - new_w) / 2
+    ay = (plot_d - new_d) / 2
+    spec.site = Site(
+        plot=site.plot,
+        buildingFootprint=[new_w, new_d],
+        buildingAnchor=[ax, ay],
+        entrance=site.entrance,
+    )
+
+    # Pick the foyer (or any room flush against the south wall at y=0) and
+    # align the entrance to its south face, then punch a matching door.
+    ground = bp.floors[0]
+    south_rooms = [r for r in ground.rooms if abs(r.y) < 1e-6]
+    if not south_rooms:
+        return
+    south_rooms.sort(key=lambda r: 0 if r.type in ("foyer", "lobby", "entry") else 1)
+    foyer = south_rooms[0]
+
+    door_w = min(_FOYER_DOOR_WIDTH, foyer.width - 0.4)
+    if door_w < 0.6:
+        return
+    foyer.doors.append(Door(wall="south", offset=foyer.width / 2, width=door_w))
+
+    entrance_offset = foyer.x + foyer.width / 2
+    spec.site.entrance = Entrance(
+        wall="south",
+        offset=entrance_offset,
+        width=door_w,
+        height=site.entrance.height,
+    )
 
 
 # Hand-tuned room programs per (building_type, level). Floor 0 always starts
@@ -136,4 +215,5 @@ def run(spec: WorldSpec) -> WorldSpec:
             next_stair_seed = None
 
     spec.blueprint = Blueprint(gridSize=0.5, floors=floors)
+    _shrink_site_to_rooms(spec)
     return spec
