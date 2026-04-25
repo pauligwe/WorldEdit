@@ -5,6 +5,7 @@ import type { WorldSpec } from "@/lib/worldSpec";
 import { expandWallSegments } from "@/lib/wallSegments";
 import Plot from "./Plot";
 import Roof from "./Roof";
+import Stairs from "./Stairs";
 import Wall from "./Wall";
 import FurnitureInstanced from "./FurnitureInstanced";
 import PlayerControls from "./PlayerControls";
@@ -90,13 +91,7 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
           {walls.map((p, i)    => <Wall key={`w${i}`} prim={p} color={matWall(p.roomId)} />)}
           {exterior.map((p, i) => <Wall key={`e${i}`} prim={p} color="#d8d4c6" />)}
           {roof.map((p, i)     => <Roof key={`r${i}`} prim={p} color="#3a3a3a" />)}
-          {stairs.map((p, i) => (
-            <mesh key={`s${i}`} position={p.position as any}
-                  rotation={[0, p.rotation ?? 0, 0]}>
-              <boxGeometry args={[p.size[0], 0.2, p.size[2]]} />
-              <meshLambertMaterial color="#7c5a3a" />
-            </mesh>
-          ))}
+          {stairs.map((p, i) => <Stairs key={`s${i}`} prim={p} />)}
           <FurnitureInstanced items={spec.furniture} />
         </Suspense>
 
