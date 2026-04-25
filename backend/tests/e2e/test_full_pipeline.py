@@ -1,32 +1,51 @@
-import os
-import pytest
-from core.world_spec import WorldSpec
-from core.status_bus import StatusBus
-from core.validators import validate_blueprint
-from agents.orchestrator import run_pipeline
+"""End-to-end test: simulate a full analyze run with all 19 agents stubbed.
+This catches integration regressions across manifest, orchestrator, registry,
+and bridge."""
+import base64
+import json
+from unittest.mock import patch
+from fastapi.testclient import TestClient
+from bridge.main import app
+from agents_v2.manifest import AGENTS
 
-pytestmark = pytest.mark.skipif(not os.environ.get("GOOGLE_API_KEY"), reason="no Gemini key")
+
+def _data_url(b: bytes) -> str:
+    return f"data:image/jpeg;base64,{base64.b64encode(b).decode()}"
 
 
-async def test_full_pipeline_makes_valid_house():
-    spec = WorldSpec(worldId="e2e1", prompt="A small modern one-floor house with a kitchen, living room, and bedroom")
-    bus = StatusBus()
-    out = await run_pipeline(spec, bus)
+def test_perception_then_analyze_writes_full_json(tmp_path, monkeypatch):
+    backend_worlds = tmp_path / "backend_worlds"
+    frontend_worlds = tmp_path / "frontend_worlds"
+    frontend_worlds.mkdir()
+    monkeypatch.setattr("bridge.main.WORLDS_DIR", backend_worlds)
+    monkeypatch.setattr("bridge.main.FRONTEND_WORLDS_DIR", frontend_worlds)
 
-    assert out.intent is not None
-    assert out.blueprint is not None
-    report = validate_blueprint(out.blueprint)
-    assert report.ok, report.errors
+    stubs = {a.id: (lambda req, _id=a.id: {"marker": _id, "got": list(req.upstream.keys())})
+             for a in AGENTS}
 
-    assert out.geometry and out.geometry.primitives
-    assert out.lighting and out.lighting.byRoom
-    assert out.materials and out.materials.byRoom
-    assert out.navigation is not None
-    assert out.cost is not None
+    client = TestClient(app)
 
-    spec = out
-    assert spec.site is not None
-    assert spec.site.plot.width == 100.0
-    assert any(p.type == "ground" for p in spec.geometry.primitives)
-    assert any(p.type == "exterior_wall" for p in spec.geometry.primitives)
-    assert any(p.type == "roof" for p in spec.geometry.primitives)
+    r = client.post("/api/perception-frames", json={
+        "world_id": "smoke",
+        "view_0":   _data_url(b"\xff\xd8\xff\xe0v0"),
+        "view_120": _data_url(b"\xff\xd8\xff\xe0v120"),
+        "view_240": _data_url(b"\xff\xd8\xff\xe0v240"),
+    })
+    assert r.status_code == 200
+
+    with patch("agents_v2.registry.AGENT_RUNS", stubs):
+        r = client.post("/api/analyze/smoke", json={"prompt": "smoke prompt"})
+        assert r.status_code == 202
+        for _ in range(40):
+            s = client.get("/api/analyze/smoke/status").json()
+            if s["state"] == "done":
+                break
+
+    out = frontend_worlds / "smoke.agents.json"
+    assert out.exists()
+    data = json.loads(out.read_text())
+    assert data["world_id"] == "smoke"
+    assert len(data["agents"]) == 19
+    for aid in (a.id for a in AGENTS):
+        assert data["agents"][aid]["status"] == "done"
+        assert data["agents"][aid]["output"]["marker"] == aid
