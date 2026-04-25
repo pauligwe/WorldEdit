@@ -60,3 +60,35 @@ def test_stairs_must_align_between_floors():
     report = validate_blueprint(bp)
     assert not report.ok
     assert any("stair" in e.lower() and "align" in e.lower() for e in report.errors)
+
+
+import pytest
+from core.world_spec import (WorldSpec, Blueprint, Floor, Room, Door, Intent)
+from core.site import derive_site_from_intent
+from agents.compliance_critic import run as critic_run, ComplianceError
+
+
+def test_critic_rejects_room_outside_footprint():
+    intent = Intent(buildingType="office", style="modern", floors=1,
+                    vibe=[], sizeHint="medium")
+    site = derive_site_from_intent(intent)
+    fw, fd = site.buildingFootprint
+    bp = Blueprint(floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
+        Room(id="big", type="office", x=0, y=0, width=fw + 50, depth=fd,
+             doors=[Door(wall="south", offset=1, width=1)])])])
+    spec = WorldSpec(worldId="x", prompt="t", intent=intent, site=site, blueprint=bp)
+    with pytest.raises(ComplianceError):
+        critic_run(spec)
+
+
+def test_critic_passes_with_valid_site():
+    intent = Intent(buildingType="office", style="modern", floors=1,
+                    vibe=[], sizeHint="medium")
+    site = derive_site_from_intent(intent)
+    fw, fd = site.buildingFootprint
+    bp = Blueprint(floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
+        Room(id="lobby", type="lobby", x=0, y=0, width=fw, depth=fd,
+             doors=[Door(wall="south", offset=site.entrance.offset, width=1.6)])])])
+    spec = WorldSpec(worldId="x", prompt="t", intent=intent, site=site, blueprint=bp)
+    out = critic_run(spec)
+    assert out is spec
