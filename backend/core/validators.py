@@ -20,17 +20,8 @@ def _rects_overlap(a: Room, b: Room) -> bool:
     return True
 
 
-def _room_has_doors(r: Room) -> bool:
-    return len(r.doors) > 0
-
-
 def _stairs_aligned(s1: Stairs, s2: Stairs) -> bool:
-    return (
-        abs(s1.x - s2.x) < 1e-6
-        and abs(s1.y - s2.y) < 1e-6
-        and abs(s1.width - s2.width) < 1e-6
-        and abs(s1.depth - s2.depth) < 1e-6
-    )
+    return abs(s1.x - s2.x) < 1e-6 and abs(s1.y - s2.y) < 1e-6
 
 
 def validate_blueprint(bp: Blueprint) -> ValidationReport:
@@ -59,8 +50,6 @@ def validate_blueprint(bp: Blueprint) -> ValidationReport:
             if r.id in ids:
                 errors.append(f"duplicate room id {r.id} on floor {fl.level}")
             ids.add(r.id)
-            if not _room_has_doors(r):
-                errors.append(f"room {r.id} on floor {fl.level} has no door")
 
         for i, a in enumerate(fl.rooms):
             for b in fl.rooms[i + 1:]:
@@ -73,11 +62,8 @@ def validate_blueprint(bp: Blueprint) -> ValidationReport:
             if target is None:
                 errors.append(f"stair {s.id} on floor {fl.level} targets missing floor {s.toLevel}")
                 continue
-            mate = next((ts for ts in target.stairs if ts.id == s.id), None)
+            mate = next((ts for ts in target.stairs if _stairs_aligned(ts, s)), None)
             if mate is None:
                 errors.append(f"stair {s.id} on floor {fl.level} has no matching stair on floor {s.toLevel}")
-                continue
-            if not _stairs_aligned(s, mate):
-                errors.append(f"stair {s.id} not aligned between floors {fl.level} and {s.toLevel}")
 
     return ValidationReport(ok=not errors, errors=errors)

@@ -16,7 +16,8 @@ def test_examples_pass_validation():
         assert report.ok, f"{name}: {report.errors}"
 
 
-def test_room_with_no_doors_fails():
+def test_room_with_no_doors_passes():
+    """Doors are optional now; rooms without them are valid."""
     bp = Blueprint(
         gridSize=0.5,
         floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
@@ -24,8 +25,7 @@ def test_room_with_no_doors_fails():
         ], stairs=[])],
     )
     report = validate_blueprint(bp)
-    assert not report.ok
-    assert any("door" in e.lower() for e in report.errors)
+    assert report.ok, report.errors
 
 
 def test_overlapping_rooms_fail():
@@ -59,7 +59,7 @@ def test_stairs_must_align_between_floors():
     )
     report = validate_blueprint(bp)
     assert not report.ok
-    assert any("stair" in e.lower() and "align" in e.lower() for e in report.errors)
+    assert any("stair" in e.lower() and "no matching" in e.lower() for e in report.errors)
 
 
 import pytest
