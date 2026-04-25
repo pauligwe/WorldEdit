@@ -62,6 +62,18 @@ def _save_world(spec: WorldSpec) -> None:
     (WORLDS_DIR / f"{spec.worldId}.json").write_text(spec.model_dump_json(indent=2))
 
 
+def _load_world(world_id: str) -> WorldSpec | None:
+    cached = worlds.get(world_id)
+    if cached is not None:
+        return cached
+    path = WORLDS_DIR / f"{world_id}.json"
+    if not path.exists():
+        return None
+    spec = WorldSpec.model_validate_json(path.read_text())
+    worlds[world_id] = spec
+    return spec
+
+
 async def _drive(spec: WorldSpec) -> None:
     running.add(spec.worldId)
     try:
@@ -86,7 +98,7 @@ async def generate(req: GenerateReq) -> dict:
 
 @app.post("/api/edit")
 async def edit(req: EditReq) -> dict:
-    spec = worlds.get(req.worldId)
+    spec = _load_world(req.worldId)
     if spec is None:
         raise HTTPException(404, "unknown worldId")
     new_spec = chat_edit_run(spec.model_copy(deep=True), req.edit)
@@ -99,7 +111,7 @@ async def edit(req: EditReq) -> dict:
 
 @app.post("/api/select-product")
 async def select_product(req: SelectProductReq) -> dict:
-    spec = worlds.get(req.worldId)
+    spec = _load_world(req.worldId)
     if spec is None:
         raise HTTPException(404, "unknown worldId")
     target = next((f for f in spec.furniture if f.id == req.furnitureId), None)
