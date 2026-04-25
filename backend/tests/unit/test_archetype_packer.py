@@ -47,7 +47,7 @@ def test_ranch_level1_raises():
 
 def test_colonial_level0_layout():
     floor = archetype_pack_floor("two_story_colonial", level=0)
-    assert len(floor.rooms) == 7
+    assert len(floor.rooms) == 8  # 7 living rooms + stairwell
     assert _has_south_edge_entrance(floor)
     assert _all_inside_footprint(
         floor, RESIDENTIAL_ARCHETYPES["two_story_colonial"].footprint
@@ -57,7 +57,7 @@ def test_colonial_level0_layout():
 
 def test_colonial_level1_layout():
     floor = archetype_pack_floor("two_story_colonial", level=1)
-    assert len(floor.rooms) == 6
+    assert len(floor.rooms) == 7  # 6 bedrooms/halls + stairwell
     assert _all_inside_footprint(
         floor, RESIDENTIAL_ARCHETYPES["two_story_colonial"].footprint
     )
@@ -93,7 +93,7 @@ def test_studio_level0_layout():
 
 def test_loft_level0_layout():
     floor = archetype_pack_floor("loft", level=0)
-    assert len(floor.rooms) == 2
+    assert len(floor.rooms) == 3  # main + bathroom + stairwell
     assert _has_south_edge_entrance(floor)
     assert _all_inside_footprint(floor, RESIDENTIAL_ARCHETYPES["loft"].footprint)
     assert len(floor.stairs) == 1

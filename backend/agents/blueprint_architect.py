@@ -13,20 +13,10 @@ _RESIDENTIAL_TYPES = {
     "duplex", "ranch", "colonial",
 }
 
-_RESIDENTIAL_KEYWORDS = (
-    "house", "home", "cabin", "cottage", "apartment", "studio",
-    "loft", "condo", "mansion", "villa", "bungalow", "townhouse",
-    "duplex", "ranch", "colonial", "bedroom", "kitchen", "bathroom",
-    "living room",
-)
-
 
 def _is_residential(spec: WorldSpec) -> bool:
     bt = (spec.intent.buildingType or "").lower() if spec.intent else ""
-    if bt in _RESIDENTIAL_TYPES:
-        return True
-    prompt = (spec.prompt or "").lower()
-    return any(kw in prompt for kw in _RESIDENTIAL_KEYWORDS)
+    return bt in _RESIDENTIAL_TYPES
 
 
 def _pick_archetype(spec: WorldSpec) -> str:

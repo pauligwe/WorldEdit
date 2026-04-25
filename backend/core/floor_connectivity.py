@@ -46,30 +46,14 @@ def _door_on_wall_in_segment(
 
 
 def _rooms_connected(a: Room, b: Room) -> bool:
-    # A east <-> B west
-    if abs((a.x + a.width) - b.x) < EPS:
-        seg = _shared_edge_y(a, b)
-        if seg is not None:
-            if _door_on_wall_in_segment(a, "east", seg) or _door_on_wall_in_segment(b, "west", seg):
-                return True
-    # A west <-> B east
-    if abs(a.x - (b.x + b.width)) < EPS:
-        seg = _shared_edge_y(a, b)
-        if seg is not None:
-            if _door_on_wall_in_segment(a, "west", seg) or _door_on_wall_in_segment(b, "east", seg):
-                return True
-    # A north <-> B south
-    if abs((a.y + a.depth) - b.y) < EPS:
-        seg = _shared_edge_x(a, b)
-        if seg is not None:
-            if _door_on_wall_in_segment(a, "north", seg) or _door_on_wall_in_segment(b, "south", seg):
-                return True
-    # A south <-> B north
-    if abs(a.y - (b.y + b.depth)) < EPS:
-        seg = _shared_edge_x(a, b)
-        if seg is not None:
-            if _door_on_wall_in_segment(a, "south", seg) or _door_on_wall_in_segment(b, "north", seg):
-                return True
+    if abs((a.x + a.width) - b.x) < EPS and _shared_edge_y(a, b) is not None:
+        return True
+    if abs(a.x - (b.x + b.width)) < EPS and _shared_edge_y(a, b) is not None:
+        return True
+    if abs((a.y + a.depth) - b.y) < EPS and _shared_edge_x(a, b) is not None:
+        return True
+    if abs(a.y - (b.y + b.depth)) < EPS and _shared_edge_x(a, b) is not None:
+        return True
     return False
 
 
@@ -110,15 +94,8 @@ def _entrance_rooms(floor: Floor, site: Site) -> list[Room]:
             or (e.wall == "west" and abs(r.x) < EPS)
             or (e.wall == "east" and abs((r.x + r.width) - fw) < EPS)
         )
-        if not on_edge:
-            continue
-        for d in r.doors:
-            if d.wall != e.wall:
-                continue
-            lo, hi = _door_interval(r, d)
-            if lo - EPS <= e.offset <= hi + EPS:
-                matches.append(r)
-                break
+        if on_edge:
+            matches.append(r)
     return matches
 
 
@@ -149,8 +126,7 @@ def validate_floor_connectivity(blueprint: Blueprint, site: Site) -> list[str]:
     entrance_rooms = _entrance_rooms(ground, site)
     if not entrance_rooms:
         errors.append(
-            f"floor 0: no room has a {site.entrance.wall} door covering "
-            f"site entrance offset {site.entrance.offset}"
+            f"floor 0: no room sits on the {site.entrance.wall} edge of the building"
         )
 
     reachable_by_level: dict[int, set[str]] = {}

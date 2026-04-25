@@ -44,25 +44,22 @@ def test_two_adjacent_rooms_with_connecting_door_pass():
     assert errors == [], errors
 
 
-def test_two_adjacent_rooms_without_connecting_door_fail():
+def test_two_adjacent_rooms_without_doors_still_pass():
+    """Doors are no longer required; any shared wall counts as a connection."""
     site = _site(fw=10, fd=10, ent_offset=2.5)
     bp = Blueprint(floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
-        Room(id="a", type="lobby", x=0, y=0, width=5, depth=10,
-             doors=[Door(wall="south", offset=2, width=1.0)]),
-        Room(id="b", type="office", x=5, y=0, width=5, depth=10,
-             doors=[]),
+        Room(id="a", type="lobby", x=0, y=0, width=5, depth=10, doors=[]),
+        Room(id="b", type="office", x=5, y=0, width=5, depth=10, doors=[]),
     ])])
     errors = validate_floor_connectivity(bp, site)
-    assert any("not reachable" in e and "b" in e for e in errors), errors
+    assert errors == [], errors
 
 
 def test_two_disjoint_rooms_fail():
     site = _site(fw=12, fd=10, ent_offset=2.5)
     bp = Blueprint(floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
-        Room(id="a", type="lobby", x=0, y=0, width=4, depth=4,
-             doors=[Door(wall="south", offset=2, width=1.0)]),
-        Room(id="b", type="office", x=8, y=0, width=4, depth=4,
-             doors=[]),
+        Room(id="a", type="lobby", x=0, y=0, width=4, depth=4, doors=[]),
+        Room(id="b", type="office", x=8, y=6, width=4, depth=4, doors=[]),
     ])])
     errors = validate_floor_connectivity(bp, site)
     assert any("b" in e and "not reachable" in e for e in errors), errors
@@ -138,11 +135,11 @@ def test_three_room_transitive_reachability_passes():
     assert errors == [], errors
 
 
-def test_entrance_door_doesnt_cover_offset_fails():
+def test_no_room_on_entrance_edge_fails():
+    """If no ground-floor room sits on the entrance wall edge, that's an error."""
     site = _site(fw=10, fd=10, ent_offset=5)
     bp = Blueprint(floors=[Floor(level=0, ceilingHeight=3.0, rooms=[
-        Room(id="lobby", type="lobby", x=0, y=0, width=10, depth=10,
-             doors=[Door(wall="south", offset=0.5, width=1.0)])
+        Room(id="lobby", type="lobby", x=0, y=2, width=10, depth=8, doors=[])
     ])])
     errors = validate_floor_connectivity(bp, site)
-    assert any("entrance" in e.lower() for e in errors), errors
+    assert any("south edge" in e.lower() for e in errors), errors

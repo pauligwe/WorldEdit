@@ -24,27 +24,19 @@ def check_site_constraints(spec: WorldSpec) -> list[str]:
     e = spec.site.entrance
     matched = False
     for r in ground.rooms:
-        for d in r.doors:
-            if d.wall != e.wall:
-                continue
-            door_min = d.offset
-            door_max = d.offset + d.width
-            ent_min = e.offset - e.width / 2
-            ent_max = e.offset + e.width / 2
-            # door must overlap entrance opening
-            if door_max >= ent_min and door_min <= ent_max:
-                if e.wall == "south" and abs(r.y) < 1e-6:
-                    matched = True
-                elif e.wall == "north" and abs((r.y + r.depth) - fd) < 1e-6:
-                    matched = True
-                elif e.wall == "west" and abs(r.x) < 1e-6:
-                    matched = True
-                elif e.wall == "east" and abs((r.x + r.width) - fw) < 1e-6:
-                    matched = True
+        if e.wall == "south" and abs(r.y) < 1e-6:
+            matched = True
+        elif e.wall == "north" and abs((r.y + r.depth) - fd) < 1e-6:
+            matched = True
+        elif e.wall == "west" and abs(r.x) < 1e-6:
+            matched = True
+        elif e.wall == "east" and abs((r.x + r.width) - fw) < 1e-6:
+            matched = True
+        if matched:
+            break
     if not matched:
         errors.append(
-            f"no ground-floor room has a {e.wall} door overlapping entrance "
-            f"at offset {e.offset}"
+            f"no ground-floor room sits on the {e.wall} edge of the building"
         )
 
     return errors

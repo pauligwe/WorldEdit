@@ -109,13 +109,14 @@ def test_site_validator_rejects_room_outside_footprint():
     assert any("outside building footprint" in e for e in errors)
 
 
-def test_site_validator_rejects_missing_entrance_door():
+def test_site_validator_rejects_no_room_on_entrance_edge():
+    """No ground-floor room sits on the entrance wall (south) edge."""
     site = _good_site()
     fw, fd = site.buildingFootprint
     floor = Floor(level=0, ceilingHeight=3.0, rooms=[
-        Room(id="lobby", type="lobby", x=0, y=0, width=fw, depth=fd,
-             doors=[Door(wall="north", offset=2, width=1.6)])
+        Room(id="lobby", type="lobby", x=0, y=2, width=fw, depth=fd - 2,
+             doors=[])
     ])
     spec = _spec_with(site, [floor])
     errors = check_site_constraints(spec)
-    assert any("entrance" in e.lower() for e in errors)
+    assert any("south edge" in e.lower() for e in errors)

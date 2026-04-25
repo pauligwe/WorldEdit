@@ -338,6 +338,18 @@ def archetype_pack_floor(
     if num_floors > 1 and spec.stair_position is not None:
         sx, sy = stair_position if stair_position is not None else spec.stair_position
         sw, sd = spec.stair_size
+        rooms.append(
+            Room(
+                id=f"{archetype}_stairwell_{level}",
+                type="stairwell",
+                x=sx,
+                y=sy,
+                width=sw,
+                depth=sd,
+                doors=[],
+                windows=[],
+            )
+        )
         if level == num_floors - 1:
             direction = "south"
             to_level = level - 1
