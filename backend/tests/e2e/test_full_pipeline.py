@@ -23,6 +23,3 @@ async def test_full_pipeline_makes_valid_house():
     assert out.materials and out.materials.byRoom
     assert out.navigation is not None
     assert out.cost is not None
-
-    real_count = sum(1 for f in out.furniture if f.selectedProductId and f.selectedProductId in out.products)
-    assert real_count >= 1, "expected at least one furniture item to have a real product"

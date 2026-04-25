@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 from core.world_spec import (
-    WorldSpec, Intent, Blueprint, Floor, Room, Door, Window, Stairs,
+    WorldSpec, FurnitureItem, Intent, Blueprint, Floor, Room, Door, Window, Stairs,
 )
 
 
@@ -43,3 +43,18 @@ def test_grid_alignment_validator_rejects_off_grid_room():
                      doors=[Door(wall="south", offset=2, width=1.0)], windows=[]),
             ], stairs=[])],
         )
+
+
+def test_world_spec_has_site_field():
+    spec = WorldSpec(worldId="x", prompt="test")
+    assert spec.site is None
+    assert not hasattr(spec, "products")
+
+
+def test_furniture_item_no_product_fields():
+    f = FurnitureItem(id="f1", roomId="r1", type="desk",
+                     position=[0, 0, 0], size=[1, 1, 1])
+    assert not hasattr(f, "selectedProductId")
+    assert not hasattr(f, "alternates")
+    assert not hasattr(f, "subtype")
+    assert not hasattr(f, "tint")

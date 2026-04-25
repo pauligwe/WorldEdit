@@ -94,7 +94,7 @@ class Intent(BaseModel):
 
 
 class GeometryPrimitive(BaseModel):
-    type: Literal["floor", "wall", "ceiling", "stair"]
+    type: Literal["floor", "wall", "ceiling", "stair", "exterior_wall", "roof", "ground"]
     roomId: Optional[str] = None
     wall: Optional[Wall] = None
     position: list[float]
@@ -132,22 +132,9 @@ class FurnitureItem(BaseModel):
     id: str
     roomId: str
     type: str
-    subtype: Optional[str] = None
     position: list[float]
     rotation: float = 0.0
     size: list[float]
-    selectedProductId: Optional[str] = None
-    alternates: list[str] = Field(default_factory=list)
-    tint: Optional[str] = None
-
-
-class Product(BaseModel):
-    name: str
-    price: Optional[float] = None
-    imageUrl: Optional[str] = None
-    vendor: Optional[str] = None
-    url: Optional[str] = None
-    fitsTypes: list[str] = Field(default_factory=list)
 
 
 class Navigation(BaseModel):
@@ -169,11 +156,11 @@ class WorldSpec(BaseModel):
     worldId: str
     prompt: str
     intent: Optional[Intent] = None
+    site: Optional[Site] = None
     blueprint: Optional[Blueprint] = None
     geometry: Optional[Geometry] = None
     lighting: Optional[Lighting] = None
     materials: Optional[Materials] = None
     furniture: list[FurnitureItem] = Field(default_factory=list)
-    products: dict[str, Product] = Field(default_factory=dict)
     navigation: Optional[Navigation] = None
     cost: Optional[Cost] = None
