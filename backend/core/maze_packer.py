@@ -156,13 +156,22 @@ def _seed_rect_level0(
 
 
 def _pick_seed_template(template_names: list[str]) -> tuple[str, RoomTemplate]:
-    """Find the first lobby/entry-like template in the list, falling back to
-    `lobby_modern`."""
+    """Find the first lobby/foyer/entry-like template in the list, falling
+    back to the first known template, then `lobby_modern`."""
     for name in template_names:
         tpl = ROOM_LIBRARY.get(name)
         if tpl is None:
             continue
-        if tpl.type in ("lobby", "entry") or "lobby" in name or "entry" in name:
+        if (
+            tpl.type in ("lobby", "foyer", "entry")
+            or "lobby" in name
+            or "foyer" in name
+            or "entry" in name
+        ):
+            return name, tpl
+    for name in template_names:
+        tpl = ROOM_LIBRARY.get(name)
+        if tpl is not None:
             return name, tpl
     return "lobby_modern", ROOM_LIBRARY["lobby_modern"]
 
@@ -202,12 +211,15 @@ def maze_pack_floor(
     stair_position: Optional[tuple[float, float, float, float]] = None,
     entrance_offset: Optional[float] = None,
     seed: Optional[int] = None,
+    is_top_floor: bool = False,
 ) -> tuple[Floor, Optional[tuple[float, float]]]:
     """Grow a floor plan outward from a single seed room.
 
-    `stair_position` is advisory and ignored: stairs are placed inside the
-    maze-grown room with the largest BFS distance from the entrance, and the
-    chosen (x, y) is returned so the caller can align stairs across floors.
+    On level 0, if stairs are requested, they're placed in the BFS-furthest
+    room from the entrance. On levels >= 1, stairs are placed at the EXACT
+    (x, y) passed in via `stair_position` -- the upper-floor seed landing is
+    sized to contain the stair, so this guarantees vertical alignment across
+    floors.
 
     Returns `(Floor, stair_xy)`. `stair_xy` is None if the floor has no stairs.
     """
@@ -299,49 +311,70 @@ def maze_pack_floor(
     stairs_list: list[Stairs] = []
     stair_xy: Optional[tuple[float, float]] = None
 
-    needs_stairs = (
-        stair_position is not None
-        or level > 0
-        or (seed is not None and seed != level)  # not used currently; safe
-    )
-    # Simpler rule the caller actually drives: emit stairs whenever the caller
-    # asked for them via stair_position OR we're on an upper floor.
-    needs_stairs = stair_position is not None or level > 0
+    # Caller drives stair emission. On level 0 they pass stair_position as a
+    # sentinel to mean "emit upward stairs". On levels >= 1 they pass the
+    # actual (x, y) of the stair from the floor below, which we MUST honor so
+    # stairs align vertically. is_top_floor suppresses the up-stair on the
+    # highest level.
+    emit_up_stairs = stair_position is not None and not is_top_floor
+    emit_down_stairs = level > 0  # always pair the down-stair on upper floors
 
-    if needs_stairs and rooms:
-        dists = _bfs_distances(placed_rects)
-        # If any room is unreachable (-1) treat as -inf so we never pick it.
-        # By construction every room IS reachable, but be defensive.
-        best_idx = max(
-            range(len(placed_rects)),
-            key=lambda i: (dists[i] if dists[i] >= 0 else -1),
-        )
-        target = placed_rects[best_idx]
+    if rooms and (emit_up_stairs or emit_down_stairs):
         sw = sd = 2.0
-        # Carve a 2x2 sub-rect centered inside `target`, snapped to grid.
-        sx = _snap(target.x + (target.width - sw) / 2.0)
-        sy = _snap(target.y + (target.depth - sd) / 2.0)
-        sx = max(target.x, min(target.x2 - sw, sx))
-        sy = max(target.y, min(target.y2 - sd, sy))
 
         if level == 0:
-            direction = "north"
-            to_level = 1
-        else:
-            direction = "south"
-            to_level = level - 1
-
-        stairs_list.append(
-            Stairs(
-                id=f"stair_{level}",
-                x=_snap(sx),
-                y=_snap(sy),
-                width=sw,
-                depth=sd,
-                direction=direction,
-                toLevel=to_level,
+            # Pick BFS-furthest room from the entrance, drop a 2x2 inside it.
+            dists = _bfs_distances(placed_rects)
+            best_idx = max(
+                range(len(placed_rects)),
+                key=lambda i: (dists[i] if dists[i] >= 0 else -1),
             )
-        )
+            target = placed_rects[best_idx]
+            sx = _snap(target.x + (target.width - sw) / 2.0)
+            sy = _snap(target.y + (target.depth - sd) / 2.0)
+            sx = max(target.x, min(target.x2 - sw, sx))
+            sy = max(target.y, min(target.y2 - sd, sy))
+        else:
+            # Honor the incoming stair_position EXACTLY -- the landing room
+            # at index 0 was sized to contain this stair.
+            assert stair_position is not None, (
+                "upper floor must receive stair_position to align stairs"
+            )
+            sx_in, sy_in, _, _ = stair_position
+            sx = _snap(sx_in)
+            sy = _snap(sy_in)
+            # Clamp into footprint (the landing already covers this region).
+            sx = max(0.0, min(fw - sw, sx))
+            sy = max(0.0, min(fd - sd, sy))
+
+        # Down-stair (on every upper floor).
+        if emit_down_stairs:
+            stairs_list.append(
+                Stairs(
+                    id=f"stair_{level}_down",
+                    x=_snap(sx),
+                    y=_snap(sy),
+                    width=sw,
+                    depth=sd,
+                    direction="south",
+                    toLevel=level - 1,
+                )
+            )
+
+        # Up-stair (on level 0 and intermediate floors).
+        if emit_up_stairs:
+            stairs_list.append(
+                Stairs(
+                    id=f"stair_{level}_up",
+                    x=_snap(sx),
+                    y=_snap(sy),
+                    width=sw,
+                    depth=sd,
+                    direction="north",
+                    toLevel=level + 1,
+                )
+            )
+
         stair_xy = (_snap(sx), _snap(sy))
 
     floor = Floor(

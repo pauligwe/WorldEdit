@@ -9,11 +9,8 @@ const AGENTS = [
   { name: "material_stylist", row: 4 },
   { name: "furniture_planner", row: 5 },
   { name: "placement_validator", row: 6 },
-  { name: "product_scout", row: 7 },
-  { name: "style_matcher", row: 8 },
-  { name: "pricing_estimator", row: 9 },
-  { name: "navigation_planner", row: 10 },
-  { name: "chat_edit_coordinator", row: 11 },
+  { name: "pricing_estimator", row: 7 },
+  { name: "navigation_planner", row: 8 },
 ] as const;
 
 export type AgentState = "idle" | "running" | "done" | "error";

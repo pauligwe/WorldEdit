@@ -362,6 +362,200 @@ _server_room = RoomTemplate(
 
 
 # --------------------------------------------------------------------------- #
+# Residential templates
+# --------------------------------------------------------------------------- #
+
+_house_foyer = RoomTemplate(
+    name="house_foyer",
+    type="foyer",
+    width=4.0,
+    depth=3.0,
+    door_specs=[
+        # External entrance.
+        DoorSpec(wall="south", offset=1.6, width=1.2),
+        # Pass-through to the rest of the house.
+        DoorSpec(wall="north", offset=1.6, width=1.0),
+    ],
+    furniture=[
+        # Console table by the entrance + a small plant.
+        FurnitureTemplate(
+            type="table", room_offset=[0.3, 2.3],
+            size=[1.2, 0.8, 0.4],
+        ),
+        FurnitureTemplate(
+            type="plant", room_offset=[3.2, 2.3],
+            size=[0.6, 1.2, 0.6],
+        ),
+    ],
+    description="Compact entry foyer (4x3m) with a console table and plant.",
+)
+
+
+_living_room = RoomTemplate(
+    name="living_room",
+    type="living_room",
+    width=6.0,
+    depth=5.0,
+    door_specs=[DoorSpec(wall="south", offset=2.5, width=1.1)],
+    furniture=[
+        # Large couch facing south (out of the room toward an imaginary TV).
+        FurnitureTemplate(
+            type="couch", room_offset=[1.7, 3.4],
+            size=[2.6, 0.8, 0.95], rotation=pi,
+        ),
+        # Coffee table in front of the couch.
+        FurnitureTemplate(
+            type="table", room_offset=[2.1, 1.9],
+            size=[1.8, 0.45, 0.9],
+        ),
+        # Armchair to the east.
+        FurnitureTemplate(
+            type="chair", room_offset=[4.6, 2.2],
+            size=[0.8, 0.9, 0.8], rotation=-pi / 2,
+        ),
+        # Bookshelf and lamp on the west wall.
+        FurnitureTemplate(
+            type="bookshelf", room_offset=[0.2, 2.0],
+            size=[1.0, 1.8, 0.4],
+        ),
+        FurnitureTemplate(
+            type="lamp", room_offset=[0.3, 0.3],
+            size=[0.4, 1.5, 0.4],
+        ),
+        # Rug centered.
+        FurnitureTemplate(
+            type="rug", room_offset=[1.5, 1.0],
+            size=[3.0, 0.02, 2.5],
+        ),
+    ],
+    description="Living room (6x5m) with couch, coffee table, armchair, bookshelf, and rug.",
+)
+
+
+_bedroom = RoomTemplate(
+    name="bedroom",
+    type="bedroom",
+    width=4.5,
+    depth=4.0,
+    door_specs=[DoorSpec(wall="south", offset=1.8, width=0.9)],
+    furniture=[
+        # Bed against the north wall, head pointing north.
+        FurnitureTemplate(
+            type="bed", room_offset=[1.25, 1.7],
+            size=[2.0, 0.5, 2.2],
+        ),
+        # Nightstand (table) with a lamp on it (rendered as a separate item).
+        FurnitureTemplate(
+            type="table", room_offset=[3.5, 2.7],
+            size=[0.5, 0.5, 0.5],
+        ),
+        FurnitureTemplate(
+            type="lamp", room_offset=[3.55, 2.75],
+            size=[0.3, 0.7, 0.3],
+        ),
+        # Wardrobe.
+        FurnitureTemplate(
+            type="bookshelf", room_offset=[0.2, 0.2],
+            size=[1.4, 2.0, 0.6],
+        ),
+    ],
+    description="Bedroom (4.5x4m) with bed, nightstand, lamp, and wardrobe.",
+)
+
+
+_kitchen = RoomTemplate(
+    name="kitchen",
+    type="kitchen",
+    width=5.0,
+    depth=4.0,
+    door_specs=[DoorSpec(wall="south", offset=2.0, width=1.0)],
+    furniture=[
+        # Counter run along the north wall (filing-cabinet shape gives a
+        # cabinet-with-handles look).
+        FurnitureTemplate(
+            type="filing_cabinet", room_offset=[0.3, 3.2],
+            size=[1.2, 0.9, 0.6],
+        ),
+        FurnitureTemplate(
+            type="filing_cabinet", room_offset=[1.6, 3.2],
+            size=[1.2, 0.9, 0.6],
+        ),
+        FurnitureTemplate(
+            type="filing_cabinet", room_offset=[2.9, 3.2],
+            size=[1.2, 0.9, 0.6],
+        ),
+        # Fridge — taller cabinet on the right.
+        FurnitureTemplate(
+            type="filing_cabinet", room_offset=[4.2, 3.0],
+            size=[0.6, 1.8, 0.6],
+        ),
+        # Center island.
+        FurnitureTemplate(
+            type="table", room_offset=[1.5, 1.4],
+            size=[2.0, 0.9, 1.0],
+        ),
+    ],
+    description="Kitchen (5x4m) with a counter run, fridge, and center island.",
+)
+
+
+_dining_room = RoomTemplate(
+    name="dining_room",
+    type="dining_room",
+    width=5.0,
+    depth=4.0,
+    door_specs=[DoorSpec(wall="south", offset=2.0, width=1.0)],
+    furniture=[
+        # Dining table (rectangular) centered.
+        FurnitureTemplate(
+            type="table", room_offset=[1.5, 1.0],
+            size=[2.0, 0.75, 2.0],
+        ),
+        # 4 chairs around it.
+        FurnitureTemplate(
+            type="chair", room_offset=[1.6, 0.2],
+            size=[0.5, 1.0, 0.5],
+        ),
+        FurnitureTemplate(
+            type="chair", room_offset=[2.9, 0.2],
+            size=[0.5, 1.0, 0.5],
+        ),
+        FurnitureTemplate(
+            type="chair", room_offset=[1.6, 3.2],
+            size=[0.5, 1.0, 0.5], rotation=pi,
+        ),
+        FurnitureTemplate(
+            type="chair", room_offset=[2.9, 3.2],
+            size=[0.5, 1.0, 0.5], rotation=pi,
+        ),
+        # Plant in the corner.
+        FurnitureTemplate(
+            type="plant", room_offset=[4.3, 0.3],
+            size=[0.5, 1.4, 0.5],
+        ),
+    ],
+    description="Dining room (5x4m) with a 4-seat table and a corner plant.",
+)
+
+
+_bathroom = RoomTemplate(
+    name="bathroom",
+    type="bathroom",
+    width=3.0,
+    depth=3.0,
+    door_specs=[DoorSpec(wall="south", offset=1.0, width=0.8)],
+    furniture=[
+        # Vanity counter (filing_cabinet shape, low) along the east wall.
+        FurnitureTemplate(
+            type="filing_cabinet", room_offset=[2.4, 0.4],
+            size=[0.5, 0.85, 1.4],
+        ),
+    ],
+    description="Bathroom (3x3m) with a vanity counter against the east wall.",
+)
+
+
+# --------------------------------------------------------------------------- #
 # Library + lookup
 # --------------------------------------------------------------------------- #
 
@@ -378,6 +572,12 @@ ROOM_LIBRARY: dict[str, RoomTemplate] = {
         _corridor_long,
         _restroom,
         _server_room,
+        _house_foyer,
+        _living_room,
+        _bedroom,
+        _kitchen,
+        _dining_room,
+        _bathroom,
     ]
 }
 

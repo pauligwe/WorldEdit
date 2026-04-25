@@ -1,106 +1,132 @@
-from core.world_spec import WorldSpec, Blueprint
-from core.floor_packer import BuildingTemplateSelection
+"""Procedural floor-plan generator. No LLM call.
+
+Picks a hand-tuned room program per (building_type, level) and feeds it to the
+maze packer. Stair (x, y) is threaded across floors so they align vertically.
+World ID is mixed into the seed so identical inputs still yield different
+layouts per generation.
+"""
+
 from core.maze_packer import maze_pack_floor
-from core.archetype_packer import RESIDENTIAL_ARCHETYPES, archetype_pack_floor
-from core.room_library import ROOM_LIBRARY
-from core.gemini_client import structured
-from core.prompts.blueprint_architect import SYSTEM, USER_TMPL
+from core.world_spec import Blueprint, WorldSpec
 
 
-_RESIDENTIAL_TYPES = {
+# Hand-tuned room programs per (building_type, level). Floor 0 always starts
+# with an entry-style template so the entrance lands on the south edge.
+_OFFICE_GROUND = [
+    "lobby_modern",
+    "office_open_bullpen",
+    "conference_small",
+    "office_private_small",
+    "office_private_small",
+    "breakroom",
+    "restroom",
+]
+_OFFICE_UPPER = [
+    "office_open_bullpen",
+    "conference_large",
+    "conference_small",
+    "office_private_small",
+    "office_private_small",
+    "breakroom",
+    "restroom",
+    "server_room",
+]
+_HOUSE_GROUND = [
+    "house_foyer",
+    "living_room",
+    "kitchen",
+    "dining_room",
+    "bathroom",
+]
+_HOUSE_UPPER = [
+    "bedroom",
+    "bedroom",
+    "bedroom",
+    "bathroom",
+]
+_GENERIC_GROUND = [
+    "lobby_modern",
+    "office_open_bullpen",
+    "conference_small",
+    "breakroom",
+    "restroom",
+]
+_GENERIC_UPPER = [
+    "office_open_bullpen",
+    "conference_small",
+    "office_private_small",
+    "breakroom",
+    "restroom",
+]
+
+
+_RESIDENTIAL_KEYWORDS = (
     "house", "home", "cabin", "cottage", "apartment", "studio",
     "loft", "condo", "mansion", "villa", "bungalow", "townhouse",
     "duplex", "ranch", "colonial",
-}
-
-_COMMERCIAL_PROMPT_OVERRIDES = (
-    "office", "startup", "workplace", "company", "corporate",
-    "school", "classroom", "university", "library", "hospital",
-    "clinic", "hotel", "mall", "store", "shop", "restaurant",
-    "museum", "warehouse", "lab", "factory",
+)
+_OFFICE_KEYWORDS = (
+    "office", "startup", "workplace", "company", "corporate", "lab",
 )
 
 
-def _is_residential(spec: WorldSpec) -> bool:
-    prompt = (spec.prompt or "").lower()
-    if any(kw in prompt for kw in _COMMERCIAL_PROMPT_OVERRIDES):
-        return False
-    bt = (spec.intent.buildingType or "").lower() if spec.intent else ""
-    return bt in _RESIDENTIAL_TYPES
-
-
-def _pick_archetype(spec: WorldSpec) -> str:
-    floors = spec.intent.floors if spec.intent else 1
+def _classify(spec: WorldSpec) -> str:
+    """Returns one of 'house', 'office', 'generic'."""
     bt = (spec.intent.buildingType or "").lower() if spec.intent else ""
     prompt = (spec.prompt or "").lower()
-
-    if "studio" in bt or "studio" in prompt:
-        return "studio"
-    if "loft" in bt or "loft" in prompt:
-        return "loft"
-    if "colonial" in bt or "colonial" in prompt or floors >= 2:
-        return "two_story_colonial"
-    return "ranch"
+    haystack = f"{bt} {prompt}"
+    if any(kw in haystack for kw in _OFFICE_KEYWORDS):
+        return "office"
+    if any(kw in haystack for kw in _RESIDENTIAL_KEYWORDS):
+        return "house"
+    return "generic"
 
 
-def _run_residential(spec: WorldSpec) -> WorldSpec:
-    archetype = _pick_archetype(spec)
-    arch_spec = RESIDENTIAL_ARCHETYPES[archetype]
-    num_floors = len(arch_spec.floors)
-
-    floors = [
-        archetype_pack_floor(archetype, level=lvl, ceiling_height=3.0)
-        for lvl in range(num_floors)
-    ]
-
-    fw, fd = arch_spec.footprint
-    spec.site.buildingFootprint = (fw, fd)
-    spec.intent.floors = num_floors
-
-    spec.blueprint = Blueprint(gridSize=0.5, floors=floors)
-    return spec
+def _room_program(category: str, level: int) -> list[str]:
+    if category == "office":
+        return list(_OFFICE_GROUND if level == 0 else _OFFICE_UPPER)
+    if category == "house":
+        return list(_HOUSE_GROUND if level == 0 else _HOUSE_UPPER)
+    return list(_GENERIC_GROUND if level == 0 else _GENERIC_UPPER)
 
 
-def _run_grid_maze(spec: WorldSpec) -> WorldSpec:
-    catalog = "\n".join(
-        f"- {name}: {t.description} ({t.width}m x {t.depth}m, type={t.type})"
-        for name, t in ROOM_LIBRARY.items()
-    )
+def run(spec: WorldSpec) -> WorldSpec:
+    if spec.intent is None:
+        raise ValueError("blueprint_architect requires intent")
+    if spec.site is None:
+        raise ValueError("blueprint_architect requires site")
+
     fw, fd = spec.site.buildingFootprint
-    user_prompt = USER_TMPL.format(
-        prompt=spec.prompt,
-        building_type=spec.intent.buildingType,
-        style=spec.intent.style,
-        floors=spec.intent.floors,
-        footprint_w=fw,
-        footprint_d=fd,
-        catalog=catalog,
-    )
-    selection = structured(user_prompt, BuildingTemplateSelection, system=SYSTEM)
-
+    target_floors = spec.intent.floors
     entrance_offset = spec.site.entrance.offset
+    category = _classify(spec)
+
+    # Mix the worldId into the seed so identical inputs still yield different
+    # layouts per generation.
+    world_seed = abs(hash(spec.worldId)) % (2**31)
 
     floors = []
-    # Stair from level N becomes the seed/landing position on level N+1.
     next_stair_seed: tuple[float, float, float, float] | None = None
-    multi_floor = spec.intent.floors > 1
+    multi_floor = target_floors > 1
 
-    for fl_sel in sorted(selection.floors, key=lambda f: f.level):
-        is_last_level = fl_sel.level == spec.intent.floors - 1
-        # Multi-floor: every level except the topmost emits stairs upward.
+    for level in range(target_floors):
+        is_last_level = level == target_floors - 1
+        templates = _room_program(category, level)
+
         stair_position = next_stair_seed
         if multi_floor and not is_last_level and stair_position is None:
             # Sentinel so maze_pack_floor knows it should place stairs.
             stair_position = ((fw - 3.0) / 2, (fd - 4.0) / 2, 3.0, 4.0)
 
         floor, stair_xy = maze_pack_floor(
-            fl_sel.template_names,
+            templates,
             (fw, fd),
-            level=fl_sel.level,
+            level=level,
             ceiling_height=3.0,
             stair_position=stair_position,
-            entrance_offset=entrance_offset if fl_sel.level == 0 else None,
-            seed=fl_sel.level + 1,
+            entrance_offset=entrance_offset if level == 0 else None,
+            seed=world_seed + level + 1,
+            is_top_floor=is_last_level,
         )
         floors.append(floor)
 
@@ -111,14 +137,3 @@ def _run_grid_maze(spec: WorldSpec) -> WorldSpec:
 
     spec.blueprint = Blueprint(gridSize=0.5, floors=floors)
     return spec
-
-
-def run(spec: WorldSpec) -> WorldSpec:
-    if spec.intent is None:
-        raise ValueError("blueprint_architect requires intent")
-    if spec.site is None:
-        raise ValueError("blueprint_architect requires site")
-
-    if _is_residential(spec):
-        return _run_residential(spec)
-    return _run_grid_maze(spec)

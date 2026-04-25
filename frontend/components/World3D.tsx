@@ -12,7 +12,7 @@ import CrosshairHUD from "./CrosshairHUD";
 import StatusBar from "./StatusBar";
 import ChatPanel from "./ChatPanel";
 
-const MAX_POINT_LIGHTS = 4;
+const MAX_POINT_LIGHTS = 24;
 
 export default function World3D({ spec }: { spec: WorldSpec }) {
   const [chatOpen, setChatOpen] = useState(false);
@@ -62,12 +62,13 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
     <div className="fixed inset-0">
       <Canvas camera={{ fov: 70, position: spawn as any, near: 0.05, far: 300 }}>
         <color attach="background" args={["#a8c8e8"]} />
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[60, 80, 40]} intensity={1.0} />
+        <ambientLight intensity={0.25} />
+        <directionalLight position={[60, 80, 40]} intensity={0.45} />
 
         {pickedLights.map(({ rid, i, l }) => (
           <pointLight key={`${rid}-${i}`} position={l.position as any}
-                      color={l.color} intensity={l.intensity} distance={12} />
+                      color={l.color} intensity={l.intensity * 4} distance={14}
+                      decay={1.6} />
         ))}
 
         <Suspense fallback={null}>

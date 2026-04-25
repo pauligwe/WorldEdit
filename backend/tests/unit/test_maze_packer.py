@@ -158,6 +158,109 @@ def test_determinism():
         assert ra.model_dump() == rb.model_dump()
 
 
+def test_upper_floor_honors_stair_position_exactly():
+    """Stairs on level >= 1 must land at the exact (x, y) passed in."""
+    floor, stair_xy = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=1,
+        stair_position=(12.0, 8.0, 3.0, 4.0),
+        seed=3,
+        is_top_floor=True,
+    )
+    assert stair_xy == (12.0, 8.0), (
+        f"expected stair_xy=(12.0, 8.0), got {stair_xy}"
+    )
+    assert len(floor.stairs) == 1, "top floor should have only the down stair"
+    s = floor.stairs[0]
+    assert (s.x, s.y) == (12.0, 8.0)
+    assert s.direction == "south"
+
+
+def test_intermediate_floor_emits_both_up_and_down_stairs():
+    floor, stair_xy = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=1,
+        stair_position=(10.0, 10.0, 3.0, 4.0),
+        seed=5,
+        is_top_floor=False,
+    )
+    assert stair_xy == (10.0, 10.0)
+    # Intermediate floor: one down-stair (to level 0) and one up-stair (to level 2).
+    assert len(floor.stairs) == 2
+    directions = sorted(s.direction for s in floor.stairs)
+    assert directions == ["north", "south"]
+    # Both must be at the same (x, y).
+    for s in floor.stairs:
+        assert (s.x, s.y) == (10.0, 10.0)
+
+
+def test_stairs_align_across_three_floors():
+    """Run level 0 -> 1 -> 2 with the caller threading stair_xy. All stair
+    (x, y) coords must be identical."""
+    floor0, xy0 = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=0,
+        entrance_offset=15.0,
+        stair_position=((30.0 - 3.0) / 2, (30.0 - 4.0) / 2, 3.0, 4.0),  # sentinel
+        seed=11,
+    )
+    assert xy0 is not None and len(floor0.stairs) == 1
+    assert floor0.stairs[0].direction == "north"
+
+    seed1 = (xy0[0], xy0[1], 3.0, 4.0)
+    floor1, xy1 = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=1,
+        stair_position=seed1,
+        seed=12,
+        is_top_floor=False,
+    )
+    assert xy1 == xy0, f"floor 1 stair {xy1} != floor 0 stair {xy0}"
+
+    seed2 = (xy1[0], xy1[1], 3.0, 4.0)
+    floor2, xy2 = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=2,
+        stair_position=seed2,
+        seed=13,
+        is_top_floor=True,
+    )
+    assert xy2 == xy0, f"floor 2 stair {xy2} != floor 0 stair {xy0}"
+
+    # Top floor should have only a down-stair.
+    assert len(floor2.stairs) == 1
+    assert floor2.stairs[0].direction == "south"
+
+
+def test_upper_floor_landing_contains_the_stair():
+    """The landing room seeded on upper floors must contain the stair."""
+    floor, stair_xy = maze_pack_floor(
+        _OFFICE_TEMPLATES,
+        footprint=(30.0, 30.0),
+        level=1,
+        stair_position=(20.0, 18.0, 3.0, 4.0),
+        seed=21,
+        is_top_floor=True,
+    )
+    assert stair_xy == (20.0, 18.0)
+    s = floor.stairs[0]
+    cx, cy = s.x + s.width / 2.0, s.y + s.depth / 2.0
+    container = next(
+        (
+            r for r in floor.rooms
+            if r.x - 1e-6 <= cx <= r.x + r.width + 1e-6
+            and r.y - 1e-6 <= cy <= r.y + r.depth + 1e-6
+        ),
+        None,
+    )
+    assert container is not None, "stair on upper floor not inside any room"
+
+
 def test_skips_unknown_templates_gracefully():
     floor, _ = maze_pack_floor(
         ["nonexistent_template", "office_private_small"],
