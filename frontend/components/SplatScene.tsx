@@ -104,6 +104,42 @@ function CaptureBridge({ captureRef }: { captureRef: React.MutableRefObject<(() 
   return null;
 }
 
+type Capture3Fn = () => { thumbnail: string | null; views: [string, string, string] | null };
+
+function PerceptionCaptureBridge({
+  captureRef,
+}: { captureRef: React.MutableRefObject<Capture3Fn | null> }) {
+  const { gl, scene, camera } = useThree();
+  useEffect(() => {
+    captureRef.current = () => {
+      try {
+        const originalYaw = camera.rotation.y;
+        gl.render(scene, camera);
+        const thumbnail = gl.domElement.toDataURL("image/jpeg", 0.85);
+
+        const views: string[] = [];
+        const yawOffsets = [0, (2 * Math.PI) / 3, (4 * Math.PI) / 3];
+        for (const off of yawOffsets) {
+          camera.rotation.y = originalYaw + off;
+          camera.updateMatrixWorld(true);
+          gl.render(scene, camera);
+          views.push(gl.domElement.toDataURL("image/jpeg", 0.85));
+        }
+        camera.rotation.y = originalYaw;
+        camera.updateMatrixWorld(true);
+        gl.render(scene, camera);
+
+        return { thumbnail, views: [views[0], views[1], views[2]] as [string, string, string] };
+      } catch (err) {
+        console.error("[perception capture] failed", err);
+        return { thumbnail: null, views: null };
+      }
+    };
+    return () => { captureRef.current = null; };
+  }, [gl, scene, camera, captureRef]);
+  return null;
+}
+
 export default function SplatScene({
   splatUrl,
   spawn,
@@ -117,6 +153,7 @@ export default function SplatScene({
   const [pose, setPose] = useState<Pose>({ spawn, yaw, pitch });
   const [copied, setCopied] = useState(false);
   const captureRef = useRef<(() => string | null) | null>(null);
+  const perceptionRef = useRef<Capture3Fn | null>(null);
   const autoFiredRef = useRef(false);
   const lastPoseTickRef = useRef(0);
 
@@ -142,33 +179,9 @@ export default function SplatScene({
     loadSpark().then(() => setSparkReady(true)).catch(() => setSparkReady(true));
   }, []);
 
-  const runCapture = useCallback(async () => {
-    if (!captureMode) return;
-    const fn = captureRef.current;
-    if (!fn) return;
-    const dataUrl = fn();
-    if (!dataUrl) {
-      setCaptureMsg("capture failed");
-      return;
-    }
-    setCaptureMsg("saving thumbnail…");
-    try {
-      const res = await fetch("/api/thumbnail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: captureMode.id, dataUrl }),
-      });
-      const json = await res.json();
-      if (json.ok) setCaptureMsg(`saved ${json.path}`);
-      else setCaptureMsg(`error: ${json.error ?? "unknown"}`);
-    } catch (err) {
-      setCaptureMsg(`error: ${String(err)}`);
-    }
-    setTimeout(() => setCaptureMsg(null), 3000);
-  }, [captureMode]);
-
   // Auto-capture once the splat has had time to render. Skip if a thumbnail
   // already exists at thumbnailUrl (unless `force` is set via ?capture=1).
+  // Captures 3 yaw-rotated perception views and triggers the analyze pipeline.
   useEffect(() => {
     if (!captureMode || !sparkReady) return;
     if (autoFiredRef.current) return;
@@ -179,18 +192,68 @@ export default function SplatScene({
       if (!captureMode.force && thumbnailUrl) {
         try {
           const head = await fetch(thumbnailUrl, { method: "HEAD" });
-          if (head.ok) return; // already have a thumbnail
+          if (head.ok) return;
         } catch {}
       }
-      // Wait for splat to actually render a few frames before capturing.
       await new Promise((r) => setTimeout(r, 1500));
       if (cancelled) return;
-      await runCapture();
+
+      const fn = perceptionRef.current;
+      if (!fn) return;
+      const { thumbnail, views } = fn();
+      if (!thumbnail || !views) {
+        setCaptureMsg("capture failed");
+        return;
+      }
+      setCaptureMsg("saving thumbnail…");
+      try {
+        await fetch("/api/thumbnail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: captureMode.id, dataUrl: thumbnail }),
+        });
+      } catch {}
+
+      setCaptureMsg("saving perception frames…");
+      try {
+        const res = await fetch("http://localhost:8000/api/perception-frames", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            world_id: captureMode.id,
+            view_0:   views[0],
+            view_120: views[1],
+            view_240: views[2],
+          }),
+        });
+        if (!res.ok) {
+          setCaptureMsg(`perception frames failed: ${res.status}`);
+          return;
+        }
+      } catch (err) {
+        setCaptureMsg(`perception frames error: ${String(err)}`);
+        return;
+      }
+
+      setCaptureMsg("dispatching agents…");
+      try {
+        await fetch(`http://localhost:8000/api/analyze/${captureMode.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: "" }),
+        });
+        setCaptureMsg("agents running…");
+      } catch (err) {
+        setCaptureMsg(`analyze trigger failed: ${String(err)}`);
+        return;
+      }
+
+      setTimeout(() => setCaptureMsg(null), 4000);
     })();
     return () => {
       cancelled = true;
     };
-  }, [captureMode, sparkReady, thumbnailUrl, runCapture]);
+  }, [captureMode, sparkReady, thumbnailUrl]);
 
   return (
     <div className="fixed inset-0 bg-black">
@@ -211,6 +274,7 @@ export default function SplatScene({
         <CameraSpawn spawn={spawn} yaw={yaw} pitch={pitch} />
         <PlayerControls walls={[]} spawn={spawn} />
         {captureMode && <CaptureBridge captureRef={captureRef} />}
+        {captureMode && <PerceptionCaptureBridge captureRef={perceptionRef} />}
         <PoseReadout onChange={onPoseChange} />
       </Canvas>
       <CrosshairHUD />
