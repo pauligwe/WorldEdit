@@ -13,8 +13,12 @@ export interface Stairs { id: string; x: number; y: number; width: number; depth
 export interface Floor { level: number; ceilingHeight: number; rooms: Room[]; stairs: Stairs[]; }
 export interface Blueprint { gridSize: number; floors: Floor[]; }
 
+export interface Plot { width: number; depth: number; groundColor: string; }
+export interface Entrance { wall: Wall; offset: number; width: number; height: number; }
+export interface Site { plot: Plot; buildingFootprint: [number, number]; buildingAnchor: [number, number]; entrance: Entrance; }
+
 export interface GeometryPrimitive {
-  type: "floor" | "wall" | "ceiling" | "stair";
+  type: "floor" | "wall" | "ceiling" | "stair" | "exterior_wall" | "roof" | "ground";
   roomId?: string;
   wall?: Wall;
   position: [number, number, number];
@@ -31,12 +35,9 @@ export interface RoomMaterial { wall: string; floor: string; ceiling: string; }
 export interface Materials { byRoom: Record<string, RoomMaterial>; }
 
 export interface FurnitureItem {
-  id: string; roomId: string; type: string; subtype?: string;
+  id: string; roomId: string; type: string;
   position: [number, number, number]; rotation: number; size: [number, number, number];
-  selectedProductId?: string; alternates: string[]; tint?: string;
 }
-
-export interface Product { name: string; price?: number; imageUrl?: string; vendor?: string; url?: string; fitsTypes: string[]; }
 
 export interface Navigation { spawnPoint: [number, number, number]; walkableMeshIds: string[]; stairColliders: string[]; }
 export interface Cost { total: number; byRoom: Record<string, number>; }
@@ -47,12 +48,12 @@ export interface WorldSpec {
   worldId: string;
   prompt: string;
   intent?: Intent;
+  site?: Site;
   blueprint?: Blueprint;
   geometry?: Geometry;
   lighting?: Lighting;
   materials?: Materials;
   furniture: FurnitureItem[];
-  products: Record<string, Product>;
   navigation?: Navigation;
   cost?: Cost;
 }

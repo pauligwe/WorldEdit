@@ -22,32 +22,6 @@ export async function edit(worldId: string, edit: string): Promise<{ worldId: st
   return r.json();
 }
 
-export async function selectProduct(worldId: string, furnitureId: string, productId: string): Promise<void> {
-  const r = await fetch(`${BRIDGE}/api/select-product`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ worldId, furnitureId, productId }),
-  });
-  if (!r.ok) throw new Error(`select-product: ${r.status}`);
-}
-
-export function proxiedImage(url: string, productUrl?: string): string {
-  const u = `${BRIDGE}/api/img?url=${encodeURIComponent(url)}`;
-  return productUrl ? `${u}&product=${encodeURIComponent(productUrl)}` : u;
-}
-
-export async function fetchProductColor(imageUrl: string, productUrl?: string): Promise<string | null> {
-  const u = new URL(`${BRIDGE}/api/img-color`);
-  u.searchParams.set("url", imageUrl);
-  if (productUrl) u.searchParams.set("product", productUrl);
-  try {
-    const r = await fetch(u.toString());
-    if (!r.ok) return null;
-    const j = await r.json();
-    return j.color ?? null;
-  } catch { return null; }
-}
-
 export async function getWorld(worldId: string): Promise<WorldSpec> {
   const r = await fetch(`${BRIDGE}/api/world/${worldId}`);
   if (!r.ok) throw new Error(`world: ${r.status}`);
