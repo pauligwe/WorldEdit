@@ -5,12 +5,16 @@ import { PointerLockControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { GeometryPrimitive } from "@/lib/worldSpec";
 
-interface Props { walls: GeometryPrimitive[]; spawn: [number, number, number]; }
+interface Props {
+  walls: GeometryPrimitive[];
+  spawn: [number, number, number];
+  lookAt?: [number, number, number];
+}
 
 const SPEED = 6.0;
 const SPRINT = 14.0;
 
-export default function PlayerControls({ walls: _walls, spawn }: Props) {
+export default function PlayerControls({ walls: _walls, spawn, lookAt }: Props) {
   const { camera } = useThree();
   const pressed = useRef<Record<string, boolean>>({});
   const initialized = useRef(false);
@@ -18,6 +22,9 @@ export default function PlayerControls({ walls: _walls, spawn }: Props) {
   useEffect(() => {
     if (!initialized.current) {
       camera.position.set(spawn[0], spawn[1], spawn[2]);
+      if (lookAt) {
+        camera.lookAt(lookAt[0], lookAt[1], lookAt[2]);
+      }
       initialized.current = true;
     }
     function down(e: KeyboardEvent) { pressed.current[e.code] = true; }
@@ -28,7 +35,7 @@ export default function PlayerControls({ walls: _walls, spawn }: Props) {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, [camera, spawn]);
+  }, [camera, spawn, lookAt]);
 
   useFrame((_, delta) => {
     const k = pressed.current;

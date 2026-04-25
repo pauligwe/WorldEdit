@@ -1,51 +1,65 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { openStatusSocket, getWorld, type StatusEvent } from "@/lib/api";
 import type { WorldSpec } from "@/lib/worldSpec";
-import { applyAgentWorldEvent, createInitialAgentSnapshots, type BuildMode, type AgentWorldEvent, type AgentWorldSnapshot } from "@/lib/agentWorld";
-import { startAgentSimulation } from "@/lib/agentSimulation";
+import { applyAgentWorldEvent, createInitialAgentSnapshots, type AgentWorldEvent, type AgentWorldSnapshot } from "@/lib/agentWorld";
 
 const World3D = dynamic(() => import("@/components/World3D"), { ssr: false });
+const AgentWorld2D = dynamic(() => import("@/components/AgentWorld2D"), { ssr: false });
 
 export default function BuildPage() {
   const params = useParams<{ worldId: string }>();
-  const searchParams = useSearchParams();
-  const autoSimulate = searchParams.get("simulate") === "1";
   const worldId = params.worldId;
-  const [mode, setMode] = useState<BuildMode>(autoSimulate ? "simulated" : "real");
   const [agentSnapshots, setAgentSnapshots] = useState<Record<string, AgentWorldSnapshot>>(createInitialAgentSnapshots());
   const [agentEvents, setAgentEvents] = useState<AgentWorldEvent[]>([]);
   const [spec, setSpec] = useState<WorldSpec | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [simRunning, setSimRunning] = useState(false);
-  const simStopRef = useRef<(() => void) | null>(null);
+  const [show3D, setShow3D] = useState(false);
   const eventsRef = useRef<AgentWorldEvent[]>([]);
-  const autoStartedSimRef = useRef(false);
 
-  const onAgentEvent = useCallback((event: StatusEvent, simulated: boolean) => {
+  const isWorldRenderable = useCallback((candidate: WorldSpec | null | undefined) => {
+    if (!candidate) return false;
+    const primCount = candidate.geometry?.primitives?.length ?? 0;
+    return primCount > 0;
+  }, []);
+
+  const onAgentEvent = useCallback((event: StatusEvent) => {
+    const switchTo3DIfRenderable = () => {
+      getWorld(worldId).then((next) => {
+        setSpec(next);
+        if (isWorldRenderable(next)) {
+          setShow3D(true);
+        }
+      }).catch(() => {});
+    };
+
     if (event.agent === "__final__") {
-      if (simulated) {
-        setSimRunning(false);
-        return;
-      }
-      getWorld(worldId).then(setSpec).catch(() => {});
+      switchTo3DIfRenderable();
       return;
     }
+
     if (event.agent === "__pipeline__" && event.state === "error") {
       setError(event.message ?? "Pipeline error");
       return;
     }
-    if (event.agent.startsWith("__")) return;
+
+    if (event.agent.startsWith("__")) {
+      return;
+    }
+
+    if (event.state === "done") {
+      switchTo3DIfRenderable();
+    }
 
     setAgentSnapshots((prev) => {
-      const next = applyAgentWorldEvent(prev, eventsRef.current, event, simulated);
+      const next = applyAgentWorldEvent(prev, eventsRef.current, event, false);
       eventsRef.current = next.events;
       setAgentEvents(next.events);
       return next.snapshots;
     });
-  }, [worldId]);
+  }, [worldId, isWorldRenderable]);
 
   useEffect(() => {
     setAgentSnapshots(createInitialAgentSnapshots());
@@ -53,64 +67,53 @@ export default function BuildPage() {
     eventsRef.current = [];
     setSpec(null);
     setError(null);
-    simStopRef.current?.();
-    simStopRef.current = null;
-    setSimRunning(false);
-    setMode(autoSimulate ? "simulated" : "real");
-    autoStartedSimRef.current = false;
-  }, [worldId, autoSimulate]);
+    setShow3D(false);
+  }, [worldId]);
 
   useEffect(() => {
-    if (mode !== "real") return;
     let cancelled = false;
     let close: (() => void) | null = null;
+
     (async () => {
       try {
         const existing = await getWorld(worldId);
         if (cancelled) return;
-        if (existing && existing.cost && existing.navigation) {
+        if (isWorldRenderable(existing)) {
           setSpec(existing);
+          setShow3D(true);
           return;
         }
       } catch {}
+
       if (cancelled) return;
       close = openStatusSocket(worldId, async (e) => {
-        onAgentEvent(e, false);
+        onAgentEvent(e);
       });
     })();
+
     return () => { cancelled = true; close?.(); };
-  }, [worldId, mode, onAgentEvent]);
+  }, [worldId, onAgentEvent, isWorldRenderable]);
 
   useEffect(() => {
-    return () => simStopRef.current?.();
-  }, []);
+    if (show3D) return;
+    let cancelled = false;
 
-  const startSimulation = useCallback(() => {
-    simStopRef.current?.();
-    setMode("simulated");
-    setError(null);
-    setAgentSnapshots(createInitialAgentSnapshots());
-    setAgentEvents([]);
-    eventsRef.current = [];
-    setSimRunning(true);
-    simStopRef.current = startAgentSimulation((evt) => onAgentEvent(evt, true), () => setSimRunning(false));
-  }, [onAgentEvent]);
+    const timer = window.setInterval(async () => {
+      try {
+        const next = await getWorld(worldId);
+        if (cancelled) return;
+        if (isWorldRenderable(next)) {
+          setSpec(next);
+          setShow3D(true);
+        }
+      } catch {}
+    }, 1500);
 
-  const exitSimulation = useCallback(() => {
-    simStopRef.current?.();
-    simStopRef.current = null;
-    setSimRunning(false);
-    setMode("real");
-    setAgentSnapshots(createInitialAgentSnapshots());
-    setAgentEvents([]);
-    eventsRef.current = [];
-  }, []);
-
-  useEffect(() => {
-    if (!autoSimulate || autoStartedSimRef.current) return;
-    autoStartedSimRef.current = true;
-    startSimulation();
-  }, [autoSimulate, startSimulation]);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [worldId, show3D, isWorldRenderable]);
 
   if (error) {
     return (
@@ -121,22 +124,22 @@ export default function BuildPage() {
     );
   }
 
-  const renderSpec = spec ?? simulationFallbackSpec(worldId);
+  if (show3D && spec) {
+    return <World3D spec={spec} />;
+  }
+
+  const renderSpec = spec ?? agentViewFallbackSpec(worldId);
 
   return (
-    <World3D
+    <AgentWorld2D
       spec={renderSpec}
-      mode={mode}
-      simRunning={simRunning}
-      onStartSimulation={startSimulation}
-      onExitSimulation={exitSimulation}
       agentSnapshots={agentSnapshots}
       agentEvents={agentEvents}
     />
   );
 }
 
-function simulationFallbackSpec(worldId: string): WorldSpec {
+function agentViewFallbackSpec(worldId: string): WorldSpec {
   return {
     worldId,
     prompt: "Simulation world",
