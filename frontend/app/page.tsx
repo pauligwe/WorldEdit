@@ -1,12 +1,38 @@
-import PromptForm from "@/components/PromptForm";
+import PromptBar from "@/components/PromptBar";
+import WorldCard from "@/components/WorldCard";
+import { WORLD_LIST } from "@/lib/worlds";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-      <div className="absolute top-6 right-6 text-xs text-zinc-500">powered by Fetch.ai Agentverse</div>
-      <h1 className="text-6xl font-black mb-4 bg-gradient-to-r from-cyan-300 to-violet-400 bg-clip-text text-transparent">World Build</h1>
-      <p className="text-zinc-400 mb-8 text-lg">Describe a building. Walk inside it.</p>
-      <PromptForm />
+    <main className="min-h-screen bg-surface text-on-surface flex flex-col">
+      <header className="flex items-center justify-between px-10 py-8">
+        <div className="label-caps tracking-[0.22em] text-xl">CONJURE</div>
+        <div className="label-caps tracking-[0.22em] text-xl">FETCH.AI</div>
+      </header>
+
+      <section className="flex-1 flex flex-col items-center justify-center px-6 -mt-8">
+        <h1 className="text-5xl md:text-6xl font-semibold tracking-[-0.03em] leading-[0.95] text-center">
+          Build your reality.
+        </h1>
+        <p className="mt-6 max-w-xl text-center text-on-surface-variant text-lg leading-relaxed">
+          Describe a world, an environment, or an architectural concept to begin the synthesis.
+        </p>
+        <div className="mt-14 w-full flex justify-center">
+          <PromptBar />
+        </div>
+      </section>
+
+      <section className="border-t border-outline-variant bg-surface-lowest">
+        <div className="px-10 pt-10 pb-2 flex items-center justify-between">
+          <h2 className="label-caps text-on-surface-variant text-sm">Recent Generations</h2>
+          <button className="text-sm text-on-surface hover:underline">View All Worlds</button>
+        </div>
+        <div className="px-10 pb-12 pt-6 overflow-x-auto">
+          <div className="flex gap-6 min-w-max">
+            {WORLD_LIST.map((w) => <WorldCard key={w.id} world={w} />)}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
