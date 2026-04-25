@@ -23,3 +23,10 @@ async def test_full_pipeline_makes_valid_house():
     assert out.materials and out.materials.byRoom
     assert out.navigation is not None
     assert out.cost is not None
+
+    spec = out
+    assert spec.site is not None
+    assert spec.site.plot.width == 100.0
+    assert any(p.type == "ground" for p in spec.geometry.primitives)
+    assert any(p.type == "exterior_wall" for p in spec.geometry.primitives)
+    assert any(p.type == "roof" for p in spec.geometry.primitives)
