@@ -39,13 +39,7 @@ def text(prompt: str, system: str | None = None, model: str = DEFAULT_MODEL) -> 
     return resp.text
 
 
-def structured(prompt: str, schema: Type[T], system: str | None = None, model: str = DEFAULT_MODEL) -> T:
-    """Send prompt expecting JSON matching the given Pydantic schema.
-
-    First tries response_schema; falls back to response_mime_type=json + Pydantic
-    parse if Gemini rejects the schema (some Pydantic constraints aren't supported).
-    """
-    client = _require_client()
+def _structured_once(client, prompt: str, schema: Type[T], system: str | None, model: str) -> T:
     try:
         cfg = gtypes.GenerateContentConfig(
             system_instruction=system,
@@ -74,6 +68,16 @@ def structured(prompt: str, schema: Type[T], system: str | None = None, model: s
         return schema(**data)
     except ValidationError as e:
         raise GeminiError(f"Gemini JSON failed schema validation: {e}\nRaw: {raw[:500]}") from e
+
+
+def structured(prompt: str, schema: Type[T], system: str | None = None, model: str = DEFAULT_MODEL) -> T:
+    """Send prompt expecting JSON matching the given Pydantic schema. Retries
+    once on parse/schema errors since Gemini occasionally streams garbled JSON."""
+    client = _require_client()
+    try:
+        return _structured_once(client, prompt, schema, system, model)
+    except GeminiError:
+        return _structured_once(client, prompt, schema, system, model)
 
 
 def grounded_search(prompt: str, system: str | None = None, model: str = DEFAULT_MODEL) -> str:
