@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { FurnitureItem } from "@/lib/worldSpec";
 import Couch from "./Couch";
 import Bed from "./Bed";
@@ -9,38 +8,34 @@ import Lamp from "./Lamp";
 import Rug from "./Rug";
 import Bookshelf from "./Bookshelf";
 import Plant from "./Plant";
+import Desk from "./Desk";
+import OfficeChair from "./OfficeChair";
+import ConferenceTable from "./ConferenceTable";
+import ReceptionDesk from "./ReceptionDesk";
+import Whiteboard from "./Whiteboard";
+import FilingCabinet from "./FilingCabinet";
 
-interface Props { item: FurnitureItem; tint?: string; onClick?: () => void; }
+interface Props { item: FurnitureItem; tint?: string }
 
 const REGISTRY: Record<string, React.ComponentType<any>> = {
-  couch: Couch,
-  sofa: Couch,
-  bed: Bed,
-  table: Table,
-  desk: Table,
-  chair: Chair,
-  lamp: Lamp,
-  rug: Rug,
-  bookshelf: Bookshelf,
-  wardrobe: Bookshelf,
-  nightstand: Table,
-  tv: Table,
-  plant: Plant,
+  couch: Couch, sofa: Couch, bed: Bed,
+  table: Table, nightstand: Table, tv: Table,
+  chair: Chair, lamp: Lamp, rug: Rug,
+  bookshelf: Bookshelf, wardrobe: Bookshelf, plant: Plant,
+  desk: Desk,
+  office_chair: OfficeChair,
+  conference_table: ConferenceTable,
+  reception_desk: ReceptionDesk,
+  whiteboard: Whiteboard,
+  filing_cabinet: FilingCabinet,
 };
 
-export default function Furniture({ item, tint, onClick }: Props) {
-  const [hover, setHover] = useState(false);
+export default function Furniture({ item, tint }: Props) {
   const Comp = REGISTRY[item.type] ?? Table;
-  const finalTint = tint ?? item.tint ?? defaultTint(item.type);
+  const finalTint = tint ?? defaultTint(item.type);
   return (
-    <group
-      position={item.position}
-      rotation={[0, item.rotation ?? 0, 0]}
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      onPointerOver={(e) => { e.stopPropagation(); setHover(true); document.body.style.cursor = "pointer"; }}
-      onPointerOut={() => { setHover(false); document.body.style.cursor = "default"; }}
-    >
-      <Comp size={item.size} color={hover ? "#ffffff" : finalTint} />
+    <group position={item.position} rotation={[0, item.rotation ?? 0, 0]}>
+      <Comp size={item.size} color={finalTint} />
     </group>
   );
 }
@@ -51,6 +46,11 @@ function defaultTint(type: string): string {
     case "bed": return "#9ca3af";
     case "table": case "desk": case "nightstand": case "tv": return "#a16207";
     case "chair": return "#4b5563";
+    case "office_chair": return "#1f2937";
+    case "conference_table": return "#3a2e1d";
+    case "reception_desk": return "#5e3a1e";
+    case "whiteboard": return "#f5f5f0";
+    case "filing_cabinet": return "#374151";
     case "lamp": return "#fef3c7";
     case "rug": return "#92400e";
     case "bookshelf": case "wardrobe": return "#451a03";
