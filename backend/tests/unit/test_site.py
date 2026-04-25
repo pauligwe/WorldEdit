@@ -26,3 +26,45 @@ def test_site_construction():
     assert s.plot.width == 100.0
     assert s.buildingFootprint == [40.0, 25.0]
     assert s.entrance.width == 1.6  # default
+
+
+from core.world_spec import Intent
+from core.site import derive_site_from_intent
+
+
+def test_derive_site_centers_building_on_plot():
+    intent = Intent(buildingType="office", style="modern", floors=3,
+                    vibe=["minimal"], sizeHint="medium")
+    site = derive_site_from_intent(intent)
+    assert site.plot.width == 100.0
+    assert site.plot.depth == 100.0
+    fw, fd = site.buildingFootprint
+    ax, ay = site.buildingAnchor
+    assert ax == (100 - fw) / 2
+    assert ay == (100 - fd) / 2
+
+
+def test_derive_site_size_hint_scales_footprint():
+    small = derive_site_from_intent(Intent(buildingType="office", style="modern",
+                                           floors=1, vibe=[], sizeHint="small"))
+    large = derive_site_from_intent(Intent(buildingType="office", style="modern",
+                                           floors=1, vibe=[], sizeHint="large"))
+    assert large.buildingFootprint[0] > small.buildingFootprint[0]
+
+
+def test_derive_site_entrance_on_south_wall():
+    site = derive_site_from_intent(Intent(buildingType="office", style="modern",
+                                          floors=1, vibe=[], sizeHint="medium"))
+    assert site.entrance.wall == "south"
+    assert 0 < site.entrance.offset < site.buildingFootprint[0]
+
+
+def test_derive_site_leaves_grass_margin():
+    site = derive_site_from_intent(Intent(buildingType="office", style="modern",
+                                          floors=1, vibe=[], sizeHint="large"))
+    fw, fd = site.buildingFootprint
+    ax, ay = site.buildingAnchor
+    assert ax >= 10  # 10m margin
+    assert ay >= 10
+    assert ax + fw <= 90
+    assert ay + fd <= 90
