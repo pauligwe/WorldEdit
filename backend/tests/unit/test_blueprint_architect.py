@@ -30,6 +30,30 @@ def test_run_raises_without_site():
         run(spec)
 
 
+def test_residential_routes_to_archetype_packer():
+    """A residential building type uses an archetype, no LLM call required."""
+    intent = Intent(buildingType="house", style="modern", floors=1, vibe=[], sizeHint="small")
+    spec = _make_spec("t-res", "A cozy ranch home with a kitchen", intent)
+    out = run(spec)
+    assert out.blueprint is not None
+    assert len(out.blueprint.floors) >= 1
+    # ranch archetype has 5 rooms on level 0
+    assert len(out.blueprint.floors[0].rooms) == 5
+
+
+def test_residential_two_story_picks_colonial():
+    intent = Intent(buildingType="house", style="traditional", floors=2, vibe=[], sizeHint="medium")
+    spec = _make_spec("t-col", "A two-story family home", intent)
+    out = run(spec)
+    assert out.blueprint is not None
+    assert len(out.blueprint.floors) == 2
+    # both floors should have aligned stairs
+    s0 = out.blueprint.floors[0].stairs
+    s1 = out.blueprint.floors[1].stairs
+    assert len(s0) == 1 and len(s1) == 1
+    assert (s0[0].x, s0[0].y) == (s1[0].x, s1[0].y)
+
+
 @_live
 def test_generates_valid_blueprint():
     spec = _make_spec(
