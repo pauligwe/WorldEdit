@@ -18,11 +18,24 @@ This is the forward-looking plan. The current state of the repo is described in 
 
 ---
 
+## What's next after site pivot
+
+- Style tokens as first-class enum (the deferred part of #2)
+- Exterior windows on `exterior_wall` primitives
+- Parking lot / outdoor features on the 100×100 plot
+- Multiple buildings on one plot
+- Stair alignment validator
+- Elevator shafts as multi-floor primitives
+
+---
+
 ## Concrete next steps
 
-### 1. Strip the legacy product path *(small, safe, do first)*
+### 1. Strip the legacy product path *(small, safe, do first)* — **DONE**
 
-These pieces are dead weight once we commit to the pivot. Removing them unblocks everything else:
+*(Completed as part of the site pivot. `product_scout` and `style_matcher` removed from `POST_STEPS`; `Product` model and product-related fields dropped from `WorldSpec`; legacy endpoints and frontend panel removed.)*
+
+These pieces were dead weight once we committed to the pivot. Removing them unblocked everything else:
 
 - **Backend agents to delete/gut**
   - `agents/product_scout.py` — Gemini grounded search for vendor URLs
@@ -44,7 +57,7 @@ These pieces are dead weight once we commit to the pivot. Removing them unblocks
 
 The `pricing_estimator` should stay, but switch from "sum product prices" to "estimate from furniture type + size" (rough $/sqft model is fine).
 
-### 2. Rich style system (replaces products as the visual variety)
+### 2. Rich style system (replaces products as the visual variety) — **TODO**
 
 Without products, the way furniture varies is via **style tokens** the agents already pick. Today these are loose strings (`"modern"`, `"rustic"`). Make them first-class:
 
@@ -53,7 +66,7 @@ Without products, the way furniture varies is via **style tokens** the agents al
 - Procedural furniture components in `components/Furniture/*` accept `style` as a prop and switch colors/proportions based on it. E.g. `Chair` in `corporate` style is a black mesh-back office chair; in `midcentury` it's tapered wood legs + walnut.
 - This is the primary visual surface area going forward — invest in it.
 
-### 3. Office-building primitives
+### 3. Office-building primitives — **IN PROGRESS**
 
 New room types and structural pieces the current model doesn't know about:
 
@@ -61,9 +74,9 @@ New room types and structural pieces the current model doesn't know about:
 - **Structural**: `corridor` as a first-class rectangle (long, narrow, doors on both sides). `elevator_shaft` as a vertical column that lines up across floors.
 - **Furniture types**: `desk`, `office_chair`, `cubicle_partition`, `whiteboard`, `conference_table`, `monitor`, `printer`, `water_cooler`, `reception_desk`, `filing_cabinet`.
 
-Each new room/furniture type is a ~30-line PR: add to the Pydantic model (or just use a string), add an example to the prompt, add a procedural component.
+Each new room/furniture type is a ~30-line PR: add to the Pydantic model (or just use a string), add an example to the prompt, add a procedural component. *(Room types and procedural furniture done; some structural pieces like `elevator_shaft` still pending.)*
 
-### 4. Multi-floor at scale
+### 4. Multi-floor at scale — **IN PROGRESS**
 
 The current `Blueprint.floors: list[Floor]` already supports multi-story, but in practice we've only tested 1–2 floors. For an office building:
 
@@ -71,7 +84,9 @@ The current `Blueprint.floors: list[Floor]` already supports multi-story, but in
 - Stairs need to align floor-to-floor. Add a validator in `compliance_critic` that checks every stair on level N has a corresponding stair / opening at the same `(x, y)` on level N+1.
 - Elevators: a vertical box at consistent `(x, y)` across all floors. Render as a closed shaft with a door per floor. (Functional elevator transport is post-MVP — for now the user uses stairs.)
 
-### 5. Hallway/corridor layout algorithm
+*(Basic multi-floor works; stair-alignment validator and elevator shaft still pending.)*
+
+### 5. Hallway/corridor layout algorithm — **TODO**
 
 The current `blueprint_architect` packs rooms naively. Office buildings are dominated by corridors. Two options:
 
@@ -80,7 +95,7 @@ The current `blueprint_architect` packs rooms naively. Office buildings are domi
 
 Start with easy, fall back to hard if outputs are bad.
 
-### 6. Performance
+### 6. Performance — **TODO**
 
 A 10-floor office with 200 rooms is ~5000 geometry primitives. The frontend currently renders every box as its own `<mesh>`. At that scale we'll need:
 

@@ -1,31 +1,14 @@
-import json
-from pydantic import BaseModel
 from core.world_spec import WorldSpec, FurnitureItem
-from core.gemini_client import structured
-from core.prompts.furniture_planner import SYSTEM, USER_TMPL
-
-
-class _ItemList(BaseModel):
-    items: list[FurnitureItem]
+from core.room_templates import apply_template
 
 
 def run(spec: WorldSpec) -> WorldSpec:
-    assert spec.intent and spec.blueprint
-    all_items: list[FurnitureItem] = []
+    assert spec.blueprint is not None and spec.site is not None
+    items: list[FurnitureItem] = []
+    anchor = (spec.site.buildingAnchor[0], spec.site.buildingAnchor[1])
     for fl in spec.blueprint.floors:
-        for r in fl.rooms:
-            user = USER_TMPL.format(
-                style=spec.intent.style,
-                vibe=", ".join(spec.intent.vibe),
-                id=r.id, type=r.type, x=r.x, y=r.y, width=r.width, depth=r.depth,
-                doors=json.dumps([d.model_dump() for d in r.doors]),
-            )
-            try:
-                items = structured(user, _ItemList, system=SYSTEM).items
-            except Exception:
-                items = []
-            for it in items:
-                it.roomId = r.id
-            all_items.extend(items)
-    spec.furniture = all_items
+        level_y = fl.level * fl.ceilingHeight
+        for room in fl.rooms:
+            items.extend(apply_template(room, level_y, anchor))
+    spec.furniture = items
     return spec

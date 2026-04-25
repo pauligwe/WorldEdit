@@ -6,7 +6,7 @@ from core.status_bus import StatusBus, AgentStatus
 from agents import (
     intent_parser, blueprint_architect, compliance_critic, geometry_builder,
     lighting_designer, material_stylist, furniture_planner, placement_validator,
-    product_scout, style_matcher, pricing_estimator, navigation_planner,
+    pricing_estimator, navigation_planner,
 )
 
 
@@ -25,8 +25,6 @@ PARALLEL_STEP: list[tuple[str, Callable[[WorldSpec], WorldSpec]]] = [
 POST_STEPS: list[tuple[str, Callable[[WorldSpec], WorldSpec]]] = [
     ("furniture_planner", furniture_planner.run),
     ("placement_validator", placement_validator.run),
-    ("product_scout", product_scout.run),
-    ("style_matcher", style_matcher.run),
     ("pricing_estimator", pricing_estimator.run),
     ("navigation_planner", navigation_planner.run),
 ]

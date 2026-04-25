@@ -24,5 +24,9 @@ async def test_full_pipeline_makes_valid_house():
     assert out.navigation is not None
     assert out.cost is not None
 
-    real_count = sum(1 for f in out.furniture if f.selectedProductId and f.selectedProductId in out.products)
-    assert real_count >= 1, "expected at least one furniture item to have a real product"
+    spec = out
+    assert spec.site is not None
+    assert spec.site.plot.width == 100.0
+    assert any(p.type == "ground" for p in spec.geometry.primitives)
+    assert any(p.type == "exterior_wall" for p in spec.geometry.primitives)
+    assert any(p.type == "roof" for p in spec.geometry.primitives)
