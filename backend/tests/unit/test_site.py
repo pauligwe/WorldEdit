@@ -68,3 +68,54 @@ def test_derive_site_leaves_grass_margin():
     assert ay >= 10
     assert ax + fw <= 90
     assert ay + fd <= 90
+
+
+from core.world_spec import (Blueprint, Floor, Room, Door, WorldSpec)
+from core.site_validators import check_site_constraints
+
+
+def _spec_with(site, floors):
+    return WorldSpec(worldId="x", prompt="t", site=site,
+                     blueprint=Blueprint(floors=floors))
+
+
+def _good_site():
+    return derive_site_from_intent(
+        Intent(buildingType="office", style="modern", floors=1,
+               vibe=[], sizeHint="medium"))
+
+
+def test_site_validator_accepts_room_inside_footprint():
+    site = _good_site()
+    fw, fd = site.buildingFootprint
+    floor = Floor(level=0, ceilingHeight=3.0, rooms=[
+        Room(id="lobby", type="lobby", x=0, y=0, width=fw, depth=fd,
+             doors=[Door(wall="south", offset=site.entrance.offset, width=1.6)])
+    ])
+    spec = _spec_with(site, [floor])
+    errors = check_site_constraints(spec)
+    assert errors == []
+
+
+def test_site_validator_rejects_room_outside_footprint():
+    site = _good_site()
+    fw, fd = site.buildingFootprint
+    floor = Floor(level=0, ceilingHeight=3.0, rooms=[
+        Room(id="lobby", type="lobby", x=0, y=0, width=fw + 5, depth=fd,
+             doors=[Door(wall="south", offset=site.entrance.offset, width=1.6)])
+    ])
+    spec = _spec_with(site, [floor])
+    errors = check_site_constraints(spec)
+    assert any("outside building footprint" in e for e in errors)
+
+
+def test_site_validator_rejects_missing_entrance_door():
+    site = _good_site()
+    fw, fd = site.buildingFootprint
+    floor = Floor(level=0, ceilingHeight=3.0, rooms=[
+        Room(id="lobby", type="lobby", x=0, y=0, width=fw, depth=fd,
+             doors=[Door(wall="north", offset=2, width=1.6)])
+    ])
+    spec = _spec_with(site, [floor])
+    errors = check_site_constraints(spec)
+    assert any("entrance" in e.lower() for e in errors)
