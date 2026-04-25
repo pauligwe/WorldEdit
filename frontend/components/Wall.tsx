@@ -9,7 +9,7 @@ export default function Wall({ prim, color }: { prim: GeometryPrimitive; color: 
       {segments.map((s, idx) => (
         <mesh key={idx} position={s.position}>
           <boxGeometry args={s.size} />
-          <meshStandardMaterial color={color} />
+          <meshLambertMaterial color={color} />
         </mesh>
       ))}
     </>

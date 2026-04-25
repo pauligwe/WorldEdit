@@ -65,13 +65,13 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
           {floors.map((p, i) => (
             <mesh key={`f${i}`} position={p.position as any}>
               <boxGeometry args={p.size as any} />
-              <meshStandardMaterial color={floorColor(matFloor(p.roomId))} />
+              <meshLambertMaterial color={floorColor(matFloor(p.roomId))} />
             </mesh>
           ))}
           {ceilings.map((p, i) => (
             <mesh key={`c${i}`} position={p.position as any}>
               <boxGeometry args={p.size as any} />
-              <meshStandardMaterial color={matCeil(p.roomId)} />
+              <meshLambertMaterial color={matCeil(p.roomId)} />
             </mesh>
           ))}
           {walls.map((p, i)    => <Wall key={`w${i}`} prim={p} color={matWall(p.roomId)} />)}
@@ -81,7 +81,7 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
             <mesh key={`s${i}`} position={p.position as any}
                   rotation={[0, p.rotation ?? 0, 0]}>
               <boxGeometry args={[p.size[0], 0.2, p.size[2]]} />
-              <meshStandardMaterial color="#7c5a3a" />
+              <meshLambertMaterial color="#7c5a3a" />
             </mesh>
           ))}
           {spec.furniture.map((f) => (

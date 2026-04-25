@@ -5,7 +5,7 @@ export default function Roof({ prim, color }: { prim: GeometryPrimitive; color: 
   return (
     <mesh position={prim.position}>
       <boxGeometry args={prim.size} />
-      <meshStandardMaterial color={color} />
+      <meshLambertMaterial color={color} />
     </mesh>
   );
 }

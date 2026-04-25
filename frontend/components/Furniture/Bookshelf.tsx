@@ -6,44 +6,44 @@ export default function Bookshelf({ size, color }: { size: [number, number, numb
       {/* back panel */}
       <mesh position={[0, h * 0.5, -d * 0.4]}>
         <boxGeometry args={[w, h, d * 0.04]} />
-        <meshStandardMaterial color={color} roughness={0.6} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {/* bottom */}
       <mesh position={[0, h * 0.02, 0]}>
         <boxGeometry args={[w, h * 0.04, d * 0.85]} />
-        <meshStandardMaterial color={color} roughness={0.55} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {/* top */}
       <mesh position={[0, h * 0.98, 0]}>
         <boxGeometry args={[w, h * 0.04, d * 0.9]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {/* side panels */}
       <mesh position={[-w * 0.48, h * 0.5, 0]}>
         <boxGeometry args={[w * 0.04, h, d * 0.85]} />
-        <meshStandardMaterial color={color} roughness={0.55} />
+        <meshLambertMaterial color={color} />
       </mesh>
       <mesh position={[w * 0.48, h * 0.5, 0]}>
         <boxGeometry args={[w * 0.04, h, d * 0.85]} />
-        <meshStandardMaterial color={color} roughness={0.55} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {/* doors (split center) */}
       <mesh position={[-w * 0.235, h * 0.5, d * 0.42]}>
         <boxGeometry args={[w * 0.46, h * 0.92, d * 0.03]} />
-        <meshStandardMaterial color={color} roughness={0.4} />
+        <meshLambertMaterial color={color} />
       </mesh>
       <mesh position={[w * 0.235, h * 0.5, d * 0.42]}>
         <boxGeometry args={[w * 0.46, h * 0.92, d * 0.03]} />
-        <meshStandardMaterial color={color} roughness={0.4} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {/* handles */}
       <mesh position={[-w * 0.04, h * 0.5, d * 0.45]}>
         <cylinderGeometry args={[0.012, 0.012, h * 0.18, 8]} />
-        <meshStandardMaterial color="#cfcfcf" metalness={0.8} roughness={0.25} />
+        <meshLambertMaterial color="#cfcfcf" />
       </mesh>
       <mesh position={[w * 0.04, h * 0.5, d * 0.45]}>
         <cylinderGeometry args={[0.012, 0.012, h * 0.18, 8]} />
-        <meshStandardMaterial color="#cfcfcf" metalness={0.8} roughness={0.25} />
+        <meshLambertMaterial color="#cfcfcf" />
       </mesh>
     </group>
   );

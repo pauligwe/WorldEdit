@@ -11,7 +11,7 @@ export default function Desk({ size, color }: Props) {
     <group>
       <mesh position={[0, h - topThickness / 2, 0]}>
         <boxGeometry args={[w, topThickness, d]} />
-        <meshStandardMaterial color={color} />
+        <meshLambertMaterial color={color} />
       </mesh>
       {[
         [-w / 2 + legSize, legY, -d / 2 + legSize],
@@ -21,7 +21,7 @@ export default function Desk({ size, color }: Props) {
       ].map((p, i) => (
         <mesh key={i} position={p as [number, number, number]}>
           <boxGeometry args={[legSize, h - topThickness, legSize]} />
-          <meshStandardMaterial color="#3a3a3a" />
+          <meshLambertMaterial color="#3a3a3a" />
         </mesh>
       ))}
     </group>
