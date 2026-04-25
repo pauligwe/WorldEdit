@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import PlayerControls from "./PlayerControls";
 import CrosshairHUD from "./CrosshairHUD";
+import AgentSidebar from "./AgentSidebar";
 import { loadSpark } from "@/lib/sparkLoader";
 
 interface Pose {
@@ -301,6 +302,7 @@ export default function SplatScene({
           {copied ? "copied" : "copy"}
         </button>
       </div>
+      {captureMode && <AgentSidebar worldId={captureMode.id} />}
     </div>
   );
 }
