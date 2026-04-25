@@ -13,8 +13,18 @@ _RESIDENTIAL_TYPES = {
     "duplex", "ranch", "colonial",
 }
 
+_COMMERCIAL_PROMPT_OVERRIDES = (
+    "office", "startup", "workplace", "company", "corporate",
+    "school", "classroom", "university", "library", "hospital",
+    "clinic", "hotel", "mall", "store", "shop", "restaurant",
+    "museum", "warehouse", "lab", "factory",
+)
+
 
 def _is_residential(spec: WorldSpec) -> bool:
+    prompt = (spec.prompt or "").lower()
+    if any(kw in prompt for kw in _COMMERCIAL_PROMPT_OVERRIDES):
+        return False
     bt = (spec.intent.buildingType or "").lower() if spec.intent else ""
     return bt in _RESIDENTIAL_TYPES
 
