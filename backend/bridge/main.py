@@ -1,6 +1,8 @@
 import asyncio
+import base64
 import json
 import os
+import re
 import uuid
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
@@ -35,7 +37,7 @@ running: set[str] = set()
 def _start_uagents():
     if os.environ.get("WORLD_BUILD_DISABLE_UAGENTS") == "1":
         return
-    from agents.uagent_runner import start_all_in_background
+    from agents_v2.runner import start_all_in_background
     start_all_in_background()
 
 
@@ -128,3 +130,35 @@ async def ws_build(websocket: WebSocket, world_id: str):
         pass
     finally:
         bus.unsubscribe(world_id, q)
+
+
+PERCEPTION_ID_RE = re.compile(r"^[a-z0-9_-]+$", re.IGNORECASE)
+
+
+class PerceptionFramesReq(BaseModel):
+    world_id: str
+    view_0: str
+    view_120: str
+    view_240: str
+
+
+def _decode_data_url(data_url: str) -> bytes:
+    if not data_url.startswith("data:image/"):
+        raise HTTPException(status_code=400, detail="bad data URL")
+    try:
+        b64 = data_url.split(",", 1)[1]
+    except IndexError:
+        raise HTTPException(status_code=400, detail="bad data URL")
+    return base64.b64decode(b64)
+
+
+@app.post("/api/perception-frames")
+def perception_frames(req: PerceptionFramesReq):
+    if not PERCEPTION_ID_RE.match(req.world_id):
+        raise HTTPException(status_code=400, detail="bad world_id")
+    views_dir = WORLDS_DIR / req.world_id / "views"
+    views_dir.mkdir(parents=True, exist_ok=True)
+    (views_dir / "view_0.jpg").write_bytes(_decode_data_url(req.view_0))
+    (views_dir / "view_120.jpg").write_bytes(_decode_data_url(req.view_120))
+    (views_dir / "view_240.jpg").write_bytes(_decode_data_url(req.view_240))
+    return {"ok": True, "path": str(views_dir)}
