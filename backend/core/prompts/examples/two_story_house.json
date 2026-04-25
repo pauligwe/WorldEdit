@@ -1,0 +1,86 @@
+{
+  "gridSize": 0.5,
+  "floors": [
+    {
+      "level": 0,
+      "ceilingHeight": 3.0,
+      "rooms": [
+        {
+          "id": "entry",
+          "type": "hallway",
+          "x": 4, "y": 0, "width": 3, "depth": 3,
+          "doors":   [{"wall": "south", "offset": 1.5, "width": 1.0}, {"wall": "north", "offset": 1.5, "width": 1.0}, {"wall": "west", "offset": 1.5, "width": 1.0}, {"wall": "east", "offset": 1.5, "width": 1.0}],
+          "windows": []
+        },
+        {
+          "id": "living",
+          "type": "living_room",
+          "x": 0, "y": 0, "width": 4, "depth": 5,
+          "doors":   [{"wall": "east", "offset": 1.5, "width": 1.0}],
+          "windows": [{"wall": "south", "offset": 2, "width": 2.0, "height": 1.5, "sill": 1.0}]
+        },
+        {
+          "id": "kitchen",
+          "type": "kitchen",
+          "x": 7, "y": 0, "width": 4, "depth": 5,
+          "doors":   [{"wall": "west", "offset": 1.5, "width": 1.0}],
+          "windows": [{"wall": "east", "offset": 2.5, "width": 1.5, "height": 1.2, "sill": 1.0}]
+        },
+        {
+          "id": "dining",
+          "type": "dining_room",
+          "x": 0, "y": 5, "width": 4, "depth": 4,
+          "doors":   [{"wall": "north", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "west", "offset": 2, "width": 1.5, "height": 1.2, "sill": 1.0}]
+        },
+        {
+          "id": "half_bath",
+          "type": "bathroom",
+          "x": 7, "y": 5, "width": 3, "depth": 3,
+          "doors":   [{"wall": "north", "offset": 1.5, "width": 1.0}],
+          "windows": []
+        }
+      ],
+      "stairs": [
+        {"id": "s1", "x": 4, "y": 3, "width": 2, "depth": 3, "direction": "north", "toLevel": 1}
+      ]
+    },
+    {
+      "level": 1,
+      "ceilingHeight": 3.0,
+      "rooms": [
+        {
+          "id": "upper_hall",
+          "type": "hallway",
+          "x": 4, "y": 0, "width": 3, "depth": 6,
+          "doors":   [{"wall": "south", "offset": 1.5, "width": 1.0}, {"wall": "west", "offset": 1.5, "width": 1.0}, {"wall": "east", "offset": 1.5, "width": 1.0}, {"wall": "north", "offset": 1.5, "width": 1.0}],
+          "windows": []
+        },
+        {
+          "id": "master",
+          "type": "bedroom",
+          "x": 0, "y": 0, "width": 4, "depth": 6,
+          "doors":   [{"wall": "east", "offset": 3, "width": 1.0}],
+          "windows": [{"wall": "south", "offset": 2, "width": 2.0, "height": 1.5, "sill": 1.0}, {"wall": "west", "offset": 3, "width": 1.5, "height": 1.5, "sill": 1.0}]
+        },
+        {
+          "id": "bed2",
+          "type": "bedroom",
+          "x": 7, "y": 0, "width": 4, "depth": 4,
+          "doors":   [{"wall": "west", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "east", "offset": 2, "width": 1.5, "height": 1.2, "sill": 1.0}]
+        },
+        {
+          "id": "bath",
+          "type": "bathroom",
+          "x": 7, "y": 4, "width": 4, "depth": 4,
+          "doors":   [{"wall": "west", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "east", "offset": 2, "width": 0.5, "height": 1.0, "sill": 1.5}]
+        }
+      ],
+      "stairs": [
+        {"id": "s1", "x": 4, "y": 3, "width": 2, "depth": 3, "direction": "south", "toLevel": 0}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "gridSize": 0.5,
+  "floors": [
+    {
+      "level": 0,
+      "ceilingHeight": 3.0,
+      "rooms": [
+        {
+          "id": "living",
+          "type": "living_room",
+          "x": 0, "y": 0, "width": 5, "depth": 4,
+          "doors":   [{"wall": "south", "offset": 2.5, "width": 1.0}, {"wall": "east", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "north", "offset": 2.5, "width": 1.5, "height": 1.2, "sill": 1.0}]
+        },
+        {
+          "id": "kitchen",
+          "type": "kitchen",
+          "x": 5, "y": 0, "width": 3, "depth": 4,
+          "doors":   [{"wall": "west", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "north", "offset": 1.5, "width": 1.0, "height": 1.0, "sill": 1.0}]
+        },
+        {
+          "id": "bedroom",
+          "type": "bedroom",
+          "x": 0, "y": 4, "width": 4, "depth": 4,
+          "doors":   [{"wall": "south", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "north", "offset": 2, "width": 1.5, "height": 1.2, "sill": 1.0}]
+        },
+        {
+          "id": "bathroom",
+          "type": "bathroom",
+          "x": 4, "y": 4, "width": 4, "depth": 4,
+          "doors":   [{"wall": "south", "offset": 2, "width": 1.0}],
+          "windows": [{"wall": "east", "offset": 2, "width": 0.5, "height": 1.0, "sill": 1.5}]
+        }
+      ],
+      "stairs": []
+    }
+  ]
+}
