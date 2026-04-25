@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import re
+import threading
 import uuid
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
@@ -192,6 +193,17 @@ async def _drive_analyze(world_id: str, prompt: str) -> None:
         raise
 
 
+def _launch_analyze_thread(world_id: str, prompt: str) -> None:
+    def run():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_drive_analyze(world_id, prompt))
+        finally:
+            loop.close()
+    threading.Thread(target=run, daemon=True).start()
+
+
 @app.post("/api/analyze/{world_id}", status_code=202)
 async def analyze(world_id: str, req: AnalyzeReq):
     if not PERCEPTION_ID_RE.match(world_id):
@@ -202,7 +214,7 @@ async def analyze(world_id: str, req: AnalyzeReq):
     if _analyze_state.get(world_id) == "running":
         raise HTTPException(status_code=409, detail="already running")
     _analyze_state[world_id] = "queued"
-    asyncio.create_task(_drive_analyze(world_id, req.prompt))
+    _launch_analyze_thread(world_id, req.prompt)
     return {"ok": True, "state": "queued"}
 
 
