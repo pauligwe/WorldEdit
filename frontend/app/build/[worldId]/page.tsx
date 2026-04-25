@@ -17,21 +17,34 @@ export default function BuildPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const close = openStatusSocket(worldId, async (e) => {
-      if (e.agent === "__final__") {
-        const ws = await getWorld(worldId);
-        setSpec(ws);
-        return;
-      }
-      if (e.agent === "__pipeline__" && e.state === "error") {
-        setError(e.message);
-        return;
-      }
-      if (e.agent.startsWith("__")) return;
-      setStates((s) => ({ ...s, [e.agent]: e.state as AgentState }));
-      if (e.message) setMessages((m) => ({ ...m, [e.agent]: e.message }));
-    });
-    return () => close();
+    let cancelled = false;
+    let close: (() => void) | null = null;
+    (async () => {
+      try {
+        const existing = await getWorld(worldId);
+        if (cancelled) return;
+        if (existing && existing.cost && existing.navigation) {
+          setSpec(existing);
+          return;
+        }
+      } catch {}
+      if (cancelled) return;
+      close = openStatusSocket(worldId, async (e) => {
+        if (e.agent === "__final__") {
+          const ws = await getWorld(worldId);
+          setSpec(ws);
+          return;
+        }
+        if (e.agent === "__pipeline__" && e.state === "error") {
+          setError(e.message);
+          return;
+        }
+        if (e.agent.startsWith("__")) return;
+        setStates((s) => ({ ...s, [e.agent]: e.state as AgentState }));
+        if (e.message) setMessages((m) => ({ ...m, [e.agent]: e.message }));
+      });
+    })();
+    return () => { cancelled = true; close?.(); };
   }, [worldId]);
 
   if (error) {
