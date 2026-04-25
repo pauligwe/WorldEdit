@@ -1,22 +1,67 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
-import AgentActivityPanel, { AgentState } from "@/components/AgentActivityPanel";
-import { openStatusSocket, getWorld } from "@/lib/api";
+import { useParams, useSearchParams } from "next/navigation";
+import { openStatusSocket, getWorld, type StatusEvent } from "@/lib/api";
 import type { WorldSpec } from "@/lib/worldSpec";
+import { applyAgentWorldEvent, createInitialAgentSnapshots, type BuildMode, type AgentWorldEvent, type AgentWorldSnapshot } from "@/lib/agentWorld";
+import { startAgentSimulation } from "@/lib/agentSimulation";
 
 const World3D = dynamic(() => import("@/components/World3D"), { ssr: false });
 
 export default function BuildPage() {
   const params = useParams<{ worldId: string }>();
+  const searchParams = useSearchParams();
+  const autoSimulate = searchParams.get("simulate") === "1";
   const worldId = params.worldId;
-  const [states, setStates] = useState<Record<string, AgentState>>({});
-  const [messages, setMessages] = useState<Record<string, string>>({});
+  const [mode, setMode] = useState<BuildMode>(autoSimulate ? "simulated" : "real");
+  const [agentSnapshots, setAgentSnapshots] = useState<Record<string, AgentWorldSnapshot>>(createInitialAgentSnapshots());
+  const [agentEvents, setAgentEvents] = useState<AgentWorldEvent[]>([]);
   const [spec, setSpec] = useState<WorldSpec | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [simRunning, setSimRunning] = useState(false);
+  const simStopRef = useRef<(() => void) | null>(null);
+  const eventsRef = useRef<AgentWorldEvent[]>([]);
+  const autoStartedSimRef = useRef(false);
+
+  const onAgentEvent = useCallback((event: StatusEvent, simulated: boolean) => {
+    if (event.agent === "__final__") {
+      if (simulated) {
+        setSimRunning(false);
+        return;
+      }
+      getWorld(worldId).then(setSpec).catch(() => {});
+      return;
+    }
+    if (event.agent === "__pipeline__" && event.state === "error") {
+      setError(event.message ?? "Pipeline error");
+      return;
+    }
+    if (event.agent.startsWith("__")) return;
+
+    setAgentSnapshots((prev) => {
+      const next = applyAgentWorldEvent(prev, eventsRef.current, event, simulated);
+      eventsRef.current = next.events;
+      setAgentEvents(next.events);
+      return next.snapshots;
+    });
+  }, [worldId]);
 
   useEffect(() => {
+    setAgentSnapshots(createInitialAgentSnapshots());
+    setAgentEvents([]);
+    eventsRef.current = [];
+    setSpec(null);
+    setError(null);
+    simStopRef.current?.();
+    simStopRef.current = null;
+    setSimRunning(false);
+    setMode(autoSimulate ? "simulated" : "real");
+    autoStartedSimRef.current = false;
+  }, [worldId, autoSimulate]);
+
+  useEffect(() => {
+    if (mode !== "real") return;
     let cancelled = false;
     let close: (() => void) | null = null;
     (async () => {
@@ -30,22 +75,42 @@ export default function BuildPage() {
       } catch {}
       if (cancelled) return;
       close = openStatusSocket(worldId, async (e) => {
-        if (e.agent === "__final__") {
-          const ws = await getWorld(worldId);
-          setSpec(ws);
-          return;
-        }
-        if (e.agent === "__pipeline__" && e.state === "error") {
-          setError(e.message);
-          return;
-        }
-        if (e.agent.startsWith("__")) return;
-        setStates((s) => ({ ...s, [e.agent]: e.state as AgentState }));
-        if (e.message) setMessages((m) => ({ ...m, [e.agent]: e.message }));
+        onAgentEvent(e, false);
       });
     })();
     return () => { cancelled = true; close?.(); };
-  }, [worldId]);
+  }, [worldId, mode, onAgentEvent]);
+
+  useEffect(() => {
+    return () => simStopRef.current?.();
+  }, []);
+
+  const startSimulation = useCallback(() => {
+    simStopRef.current?.();
+    setMode("simulated");
+    setError(null);
+    setAgentSnapshots(createInitialAgentSnapshots());
+    setAgentEvents([]);
+    eventsRef.current = [];
+    setSimRunning(true);
+    simStopRef.current = startAgentSimulation((evt) => onAgentEvent(evt, true), () => setSimRunning(false));
+  }, [onAgentEvent]);
+
+  const exitSimulation = useCallback(() => {
+    simStopRef.current?.();
+    simStopRef.current = null;
+    setSimRunning(false);
+    setMode("real");
+    setAgentSnapshots(createInitialAgentSnapshots());
+    setAgentEvents([]);
+    eventsRef.current = [];
+  }, []);
+
+  useEffect(() => {
+    if (!autoSimulate || autoStartedSimRef.current) return;
+    autoStartedSimRef.current = true;
+    startSimulation();
+  }, [autoSimulate, startSimulation]);
 
   if (error) {
     return (
@@ -56,14 +121,48 @@ export default function BuildPage() {
     );
   }
 
-  if (!spec) {
-    return (
-      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-        <h1 className="text-3xl font-black mb-8 bg-gradient-to-r from-cyan-300 to-violet-400 bg-clip-text text-transparent">building...</h1>
-        <AgentActivityPanel states={states} messages={messages} />
-      </main>
-    );
-  }
+  const renderSpec = spec ?? simulationFallbackSpec(worldId);
 
-  return <World3D spec={spec} />;
+  return (
+    <World3D
+      spec={renderSpec}
+      mode={mode}
+      simRunning={simRunning}
+      onStartSimulation={startSimulation}
+      onExitSimulation={exitSimulation}
+      agentSnapshots={agentSnapshots}
+      agentEvents={agentEvents}
+    />
+  );
+}
+
+function simulationFallbackSpec(worldId: string): WorldSpec {
+  return {
+    worldId,
+    prompt: "Simulation world",
+    intent: { buildingType: "demo_lab", style: "playful", floors: 1, vibe: ["lively", "observability"], sizeHint: "medium" },
+    geometry: {
+      primitives: [
+        { type: "floor", roomId: "sim_hub", position: [0, 0, 0], size: [22, 0.2, 14] },
+        { type: "wall", roomId: "sim_hub", position: [0, 1.5, -7], size: [22, 3, 0.2] },
+        { type: "wall", roomId: "sim_hub", position: [0, 1.5, 7], size: [22, 3, 0.2] },
+        { type: "wall", roomId: "sim_hub", position: [-11, 1.5, 0], size: [0.2, 3, 14] },
+        { type: "wall", roomId: "sim_hub", position: [11, 1.5, 0], size: [0.2, 3, 14] },
+      ],
+    },
+    materials: { byRoom: { sim_hub: { wall: "#262f3a", floor: "concrete", ceiling: "#303640" } } },
+    lighting: {
+      byRoom: {
+        sim_hub: [
+          { type: "ambient", position: [0, 2.8, 0], color: "#b6e6ff", intensity: 0.45 },
+          { type: "ceiling", position: [-4, 2.5, -2], color: "#e7f2ff", intensity: 0.55 },
+          { type: "ceiling", position: [3, 2.5, 2], color: "#ffe3bc", intensity: 0.5 },
+        ],
+      },
+    },
+    furniture: [],
+    products: {},
+    navigation: { spawnPoint: [0, 1.7, 4], walkableMeshIds: [], stairColliders: [] },
+    cost: { total: 0, byRoom: {} },
+  };
 }

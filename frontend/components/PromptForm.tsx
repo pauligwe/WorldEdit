@@ -29,13 +29,22 @@ export default function PromptForm() {
         disabled={busy}
         placeholder="Describe a building..."
       />
-      <button
-        type="submit"
-        disabled={busy || prompt.trim().length === 0}
-        className="px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-700 text-black font-bold text-lg transition"
-      >
-        {busy ? "Building..." : "Generate"}
-      </button>
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          disabled={busy || prompt.trim().length === 0}
+          className="flex-1 px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-700 text-black font-bold text-lg transition"
+        >
+          {busy ? "Building..." : "Generate"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/build/simulated?simulate=1")}
+          className="px-6 py-3 rounded-lg border border-violet-500 bg-violet-950 text-violet-100 font-bold text-lg hover:bg-violet-900 transition"
+        >
+          Simulate
+        </button>
+      </div>
     </form>
   );
 }

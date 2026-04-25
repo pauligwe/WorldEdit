@@ -54,7 +54,7 @@ export async function getWorld(worldId: string): Promise<WorldSpec> {
   return r.json();
 }
 
-export type StatusEvent = { agent: string; state: "running" | "done" | "error"; message: string; data?: any };
+export type StatusEvent = { agent: string; state: "running" | "done" | "error"; message?: string; data?: any };
 
 export function openStatusSocket(worldId: string, onEvent: (e: StatusEvent) => void, onClose?: () => void): () => void {
   const wsUrl = BRIDGE.replace(/^http/, "ws") + `/ws/build/${worldId}`;
