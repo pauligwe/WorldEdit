@@ -5,6 +5,26 @@ from pydantic import BaseModel, Field, model_validator
 Wall = Literal["north", "south", "east", "west"]
 
 
+class Plot(BaseModel):
+    width: float = Field(default=100.0, gt=0)
+    depth: float = Field(default=100.0, gt=0)
+    groundColor: str = "#5a7c3a"
+
+
+class Entrance(BaseModel):
+    wall: Wall
+    offset: float = Field(ge=0)
+    width: float = Field(default=1.6, gt=0)
+    height: float = Field(default=2.2, gt=0)
+
+
+class Site(BaseModel):
+    plot: Plot = Field(default_factory=Plot)
+    buildingFootprint: list[float]
+    buildingAnchor: list[float]
+    entrance: Entrance
+
+
 class Door(BaseModel):
     wall: Wall
     offset: float = Field(ge=0)
