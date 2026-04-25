@@ -1,16 +1,18 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { WorldSpec } from "@/lib/worldSpec";
 import { expandWallSegments } from "@/lib/wallSegments";
 import Plot from "./Plot";
 import Roof from "./Roof";
 import Wall from "./Wall";
-import Furniture from "./Furniture";
+import FurnitureInstanced from "./FurnitureInstanced";
 import PlayerControls from "./PlayerControls";
 import CrosshairHUD from "./CrosshairHUD";
 import StatusBar from "./StatusBar";
 import ChatPanel from "./ChatPanel";
+
+const MAX_POINT_LIGHTS = 4;
 
 export default function World3D({ spec }: { spec: WorldSpec }) {
   const [chatOpen, setChatOpen] = useState(false);
@@ -24,18 +26,30 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
   }, []);
 
   const prims = spec.geometry?.primitives ?? [];
-  const ground   = prims.filter((p) => p.type === "ground");
-  const exterior = prims.filter((p) => p.type === "exterior_wall");
-  const roof     = prims.filter((p) => p.type === "roof");
-  const walls    = prims.filter((p) => p.type === "wall");
-  const floors   = prims.filter((p) => p.type === "floor");
-  const ceilings = prims.filter((p) => p.type === "ceiling");
-  const stairs   = prims.filter((p) => p.type === "stair");
 
-  const colliders = [
+  const partitioned = useMemo(() => ({
+    ground:   prims.filter((p) => p.type === "ground"),
+    exterior: prims.filter((p) => p.type === "exterior_wall"),
+    roof:     prims.filter((p) => p.type === "roof"),
+    walls:    prims.filter((p) => p.type === "wall"),
+    floors:   prims.filter((p) => p.type === "floor"),
+    ceilings: prims.filter((p) => p.type === "ceiling"),
+    stairs:   prims.filter((p) => p.type === "stair"),
+  }), [prims]);
+
+  const { ground, exterior, roof, walls, floors, ceilings, stairs } = partitioned;
+
+  const colliders = useMemo(() => [
     ...exterior.flatMap(expandWallSegments),
     ...walls.flatMap(expandWallSegments),
-  ];
+  ], [exterior, walls]);
+
+  const pickedLights = useMemo(() => {
+    const all = Object.entries(spec.lighting?.byRoom ?? {}).flatMap(([rid, lights]) =>
+      lights.map((l, i) => ({ rid, i, l }))
+    );
+    return all.slice(0, MAX_POINT_LIGHTS);
+  }, [spec.lighting]);
 
   const matFloor = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.floor;
   const matWall  = (rid?: string) => spec.materials?.byRoom?.[rid ?? ""]?.wall ?? "#e7e1d5";
@@ -48,15 +62,13 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
     <div className="fixed inset-0">
       <Canvas camera={{ fov: 70, position: spawn as any, near: 0.05, far: 300 }}>
         <color attach="background" args={["#a8c8e8"]} />
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[60, 80, 40]} intensity={0.9} />
+        <ambientLight intensity={0.9} />
+        <directionalLight position={[60, 80, 40]} intensity={1.0} />
 
-        {Object.entries(spec.lighting?.byRoom ?? {}).flatMap(([rid, lights]) =>
-          lights.map((l, i) => (
-            <pointLight key={`${rid}-${i}`} position={l.position as any}
-                        color={l.color} intensity={l.intensity} distance={12} />
-          ))
-        )}
+        {pickedLights.map(({ rid, i, l }) => (
+          <pointLight key={`${rid}-${i}`} position={l.position as any}
+                      color={l.color} intensity={l.intensity} distance={12} />
+        ))}
 
         <Suspense fallback={null}>
           {ground.map((p, i) => (
@@ -84,9 +96,7 @@ export default function World3D({ spec }: { spec: WorldSpec }) {
               <meshLambertMaterial color="#7c5a3a" />
             </mesh>
           ))}
-          {spec.furniture.map((f) => (
-            <Furniture key={f.id} item={f} />
-          ))}
+          <FurnitureInstanced items={spec.furniture} />
         </Suspense>
 
         <PlayerControls walls={colliders} spawn={spawn as any} />
