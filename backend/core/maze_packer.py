@@ -3,9 +3,12 @@
 Grows rooms outward from a single seed (the entrance on level 0, or wherever
 we land on upper floors). Each new room is placed flush against an existing
 room's wall and only accepted if it shares >= 1.0m of wall with that parent.
-That shared wall IS the doorway -- we no longer emit Door objects, the
-validators don't require them. Result: every room is reachable from the seed
-by construction.
+After placement, the shared wall between every pair of adjacent rooms gets a
+matching pair of Door objects (one on each room's wall, both centered on the
+overlap), so the geometry builder cuts a doorway in both walls.
+
+Result: every room is reachable from the seed by construction AND the
+generated geometry has visible doorways between connected rooms.
 
 Returns ``(Floor, stair_xy)`` -- the caller uses ``stair_xy`` to align stairs
 across levels.
@@ -19,7 +22,11 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .room_library import ROOM_LIBRARY, RoomTemplate
-from .world_spec import Floor, Room, Stairs
+from .world_spec import Door, Floor, Room, Stairs
+
+
+_DOOR_WIDTH = 0.9
+_DOOR_MARGIN = 0.2  # min clearance from each end of the shared overlap
 
 
 _GRID = 0.5
@@ -176,6 +183,69 @@ def _pick_seed_template(template_names: list[str]) -> tuple[str, RoomTemplate]:
     return "lobby_modern", ROOM_LIBRARY["lobby_modern"]
 
 
+def _derive_doors(rects: list[_Rect]) -> list[list[Door]]:
+    """For every pair of rects sharing >= _MIN_SHARED_WALL of wall, emit a
+    matching pair of Door objects -- one on each room's facing wall, both
+    centered on the overlap. Returns a list parallel to `rects`, where each
+    entry is the list of doors for that room.
+
+    Door offset is the center position along the wall, in the room's local
+    coordinate frame (matching geometry._wall_primitive's expectations).
+    """
+    doors: list[list[Door]] = [[] for _ in rects]
+    n = len(rects)
+    for i in range(n):
+        for j in range(i + 1, n):
+            a, b = rects[i], rects[j]
+            # north/south: one rect's y2 == other's y
+            if abs(a.y2 - b.y) <= _EPS or abs(b.y2 - a.y) <= _EPS:
+                if abs(a.y2 - b.y) <= _EPS:
+                    south_room, north_room, south_idx, north_idx = a, b, i, j
+                else:
+                    south_room, north_room, south_idx, north_idx = b, a, j, i
+                lo = max(south_room.x, north_room.x)
+                hi = min(south_room.x2, north_room.x2)
+                if hi - lo + _EPS < _MIN_SHARED_WALL:
+                    continue
+                center_x = (lo + hi) / 2.0
+                door_w = max(0.6, min(_DOOR_WIDTH, hi - lo - _DOOR_MARGIN))
+                # south_room's NORTH wall has the door; north_room's SOUTH wall does too.
+                doors[south_idx].append(Door(
+                    wall="north",
+                    offset=center_x - south_room.x,
+                    width=door_w,
+                ))
+                doors[north_idx].append(Door(
+                    wall="south",
+                    offset=center_x - north_room.x,
+                    width=door_w,
+                ))
+                continue
+            # east/west: one rect's x2 == other's x
+            if abs(a.x2 - b.x) <= _EPS or abs(b.x2 - a.x) <= _EPS:
+                if abs(a.x2 - b.x) <= _EPS:
+                    west_room, east_room, west_idx, east_idx = a, b, i, j
+                else:
+                    west_room, east_room, west_idx, east_idx = b, a, j, i
+                lo = max(west_room.y, east_room.y)
+                hi = min(west_room.y2, east_room.y2)
+                if hi - lo + _EPS < _MIN_SHARED_WALL:
+                    continue
+                center_y = (lo + hi) / 2.0
+                door_w = max(0.6, min(_DOOR_WIDTH, hi - lo - _DOOR_MARGIN))
+                doors[west_idx].append(Door(
+                    wall="east",
+                    offset=center_y - west_room.y,
+                    width=door_w,
+                ))
+                doors[east_idx].append(Door(
+                    wall="west",
+                    offset=center_y - east_room.y,
+                    width=door_w,
+                ))
+    return doors
+
+
 def _bfs_distances(
     rects: list[_Rect], adj_min: float = _MIN_SHARED_WALL
 ) -> list[int]:
@@ -288,10 +358,13 @@ def maze_pack_floor(
         placed_meta.append((f"{tpl.name}_{level}_{slot_index}", tpl.type))
 
     # ------------------------------------------------------------------ #
-    # 3. Build Room objects (no doors -- shared walls are the doorways).
+    # 3. Build Room objects. Each pair of adjacent rooms gets a matching
+    # pair of Doors (one on each wall) so the geometry builder can punch a
+    # doorway through both walls.
     # ------------------------------------------------------------------ #
+    door_lists = _derive_doors(placed_rects)
     rooms: list[Room] = []
-    for rect, (rid, rtype) in zip(placed_rects, placed_meta):
+    for rect, (rid, rtype), drs in zip(placed_rects, placed_meta, door_lists):
         rooms.append(
             Room(
                 id=rid,
@@ -300,7 +373,7 @@ def maze_pack_floor(
                 y=rect.y,
                 width=rect.width,
                 depth=rect.depth,
-                doors=[],
+                doors=drs,
                 windows=[],
             )
         )
