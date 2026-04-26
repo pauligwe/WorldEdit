@@ -67,7 +67,7 @@ export default function AgentSidebar({
         className="fixed top-4 right-4 z-30 text-xs font-sans bg-white text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant hover:bg-zinc-50"
         style={open ? { right: AGENT_SIDEBAR_WIDTH + 16 } : undefined}
       >
-        {open ? "× close" : "agents"}
+        {open ? "× Close" : "Agents"}
       </button>
       <div
         className={
