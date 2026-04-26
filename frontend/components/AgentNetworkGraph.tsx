@@ -232,9 +232,12 @@ export default function AgentNetworkGraph({
                 fontFamily="var(--font-geist-sans), system-ui, sans-serif"
                 fontSize="7"
                 fill={lit > 0 ? "#222" : "#888"}
+                stroke="#fafafa"
+                strokeWidth={2.5}
+                strokeLinejoin="round"
                 fontWeight={500}
                 letterSpacing="0.04em"
-                style={{ pointerEvents: "none" }}
+                style={{ pointerEvents: "none", paintOrder: "stroke" }}
               >
                 {n.label}
               </text>
