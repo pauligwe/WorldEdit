@@ -173,9 +173,6 @@ export default function SplatScene({
   const [pose, setPose] = useState<Pose>({ spawn, yaw, pitch });
   const [copied, setCopied] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // Gates the AgentSidebar so it doesn't poll a stale agents.json before
-  // we've cleared it server-side. Only matters when captureMode.reset.
-  const [resetDone, setResetDone] = useState(!captureMode?.reset);
   const captureRef = useRef<(() => string | null) | null>(null);
   const perceptionRef = useRef<Capture3Fn | null>(null);
   const autoFiredRef = useRef(false);
@@ -220,11 +217,6 @@ export default function SplatScene({
             method: "POST",
           });
         } catch {}
-        // Only let the sidebar start polling after the reset has cleared the
-        // file — otherwise it can read the stale agents.json from a previous
-        // run, see all 19 entries done, and stop polling before the new run
-        // even begins.
-        if (!cancelled) setResetDone(true);
       }
       if (!captureMode.force && thumbnailUrl) {
         try {
@@ -355,7 +347,7 @@ export default function SplatScene({
           {copied ? "copied" : "copy"}
         </button>
       </div>
-      {captureMode && resetDone && (
+      {captureMode && (
         <AgentSidebar
           worldId={captureMode.id}
           open={sidebarOpen}

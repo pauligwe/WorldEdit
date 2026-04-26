@@ -19,10 +19,12 @@ export default function WorldPage({
     );
   }
 
-  // Always re-run the swarm on every page load so the demo shows the full
-  // agent animation every time. The query params are kept for backwards
-  // compatibility but are no longer needed in normal use.
-  const captureMode = { id: world.id, force: true, reset: true };
+  // Auto-capture is on by default — the scene decides whether to actually fire
+  // (skips if a thumbnail already exists at world.thumbnail). `?capture=1`
+  // forces a re-capture even if the thumbnail is already there. `?reset=1`
+  // additionally clears the cached agents.json so the DAG runs fresh.
+  const reset = searchParams.reset === "1";
+  const captureMode = { id: world.id, force: searchParams.capture === "1" || reset, reset };
 
   return (
     <>
