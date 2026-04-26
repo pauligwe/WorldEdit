@@ -33,3 +33,27 @@ export function agentverseProfileUrl(agentId: string): string | null {
   if (!addr) return null;
   return `https://agentverse.ai/agents/details/${addr}/profile`;
 }
+
+// Build an ASI:One deep link that opens a chat targeting a specific agent
+// with the analysis output prefilled as the first user message. ASI:One
+// reads `?search=<text>` and auto-sends on page load, with `@<address>`
+// in the text routing the message to that agent.
+export function asiOneAgentChatUrl(
+  agentId: string,
+  agentLabel: string,
+  output: unknown,
+): string | null {
+  const addr = AGENT_ADDRESSES[agentId];
+  if (!addr) return null;
+  const outputBlock =
+    typeof output === "string" ? output : JSON.stringify(output, null, 2);
+  const message =
+    `@${addr} Hey! Here is the analysis you produced for my generated world ` +
+    `(you are ${agentLabel}):\n\n${outputBlock}\n\n` +
+    `Can you walk me through what stood out to you and what you'd dig into next?`;
+  const params = new URLSearchParams({
+    isAgentic: "true",
+    search: message,
+  });
+  return `https://asi1.ai/chat?${params.toString()}`;
+}

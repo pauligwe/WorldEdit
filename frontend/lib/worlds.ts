@@ -40,6 +40,36 @@ export const WORLDS: Record<string, WorldDef> = {
     pitch: 0,
     createdAt: "2026-04-25",
   },
+  minecraft_valley: {
+    id: "minecraft_valley",
+    title: "Minecraft Valley Waterfall Oasis",
+    splat: "/worlds/minecraft_valley.spz",
+    thumbnail: "/worlds/minecraft_valley.jpg",
+    spawn: [0, 1.7, 0],
+    yaw: Math.PI,
+    pitch: 0,
+    createdAt: "2026-04-25",
+  },
+  serene_living_room: {
+    id: "serene_living_room",
+    title: "Serene Living Room Countryside View",
+    splat: "/worlds/serene_living_room.spz",
+    thumbnail: "/worlds/serene_living_room.jpg",
+    spawn: [0, 1.7, 0],
+    yaw: Math.PI,
+    pitch: 0,
+    createdAt: "2026-04-25",
+  },
+  grecian_city: {
+    id: "grecian_city",
+    title: "White Grecian City Landscape",
+    splat: "/worlds/grecian_city.spz",
+    thumbnail: "/worlds/grecian_city.jpg",
+    spawn: [0, 1.7, 0],
+    yaw: Math.PI,
+    pitch: 0,
+    createdAt: "2026-04-25",
+  },
 };
 
 export const WORLD_LIST = Object.values(WORLDS);

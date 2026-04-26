@@ -1,0 +1,815 @@
+{
+  "world_id": "serene_living_room",
+  "generated_at": "2026-04-26T00:53:31.093134+00:00",
+  "schema_version": 1,
+  "agents": {
+    "scene_describer": {
+      "status": "done",
+      "duration_ms": 8433,
+      "output": {
+        "summary": "This inviting living room is bathed in natural light, featuring comfortable seating and a decor rich with plants and warm wooden tones, all set against a picturesque green landscape viewed through a large window.",
+        "tags": [
+          "Bright",
+          "Modern Rustic",
+          "Natural Light",
+          "Greenery",
+          "Comfortable",
+          "Warm Tones",
+          "Inviting",
+          "Scenic View"
+        ],
+        "narrative": "This serene and light-filled living room offers a tranquil retreat, characterized by its warm neutral palette and abundant natural light streaming through a large window overlooking a lush green landscape. A comfortable light-colored sofa is positioned against the back wall, complemented by a round wooden coffee table with a vase of flowers and a cozy cream armchair draped with a textured throw. The space is accented with numerous potted plants, a woven pendant light, and a wooden console table adorned with decorative items and landscape artwork. To the right, a tall wooden shelving unit houses books and more decor, while the room features warm wooden floors beneath a soft rug, creating an inviting and harmonious atmosphere."
+      },
+      "display": "text"
+    },
+    "spatial_layout": {
+      "status": "done",
+      "duration_ms": 9145,
+      "output": {
+        "rooms": [
+          {
+            "name": "Main Living Space",
+            "approx_sqft": 300
+          },
+          {
+            "name": "Secondary Seating Area",
+            "approx_sqft": 180
+          }
+        ],
+        "entrances": [
+          "Archway to Secondary Seating Area",
+          "Wooden panel door from Main Living Space"
+        ],
+        "sightlines": [
+          "From Main Living Space through archway to Secondary Seating Area",
+          "From Secondary Seating Area through large window to outdoor landscape",
+          "From Main Living Space to wooden panel door"
+        ],
+        "total_sqft_estimate": 480,
+        "narrative": "The floor plan reveals a main living space with a wooden cabinet and television, openly connected to a secondary seating area that features a large window with a clear view of an expansive outdoor landscape. A wooden panel door from the main living space leads to an adjacent room."
+      },
+      "display": "text"
+    },
+    "era_estimator": {
+      "status": "done",
+      "duration_ms": 5570,
+      "output": {
+        "period": "21st Century (Modern Rustic)",
+        "confidence": 0.9,
+        "reasoning": "The description and 'Modern Rustic' tag strongly indicate a contemporary design aesthetic. This style, popular in the 21st century, prioritizes natural light, warm wooden tones, abundant greenery, and comfortable, inviting spaces, often emphasizing organic elements and a connection to nature.",
+        "narrative": "This inviting living room, with its bright natural light, warm wooden tones, and abundant greenery, evokes a contemporary 'Modern Rustic' design era. The comfortable seating and large window showcasing a picturesque green landscape are characteristic elements of this style, which has been prominent in the 21st century."
+      },
+      "display": "text"
+    },
+    "architectural_style": {
+      "status": "done",
+      "duration_ms": 6070,
+      "output": {
+        "style": "Biophilic Design",
+        "confidence": 0.95,
+        "reasoning": "The scene description strongly emphasizes a connection to nature, featuring abundant natural light, numerous plants, warm wooden tones, and a large window framing a picturesque green landscape. These elements are core principles of Biophilic Design, which seeks to integrate nature into built environments to enhance well-being.",
+        "narrative": "This living room beautifully embodies Biophilic Design, boasting abundant natural light, a rich array of plants, and warm wooden accents that seamlessly connect the interior with the picturesque green landscape visible through its large window."
+      },
+      "display": "text"
+    },
+    "object_inventory": {
+      "status": "done",
+      "duration_ms": 14696,
+      "output": {
+        "objects": [
+          {
+            "name": "White sofa",
+            "position": "foreground left"
+          },
+          {
+            "name": "Yellow throw pillows",
+            "position": "on foreground sofa"
+          },
+          {
+            "name": "Framed artwork (geometric)",
+            "position": "left wall, foreground"
+          },
+          {
+            "name": "Potted plant (tall)",
+            "position": "floor, foreground left"
+          },
+          {
+            "name": "Small wood side table",
+            "position": "foreground left, next to sofa"
+          },
+          {
+            "name": "Table lamp (white base)",
+            "position": "on foreground side table"
+          },
+          {
+            "name": "Hanging plant",
+            "position": "left wall, main room"
+          },
+          {
+            "name": "Potted plant (mid-sized)",
+            "position": "floor, main room left"
+          },
+          {
+            "name": "Main sofa (beige)",
+            "position": "center of main room"
+          },
+          {
+            "name": "Decorative pillows",
+            "position": "on main sofa"
+          },
+          {
+            "name": "Round wood coffee table",
+            "position": "center, in front of main sofa"
+          },
+          {
+            "name": "Vase with flowers",
+            "position": "on coffee table"
+          },
+          {
+            "name": "Cream armchair",
+            "position": "right side of main room"
+          },
+          {
+            "name": "Throw blanket (white/beige)",
+            "position": "on cream armchair"
+          },
+          {
+            "name": "Wood sideboard cabinet",
+            "position": "right wall of main room"
+          },
+          {
+            "name": "Table lamp (white shade)",
+            "position": "on sideboard cabinet"
+          },
+          {
+            "name": "Pampas grass in vase (on sideboard)",
+            "position": "on sideboard cabinet"
+          },
+          {
+            "name": "Landscape painting",
+            "position": "right wall, above sideboard"
+          },
+          {
+            "name": "White sheer curtains",
+            "position": "framing the window"
+          },
+          {
+            "name": "Window",
+            "position": "center background, main room"
+          },
+          {
+            "name": "Outdoor grassy field",
+            "position": "outside the window"
+          },
+          {
+            "name": "Woven pendant light",
+            "position": "hanging from ceiling, main room"
+          },
+          {
+            "name": "Wooden shelving unit",
+            "position": "foreground right"
+          },
+          {
+            "name": "Vase with pampas grass (on shelving unit)",
+            "position": "on top of shelving unit"
+          },
+          {
+            "name": "Decorative bottles/vessels",
+            "position": "on top of shelving unit"
+          },
+          {
+            "name": "Small framed picture",
+            "position": "on top of shelving unit"
+          },
+          {
+            "name": "Books",
+            "position": "in shelving unit"
+          },
+          {
+            "name": "Storage baskets",
+            "position": "in shelving unit"
+          },
+          {
+            "name": "Area rug",
+            "position": "under main sofa and coffee table"
+          },
+          {
+            "name": "Wall-mounted television",
+            "position": "far right wall"
+          },
+          {
+            "name": "Wooden door",
+            "position": "far right wall"
+          }
+        ],
+        "narrative": "The scene features a bright living room overlooking a green field, furnished with a beige sofa, a round coffee table, and several potted plants. Visible on the right are a wooden shelving unit and a partially obscured wall-mounted television."
+      },
+      "display": "list"
+    },
+    "character_suggester": {
+      "status": "done",
+      "duration_ms": 6951,
+      "output": {
+        "characters": [
+          {
+            "name": "Elara Vance",
+            "role": "Retired Landscape Architect",
+            "bio": "Elara designed her serene living space to perfectly blend with the natural beauty she once crafted professionally, finding peace amidst her beloved plants and the verdant views."
+          },
+          {
+            "name": "Leo Chen",
+            "role": "Nature Photographer",
+            "bio": "Leo, Elara's nephew, often visits, finding her living room an ideal spot to review his latest nature shots, drawing inspiration from the tranquil indoor-outdoor connection."
+          },
+          {
+            "name": "Maya Sharma",
+            "role": "Botanist / Plant Care Specialist",
+            "bio": "Maya occasionally stops by to offer advice on Elara's extensive plant collection, sharing a passion for botany and enjoying the room's verdant ambiance."
+          },
+          {
+            "name": "Julian Foster",
+            "role": "Amateur Flutist",
+            "bio": "Julian, Elara's neighbor, often practices his flute in her living room, believing the natural light and calming atmosphere enhance his musical flow."
+          }
+        ],
+        "narrative": "This inviting living room, filled with natural light, comfortable seating, and an abundance of plants, serves as a serene sanctuary for characters like Elara Vance, a retired landscape architect, and her nephew Leo Chen, a nature photographer, who both appreciate its warm wooden tones and the picturesque green landscape visible through the large window."
+      },
+      "display": "list"
+    },
+    "soundscape": {
+      "status": "done",
+      "duration_ms": 7133,
+      "output": {
+        "ambient": [
+          "Gentle breeze and rustling leaves outside the window",
+          "Distant birdsong",
+          "Subtle, warm room tone with faint air circulation",
+          "Soft rustle of indoor plant leaves"
+        ],
+        "foley": [
+          "Soft turning of book pages",
+          "Gentle creak of a wooden floorboard",
+          "Clink of a ceramic mug being set on a coaster",
+          "Soft rustle of a blanket shifting",
+          "Distant, gentle chime from a wall clock",
+          "A contented sigh",
+          "Subtle rustle of plant leaves as a hand brushes past",
+          "Gentle tap of fingers on a wooden table"
+        ],
+        "narrative": "The inviting living room is enveloped by the soothing sounds of nature, with a gentle breeze and distant birdsong complementing the subtle rustle of indoor plants and quiet room tone. Specific foley sounds include the soft turning of book pages, the occasional creak of floorboards, and the gentle clink of a ceramic mug being placed on a coaster."
+      },
+      "display": "list"
+    },
+    "geolocator": {
+      "status": "done",
+      "duration_ms": 8729,
+      "output": {
+        "candidates": [
+          {
+            "region": "Pacific Northwest, USA (e.g., Oregon, Washington)",
+            "confidence": 0.95,
+            "reasoning": "The region is renowned for its lush green landscapes, dense forests, and mountainous terrain, making the 'picturesque green landscape' a common view. The architectural style frequently incorporates natural light, warm wood tones, and large windows to connect with nature, aligning perfectly with 'Modern Rustic' and indoor greenery."
+          },
+          {
+            "region": "Scandinavia (e.g., Norway, Sweden)",
+            "confidence": 0.92,
+            "reasoning": "Scandinavian design principles strongly emphasize natural light, organic materials like warm wood, and bringing nature indoors (often with plants), contributing to a 'Modern Rustic' and inviting atmosphere. The region also boasts extensive green landscapes, including forests, lakes, and fjords, making scenic views common."
+          },
+          {
+            "region": "New Zealand",
+            "confidence": 0.9,
+            "reasoning": "New Zealand is famous for its stunning and varied green landscapes, from rolling hills to majestic mountains, which are frequently embraced by home designs featuring large windows. The use of natural materials, comfortable seating, and a connection to the outdoors aligns well with the described 'Modern Rustic' and inviting aesthetic."
+          }
+        ],
+        "narrative": "This inviting living room, with its natural light, comfortable seating, abundant plants, and warm wooden tones, most plausibly hails from regions like the Pacific Northwest, USA, Scandinavia, or New Zealand, all known for their lush green landscapes and design aesthetics that embrace nature."
+      },
+      "display": "list"
+    },
+    "mood_palette": {
+      "status": "done",
+      "duration_ms": 9249,
+      "output": {
+        "palette": [
+          "#F8F0E3",
+          "#A16E3A",
+          "#5C8B5C",
+          "#2F5A3B",
+          "#D4B89C"
+        ],
+        "luts": [
+          "Teal & Orange (Subtle)",
+          "Warm & Clean Rec.709",
+          "ProRes Log to Rec.709 with Warmth"
+        ],
+        "film_stocks": [
+          "Kodak Portra 400",
+          "Fuji PRO 400H",
+          "Kodak Gold 200"
+        ],
+        "narrative": "This palette features a soft creamy white, warm wood brown, lush green, deep forest green, and soft earthy beige to capture the scene's bright, inviting, and natural ambiance. Complementing this are LUTs like a subtle Teal & Orange cinematic grade, a warm and clean Rec.709, and ProRes Log to Rec.709 with added warmth, alongside film stocks such as Kodak Portra 400, Fuji PRO 400H, and Kodak Gold 200, all chosen to enhance the comfortable, modern rustic feel and vibrant greenery."
+      },
+      "display": "swatches"
+    },
+    "accessibility": {
+      "status": "done",
+      "duration_ms": 10136,
+      "output": {
+        "issues": [
+          {
+            "category": "Mobility",
+            "description": "The description of 'comfortable seating' does not specify height or firmness, which could make sitting and standing difficult for individuals with mobility impairments."
+          },
+          {
+            "category": "Vision",
+            "description": "The 'large window with a clear view' provides abundant 'natural light' but could also be a significant source of glare, impairing visibility for individuals with light sensitivity or low vision, especially when trying to view the 'television' or navigate the space."
+          },
+          {
+            "category": "Mobility/Cognitive",
+            "description": "The 'wooden panel door' to an adjacent room lacks information regarding its handle type or the force required to open it, potentially creating barriers for individuals with limited dexterity or strength."
+          },
+          {
+            "category": "Vision/Cognitive",
+            "description": "The 'decor rich with plants and warm wooden tones' may create visual clutter or lack sufficient contrast between key elements (e.g., furniture edges, floor transitions) for individuals with low vision or cognitive processing challenges."
+          }
+        ],
+        "suggestions": [
+          "Introduce seating options with varying heights and firmness, including at least one chair with an accessible seat height (e.g., 17-19 inches) in the 'comfortable seating' area.",
+          "Install adjustable window coverings (e.g., blinds or drapes) on the 'large window' to allow control over natural light and reduce glare for improved visual comfort and television viewing.",
+          "Ensure the 'wooden panel door' is equipped with a lever-style handle and requires no more than 5 pounds of force to open, facilitating use for individuals with dexterity issues.",
+          "Strategically arrange 'plants' and furniture to maintain clear pathways and ensure sufficient visual contrast between different elements within the 'decor rich with plants and warm wooden tones' to aid navigation."
+        ],
+        "narrative": "This inviting living room, though bright, could present challenges for accessibility due to potential glare from the large window, unspecified seating heights, and the unknown operability of the wooden panel door. Addressing these features with thoughtful modifications would enhance usability for all."
+      },
+      "display": "list"
+    },
+    "story_seed": {
+      "status": "done",
+      "duration_ms": 6470,
+      "output": {
+        "premises": [
+          {
+            "title": "The Green Echo",
+            "logline": "A reclusive writer, seeking inspiration in a remote, nature-filled haven, discovers the idyllic landscape outside her window holds a hidden, ancient secret that threatens her peace and sanity.",
+            "genre": "Psychological Thriller"
+          },
+          {
+            "title": "Botanical Betrayal",
+            "logline": "When a couple's meticulously curated modern rustic living room, filled with exotic plants, begins to show signs of strange, accelerated growth and sentient behavior, they must fight to reclaim their home from its verdant inhabitants.",
+            "genre": "Sci-Fi Horror"
+          },
+          {
+            "title": "Window to Wonder",
+            "logline": "A young woman inherits her grandmother's plant-filled living room and soon realizes the stunning green landscape outside the window isn't just a view, but a gateway to a parallel world, revealed only at specific moments of natural light.",
+            "genre": "Fantasy Drama"
+          }
+        ],
+        "narrative": "I have generated three distinct premises for short films or novels, all set within an inviting, natural-light-bathed living room adorned with plants and warm wooden tones, and featuring a large window overlooking a picturesque green landscape. The premises range from a psychological thriller about a writer uncovering ancient secrets to a sci-fi horror where sentient plants take over a home, and a fantasy drama where a window becomes a portal to another world."
+      },
+      "display": "list"
+    },
+    "shot_list": {
+      "status": "done",
+      "duration_ms": 11703,
+      "output": {
+        "shots": [
+          {
+            "name": "The Luminous Embrace",
+            "angle": "Wide shot, slightly high angle looking into the entire main living space and part of the secondary seating area, capturing the large window.",
+            "lens_mm": 24,
+            "time_of_day": "Mid-morning",
+            "notes": "Establishes the expansive, bright space, highlighting the natural light flooding in and the connection to the lush outdoors. Emphasizes the warm tones and inviting atmosphere."
+          },
+          {
+            "name": "Verdant Vista",
+            "angle": "Medium shot, eye-level, focused out the large window from the secondary seating area.",
+            "lens_mm": 50,
+            "time_of_day": "Late afternoon",
+            "notes": "Captures the 'picturesque green landscape,' showing the detail of the trees and natural light filtering through leaves. Can include a subtle hint of the interior's wooden frame or a plant in the foreground for depth."
+          },
+          {
+            "name": "Cozy Corner Details",
+            "angle": "Close-up, slightly low angle.",
+            "lens_mm": 85,
+            "time_of_day": "Early afternoon",
+            "notes": "Focuses on a specific cluster of plants, perhaps a potted fern on a warm wooden side table, with soft light raking across the leaves, emphasizing the rich decor and natural elements."
+          },
+          {
+            "name": "Seated Serenity",
+            "angle": "Medium-wide, eye-level, from the main living space looking into the secondary seating area.",
+            "lens_mm": 35,
+            "time_of_day": "Mid-morning",
+            "notes": "Shows the comfortable armchair or sofa in the secondary seating area, positioned to enjoy the window view. Natural light highlights textures of upholstery and any nearby throws/pillows."
+          },
+          {
+            "name": "Archway Passage",
+            "angle": "Tracking shot, eye-level, moving from the main living space, through the archway, and into the secondary seating area.",
+            "lens_mm": 28,
+            "time_of_day": "Golden Hour (late afternoon)",
+            "notes": "Emphasizes the seamless flow between the two spaces, with golden light casting long shadows and creating a warm, inviting glow as the viewer 'moves' through the home."
+          },
+          {
+            "name": "Timber and Tech",
+            "angle": "Medium shot, eye-level, focusing on the wooden cabinet and television in the Main Living Space.",
+            "lens_mm": 50,
+            "time_of_day": "Early evening",
+            "notes": "Shows the wooden cabinet and TV. Could use practical lamps for warm interior light, perhaps with a hint of fading daylight outside, creating a cozy evening atmosphere, and highlighting the 'warm wooden tones' in functional areas."
+          },
+          {
+            "name": "Overlook & Overview",
+            "angle": "High angle (crane or steadycam from above), looking down into the main living space and secondary seating area.",
+            "lens_mm": 21,
+            "time_of_day": "Morning (bright overcast)",
+            "notes": "Provides a unique perspective on the layout, showcasing the relationship between the furniture, plants, and the open flow towards the window, under soft, even light."
+          }
+        ],
+        "narrative": "Our proposed shots capture the inviting ambiance of this living room, from wide views emphasizing the natural light and seamless flow between the main space and secondary seating area, to intimate close-ups of the rich plant decor and the picturesque green landscape framed by the large window. We also feature a tracking shot through the archway, creating a sense of movement and connection between the two distinct but harmonious zones."
+      },
+      "display": "list"
+    },
+    "npc_dialogue": {
+      "status": "done",
+      "duration_ms": 6343,
+      "output": {
+        "lines": [
+          {
+            "character": "Elara Vance",
+            "line": "The way they've integrated the water feature with the natural slope is quite elegant. A true masterstroke."
+          },
+          {
+            "character": "Leo Chen",
+            "line": "The light through these canopy leaves is simply divine. It'll make for an ethereal bokeh in the foreground."
+          },
+          {
+            "character": "Maya Sharma",
+            "line": "This *Salix babylonica* seems remarkably healthy, though I spot a few aphids on the lower branches. Easily remedied."
+          },
+          {
+            "character": "Julian Foster",
+            "line": "Listen to the wind chimes mixed with the rustling leaves... it's almost a natural symphony."
+          },
+          {
+            "character": "Elara Vance",
+            "line": "I remember a similar rock garden design from my early days. Simplicity often holds the most profound beauty."
+          },
+          {
+            "character": "Leo Chen",
+            "line": "Just waiting for that monarch to land on the butterfly bush. The contrast will be stunning."
+          },
+          {
+            "character": "Maya Sharma",
+            "line": "The soil pH here is ideal for these rhododendrons. Whoever tends this garden truly understands their needs."
+          },
+          {
+            "character": "Julian Foster",
+            "line": "I'm picturing a new melody, perhaps a 'Forest Echoes' piece, inspired by the serene stillness here."
+          }
+        ],
+        "narrative": "Elara Vance, the retired landscape architect, observes the elegant design and historical elements of the garden, while Leo Chen, the nature photographer, focuses on capturing the perfect light and wildlife moments. Maya Sharma, the botanist, meticulously assesses plant health and soil conditions, and Julian Foster, the amateur flutist, finds musical inspiration in the natural sounds and serene atmosphere."
+      },
+      "display": "list"
+    },
+    "set_dressing": {
+      "status": "done",
+      "duration_ms": 7204,
+      "output": {
+        "suggestions": [
+          {
+            "theme": "More Lived-in & Cozy",
+            "additions": [
+              "A half-read book with a bookmark placed on the coffee table",
+              "A soft throw blanket casually draped over the white sofa",
+              "A remote control nestled amongst the decorative pillows"
+            ]
+          },
+          {
+            "theme": "Enhanced Connection to Nature",
+            "additions": [
+              "Botanical-themed wall art complementing the landscape view",
+              "A small terrarium on the wood side table",
+              "A unique piece of driftwood or decorative branch on the shelving unit"
+            ]
+          },
+          {
+            "theme": "Refined Comfort",
+            "additions": [
+              "A luxurious, chunky knit throw draped over the cream armchair",
+              "An additional plush floor cushion near the main sofa",
+              "A subtle aroma diffuser with a calming scent next to the table lamp"
+            ]
+          },
+          {
+            "theme": "Personalized Touch",
+            "additions": [
+              "A few framed personal photographs on the wooden shelving unit",
+              "A unique ceramic mug or handcrafted piece of pottery on the coffee table",
+              "A subtle souvenir from a cherished trip placed on the sideboard cabinet"
+            ]
+          }
+        ],
+        "narrative": "To make this inviting living room feel even more personal and comfortable, consider adding elements like a half-read book and a casually draped throw for a lived-in vibe. You could also enhance the connection to the outdoors with botanical wall art and a terrarium, or heighten the sense of refined comfort by introducing a luxurious chunky knit throw and an aroma diffuser. Finally, framed personal photos and a cherished souvenir would bring a unique, personalized touch to the space."
+      },
+      "display": "list"
+    },
+    "real_estate": {
+      "status": "done",
+      "duration_ms": 5102,
+      "output": {
+        "estimated_monthly_rent_usd": 1950,
+        "market": "Pacific Northwest, USA",
+        "reasoning": "The Pacific Northwest, especially its major metropolitan areas like Seattle and Portland, has a high cost of living. A 480 sqft property typically represents a studio or a small one-bedroom apartment. Based on current market trends for such units in this region, a plausible monthly rent falls within the $1400-$2500 range, with the estimate representing a reasonable average for a well-maintained property.",
+        "narrative": "A 480 sqft property, likely a studio or small one-bedroom apartment, in the Pacific Northwest region is estimated to have a monthly rent of approximately $1950, reflecting the high cost of living in this area."
+      },
+      "display": "text"
+    },
+    "hazard_audit": {
+      "status": "done",
+      "duration_ms": 9087,
+      "output": {
+        "hazards": [
+          {
+            "type": "Fire/Code",
+            "severity": "High",
+            "description": "Absence of visible smoke detectors within the living space, which are critical for fire safety and typically required by building codes."
+          },
+          {
+            "type": "Structural/Trip",
+            "severity": "Medium",
+            "description": "The wooden shelving unit, especially if tall and holding numerous books, may not be adequately anchored to the wall, posing a tipping hazard."
+          },
+          {
+            "type": "Trip",
+            "severity": "Low",
+            "description": "The area rug's edges may not be fully secured or lie completely flat, creating a potential tripping hazard for occupants."
+          },
+          {
+            "type": "Fire/Code",
+            "severity": "Medium",
+            "description": "Wiring for the wall-mounted television may not be properly concealed or installed according to electrical codes, potentially leading to fire hazards or accessibility issues."
+          },
+          {
+            "type": "Code/Trip",
+            "severity": "Medium",
+            "description": "A potted plant, if situated in a primary pathway or near an egress point, could obstruct safe passage or create a tripping hazard."
+          }
+        ],
+        "narrative": "A building inspection of the main living space and secondary seating area revealed several potential hazards, including the absence of visible smoke detectors, a potentially unsecured wooden shelving unit, and possible trip hazards from the area rug and potted plants."
+      },
+      "display": "list"
+    },
+    "filming_scout": {
+      "status": "done",
+      "duration_ms": 9413,
+      "output": {
+        "locations": [
+          {
+            "name": "Skamania Lodge",
+            "address": "1131 SW Skamania Lodge Way, Stevenson, WA 98648",
+            "match_reason": "Known for its massive windows, wood-heavy interiors, and stunning views of the Columbia River Gorge and surrounding forests. Many common areas feature comfortable seating and a rustic, yet inviting, aesthetic that aligns with the scene's description of warm wooden tones and a picturesque green landscape."
+          },
+          {
+            "name": "Salish Lodge & Spa",
+            "address": "6501 Railroad Ave, Snoqualmie, WA 98065",
+            "match_reason": "Offers several common areas and guest rooms with large windows overlooking Snoqualmie Falls and the lush green forest. The decor often incorporates warm wood tones, stone, and comfortable, inviting seating, providing natural light and a picturesque landscape view suitable for the scene."
+          },
+          {
+            "name": "TreeHouse Point",
+            "address": "6922 Preston-Fall City Rd SE, Issaquah, WA 98027",
+            "match_reason": "Features beautifully crafted treehouses and a main lodge, all built with abundant warm wood, fitting the 'warm wooden tones' requirement. The setting is a dense, lush forest, providing the 'picturesque green landscape' through large windows, creating an inviting and natural living space."
+          }
+        ],
+        "narrative": "This scout found three distinct locations in the Pacific Northwest that perfectly capture an inviting, light-filled living room scene. Skamania Lodge and Salish Lodge & Spa offer breathtaking views of the Columbia River Gorge and Snoqualmie Falls respectively, with warm, wood-rich interiors, while TreeHouse Point provides a unique, cozy forest setting."
+      },
+      "display": "list"
+    },
+    "prop_shopping": {
+      "status": "done",
+      "duration_ms": 20126,
+      "output": {
+        "items": [
+          {
+            "name": "White sofa",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/furniture/sb0/white-sofas.html",
+            "price_estimate_usd": 1200
+          },
+          {
+            "name": "Yellow throw pillows",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=yellow+throw+pillows",
+            "price_estimate_usd": 25
+          },
+          {
+            "name": "Framed artwork (geometric)",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/geometric-framed-artwork/s?k=geometric+framed+artwork",
+            "price_estimate_usd": 90
+          },
+          {
+            "name": "Potted plant (tall)",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/large-potted-plants-40439/",
+            "price_estimate_usd": 65
+          },
+          {
+            "name": "Small wood side table",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=small+wood+side+table",
+            "price_estimate_usd": 80
+          },
+          {
+            "name": "Table lamp (white base)",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/table-lamps-10703/",
+            "price_estimate_usd": 45
+          },
+          {
+            "name": "Hanging plant",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/hanging-plant-indoor/s?k=hanging+plant+indoor",
+            "price_estimate_usd": 35
+          },
+          {
+            "name": "Potted plant (mid-sized)",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/potted-plants-40439/",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "Main sofa (beige)",
+            "vendor": "West Elm",
+            "url": "https://www.westelm.com/shop/furniture/sofas-sectionals/?color=beige",
+            "price_estimate_usd": 2200
+          },
+          {
+            "name": "Decorative pillows",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=decorative+throw+pillows",
+            "price_estimate_usd": 30
+          },
+          {
+            "name": "Round wood coffee table",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/furniture/sb0/round-wood-coffee-tables.html",
+            "price_estimate_usd": 350
+          },
+          {
+            "name": "Vase with flowers",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/decorative-vase-flowers/s?k=decorative+vase+with+flowers",
+            "price_estimate_usd": 50
+          },
+          {
+            "name": "Cream armchair",
+            "vendor": "West Elm",
+            "url": "https://www.westelm.com/shop/furniture/armchairs-accent-chairs/?color=cream",
+            "price_estimate_usd": 850
+          },
+          {
+            "name": "Throw blanket (white/beige)",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=white+beige+throw+blanket",
+            "price_estimate_usd": 45
+          },
+          {
+            "name": "Wood sideboard cabinet",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/sideboards-buffets-10381/",
+            "price_estimate_usd": 400
+          },
+          {
+            "name": "Table lamp (white shade)",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/table-lamp-white-shade/s?k=table+lamp+white+shade",
+            "price_estimate_usd": 60
+          },
+          {
+            "name": "Pampas grass in vase",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/pampas-grass-vase/s?k=pampas+grass+in+vase",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "Landscape painting",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/decor-pillows/sb0/landscape-paintings.html",
+            "price_estimate_usd": 180
+          },
+          {
+            "name": "White sheer curtains",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/sheer-curtains-10705/",
+            "price_estimate_usd": 35
+          },
+          {
+            "name": "Woven pendant light",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/lighting/sb0/woven-pendant-lights.html",
+            "price_estimate_usd": 250
+          },
+          {
+            "name": "Wooden shelving unit",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/shelving-units-10382/",
+            "price_estimate_usd": 200
+          },
+          {
+            "name": "Vase with pampas grass",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/pampas-grass-vase-decor/s?k=pampas+grass+in+vase+decor",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "Decorative bottles/vessels",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=decorative+vessels",
+            "price_estimate_usd": 25
+          },
+          {
+            "name": "Small framed picture",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/small-framed-picture/s?k=small+framed+picture",
+            "price_estimate_usd": 30
+          },
+          {
+            "name": "Books",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/books/b?ie=UTF8&node=283155",
+            "price_estimate_usd": 15
+          },
+          {
+            "name": "Storage baskets",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/cat/storage-baskets-10408/",
+            "price_estimate_usd": 20
+          },
+          {
+            "name": "Area rug",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/rugs/sb0/area-rugs.html",
+            "price_estimate_usd": 300
+          },
+          {
+            "name": "Wall-mounted television",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/wall-mounted-television/s?k=wall+mounted+television",
+            "price_estimate_usd": 600
+          }
+        ],
+        "narrative": "This inviting living room features a white sofa from Wayfair and a beige main sofa with a cream armchair from West Elm. Key accessories include yellow throw pillows and a round wood coffee table, with lighting from a woven pendant light from Wayfair and a functional IKEA shelving unit."
+      },
+      "display": "products"
+    },
+    "carbon_score": {
+      "status": "done",
+      "duration_ms": 30765,
+      "output": {
+        "embodied_carbon_kg_co2e": 2790,
+        "breakdown": [
+          {
+            "material": "Fabric",
+            "kg_co2e": 840
+          },
+          {
+            "material": "Wood",
+            "kg_co2e": 615
+          },
+          {
+            "material": "Foam",
+            "kg_co2e": 630
+          },
+          {
+            "material": "Glass",
+            "kg_co2e": 129
+          },
+          {
+            "material": "Ceramic",
+            "kg_co2e": 26
+          },
+          {
+            "material": "Plastic",
+            "kg_co2e": 54
+          },
+          {
+            "material": "Metal",
+            "kg_co2e": 196
+          },
+          {
+            "material": "Paper",
+            "kg_co2e": 15
+          },
+          {
+            "material": "Woven Natural Fibers",
+            "kg_co2e": 18
+          },
+          {
+            "material": "Electronics/TV",
+            "kg_co2e": 267
+          }
+        ],
+        "reasoning": "The estimate considers the primary materials identified from the object list and scene description, including wood for furniture and frames, fabric and foam for seating and soft furnishings, glass and metal for the large window and decorative items, and plastics/electronics for various components and the television. Conservative embodied carbon factors were applied per estimated material mass or item-specific footprints. Quantities were approximated based on typical sizes for a living room of this description. The largest contributions come from the soft furnishings (sofas, rugs), wood furniture, and the window, along with the television.",
+        "narrative": "This inviting living room's embodied carbon footprint is estimated to be approximately 2,790 kg CO2e, primarily driven by its comfortable fabric and foam seating, various wood furniture pieces, the large window, and electronic items like the television. The breakdown shows that fabrics and foams contribute significantly, alongside the solid wood elements and the carbon intensity of producing glass and metal for the window and other items."
+      },
+      "display": "text"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AGENTS, AGENTS_BY_ID, CATEGORIES } from "@/lib/agentManifest";
-import { agentverseProfileUrl } from "@/lib/agentAddresses";
+import { agentverseProfileUrl, asiOneAgentChatUrl } from "@/lib/agentAddresses";
 import { fetchAgentResults, type AgentEntry, type AgentResults } from "@/lib/agentResults";
 import { renderAgentCard } from "./agent-cards";
 import AgentNetworkGraph from "./AgentNetworkGraph";
@@ -88,7 +88,16 @@ export default function AgentSidebar({
             <AgentNetworkGraph
               results={results}
               onNodeClick={(id) => {
-                const url = agentverseProfileUrl(id);
+                const def = AGENTS_BY_ID[id];
+                const entry = results?.agents[id];
+                // Prefer ASI:One deep link with analysis output prefilled,
+                // so the user lands in a live chat where the agent already
+                // "knows" their world. Fall back to the Agentverse profile
+                // page if the agent hasn't completed yet.
+                const url =
+                  def && entry?.status === "done" && entry.output !== undefined
+                    ? asiOneAgentChatUrl(id, def.label, entry.output)
+                    : agentverseProfileUrl(id);
                 if (url) window.open(url, "_blank", "noopener,noreferrer");
               }}
             />
