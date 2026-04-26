@@ -1,0 +1,636 @@
+{
+  "world_id": "cabin",
+  "generated_at": "2026-04-25T19:27:36.881946+00:00",
+  "schema_version": 1,
+  "agents": {
+    "spatial_layout": {
+      "status": "done",
+      "duration_ms": 5771,
+      "output": {
+        "rooms": [
+          {
+            "name": "Ground Floor",
+            "approx_sqft": 750
+          },
+          {
+            "name": "Upper Floor/Attic (inferred)",
+            "approx_sqft": 300
+          }
+        ],
+        "entrances": [
+          "Main entrance via front porch"
+        ],
+        "sightlines": [
+          "From front porch overlooking a path and wooded area",
+          "From windows, views into the surrounding forest"
+        ],
+        "total_sqft_estimate": 1050,
+        "narrative": "This assessment is based solely on exterior views of a rustic log cabin, therefore the interior layout is unknown. The building appears to have a ground floor with an elevated porch and a potential upper floor or attic space, situated within a dense wooded environment."
+      },
+      "display": "text"
+    },
+    "scene_describer": {
+      "status": "done",
+      "duration_ms": 7091,
+      "output": {
+        "summary": "This scene depicts a rustic wooden cabin nestled within a lush, green forest, suggesting a secluded and natural setting. The cabin features a prominent front porch with a sturdy wooden railing and steps leading up to the main entrance. Its walls are constructed from horizontal logs, complemented by a dark-shingled gable roof. A warm light emanates from a fixture beside the front door, illuminating the entrance area and reflecting in the windows, while surrounding the structure is rich green foliage, with tall trees visible in the background and dappled sunlight filtering through the canopy onto the earthy ground covered with moss and small plants.",
+        "tags": [
+          "rustic",
+          "wooden cabin",
+          "forest",
+          "lush",
+          "warm-lit",
+          "natural",
+          "secluded"
+        ],
+        "narrative": "A rustic wooden cabin sits invitingly in a dense, green forest, its warm porch light glowing amidst the surrounding foliage. The home, built with horizontal logs, features a front porch with a railing and steps, creating a cozy and secluded atmosphere."
+      },
+      "display": "text"
+    },
+    "object_inventory": {
+      "status": "done",
+      "duration_ms": 9848,
+      "output": {
+        "objects": [
+          {
+            "name": "Wooden cabin",
+            "position": "center-right"
+          },
+          {
+            "name": "Front porch",
+            "position": "extending from the cabin, center"
+          },
+          {
+            "name": "Porch railing",
+            "position": "along the front porch"
+          },
+          {
+            "name": "Wooden stairs",
+            "position": "leading to the porch, right"
+          },
+          {
+            "name": "Front door",
+            "position": "on the porch, center-left"
+          },
+          {
+            "name": "Window",
+            "position": "left of the front door"
+          },
+          {
+            "name": "Window",
+            "position": "right of the front door, reflecting trees"
+          },
+          {
+            "name": "Outdoor wall lamp",
+            "position": "above the front door"
+          },
+          {
+            "name": "Gabled roof",
+            "position": "atop the cabin"
+          },
+          {
+            "name": "Rain gutter",
+            "position": "along the right roofline"
+          },
+          {
+            "name": "Support posts",
+            "position": "under the porch"
+          },
+          {
+            "name": "Trees and foliage",
+            "position": "surrounding the cabin and in the background"
+          },
+          {
+            "name": "Grassy ground",
+            "position": "in front of the cabin"
+          },
+          {
+            "name": "Dirt path",
+            "position": "far left foreground"
+          }
+        ],
+        "narrative": "The captures showcase the exterior of a rustic wooden cabin nestled among abundant trees and foliage. Key features include a front porch with railing and stairs, several windows, and an outdoor light."
+      },
+      "display": "list"
+    },
+    "geolocator": {
+      "status": "done",
+      "duration_ms": 4987,
+      "output": {
+        "candidates": [
+          {
+            "region": "North America (e.g., Pacific Northwest, Rocky Mountains, Canadian Shield)",
+            "confidence": 0.95,
+            "reasoning": "The description of a rustic wooden log cabin nestled in a lush, green forest with a gable roof and front porch strongly aligns with traditional cabin architecture and natural environments found across vast forested regions of North America, particularly in the US and Canada."
+          },
+          {
+            "region": "Scandinavia (e.g., Norway, Sweden, Finland)",
+            "confidence": 0.9,
+            "reasoning": "Wooden cabins (such as 'hytte' or 'm\u00f6kki') are a quintessential part of the landscape in Scandinavian countries, which boast extensive, dense forests. The architecture and secluded, natural setting described are highly characteristic of this region."
+          },
+          {
+            "region": "Central/Eastern Europe (e.g., Carpathian Mountains, Alpine regions)",
+            "confidence": 0.75,
+            "reasoning": "Forested mountain ranges in Central and Eastern Europe also feature numerous rustic wooden cabins, often used for leisure or as lodges. While architectural styles can vary, the description of a log cabin in a lush forest is plausible here."
+          }
+        ],
+        "narrative": "This scene most plausibly depicts a rustic wooden cabin in North America, reminiscent of the Pacific Northwest or Rocky Mountains, due to the prevalence of log construction and vast forested landscapes. Scandinavia is also a strong candidate, as such secluded cabins are iconic there, followed by forested mountainous regions of Central and Eastern Europe."
+      },
+      "display": "list"
+    },
+    "architectural_style": {
+      "status": "done",
+      "duration_ms": 5239,
+      "output": {
+        "style": "Log Cabin",
+        "confidence": 0.95,
+        "reasoning": "The description explicitly states the cabin's walls are constructed from 'horizontal logs' and features a 'prominent front porch with a sturdy wooden railing and steps,' which are definitive characteristics of log cabin architecture. The rustic, forested setting further supports this classification.",
+        "narrative": "This scene depicts a classic Log Cabin, built from horizontal logs with a prominent front porch and a dark-shingled gable roof, nestled within a lush green forest, radiating a warm and secluded rustic charm."
+      },
+      "display": "text"
+    },
+    "character_suggester": {
+      "status": "done",
+      "duration_ms": 5668,
+      "output": {
+        "characters": [
+          {
+            "name": "Elias Vance",
+            "role": "Reclusive Author",
+            "bio": "He moved to the cabin years ago, seeking peace and inspiration to write his next great novel, living a simple life connected to nature."
+          },
+          {
+            "name": "Dr. Aris Thorne",
+            "role": "Botanist/Ecologist",
+            "bio": "Dr. Thorne uses the cabin as a base for his ongoing research into the unique mosses and ancient tree species found in this secluded part of the forest."
+          },
+          {
+            "name": "Lena Petrova",
+            "role": "Wilderness Guide",
+            "bio": "Lena knows every trail and hidden corner of the surrounding forest, occasionally using the cabin as a stopping point or a place to host small, intimate nature retreats."
+          },
+          {
+            "name": "Silas \"Silas the Sentry\" Croft",
+            "role": "Forest Guardian / Self-Appointed Protector",
+            "bio": "A stoic and watchful figure, Silas lives off the land and unofficially patrols the deep woods, ensuring its untouched beauty remains safe from encroachment."
+          }
+        ],
+        "narrative": "The proposed characters for this secluded wooden cabin in the lush forest include Elias Vance, a reclusive author seeking inspiration; Dr. Aris Thorne, a botanist researching local flora; Lena Petrova, a wilderness guide; and Silas Croft, a self-appointed forest guardian. These individuals would either live, work, or frequently visit this serene, natural setting."
+      },
+      "display": "list"
+    },
+    "soundscape": {
+      "status": "done",
+      "duration_ms": 6035,
+      "output": {
+        "ambient": [
+          "Forest ambience (birds, insects, distant wildlife)",
+          "Gentle breeze rustling through leaves and pines",
+          "Subtle, deep hum of forest night (or day, depending on time)",
+          "Distant sound of a flowing stream or small waterfall"
+        ],
+        "foley": [
+          "Footsteps on wooden porch steps",
+          "Creak of a wooden cabin door opening or closing",
+          "Chirp of crickets near the cabin entrance",
+          "Soft rustle of leaves underfoot on the earthy ground",
+          "A distinct hoot of a distant owl",
+          "Faint creaking and settling sounds of the old wooden cabin",
+          "A small branch snapping under an unseen animal's weight",
+          "Buzzing of a moth or insect around the porch light",
+          "Chirp of a specific bird call, close by"
+        ],
+        "narrative": "The audio design for this rustic cabin scene in a lush forest features a tranquil ambiance of forest sounds, gentle breezes, and a distant stream. Specific Foley elements include footsteps on the porch, the creak of the cabin door, and the distinct sounds of crickets, an owl, and small forest creatures, adding life to the secluded setting."
+      },
+      "display": "list"
+    },
+    "era_estimator": {
+      "status": "done",
+      "duration_ms": 7059,
+      "output": {
+        "period": "Traditional Rustic Vernacular",
+        "confidence": 0.7,
+        "reasoning": "The cabin's construction from horizontal logs, a dark-shingled gable roof, and its secluded forest setting are defining characteristics of traditional rustic vernacular architecture. This style emphasizes natural materials and a utilitarian aesthetic, transcending specific historical periods to represent an enduring building tradition rather than a narrow design era.",
+        "narrative": "This rustic wooden cabin, constructed from horizontal logs with a dark-shingled gable roof and nestled deep within a lush forest, evokes a timeless traditional rustic vernacular style that emphasizes natural materials and a secluded, utilitarian aesthetic."
+      },
+      "display": "text"
+    },
+    "accessibility": {
+      "status": "done",
+      "duration_ms": 7065,
+      "output": {
+        "issues": [
+          {
+            "category": "Mobility",
+            "description": "The 'steps leading up to the main entrance' of the front porch create a significant barrier for individuals using wheelchairs or with other mobility impairments, preventing independent access to the cabin."
+          },
+          {
+            "category": "Mobility / Vision",
+            "description": "The 'earthy ground covered with moss and small plants' surrounding the cabin suggests an uneven and potentially slippery natural surface, which could pose a tripping hazard and make navigation difficult for those with mobility aids or vision impairments."
+          },
+          {
+            "category": "Vision / Cognitive",
+            "description": "While 'a warm light emanates from a fixture beside the front door', there is no indication of consistent or high-contrast lighting along the approach path, nor any tactile or visual cues for wayfinding, which could hinder persons with low vision or cognitive impairments in a secluded setting."
+          }
+        ],
+        "suggestions": [
+          "Install an ADA-compliant ramp with appropriate handrails alongside or in place of the existing steps leading to the front porch to ensure accessible entry for all visitors.",
+          "Establish a clear, firm, and level pathway from the main approach to the cabin's entrance, utilizing materials like compacted gravel, pavers, or a boardwalk to eliminate uneven ground and moss as obstacles.",
+          "Upgrade the outdoor lighting to provide consistent, glare-free illumination along the entire approach path and porch area, ensuring high contrast with surrounding elements and considering motion-activated sensors for safety and energy efficiency."
+        ],
+        "narrative": "Based solely on exterior views, the rustic wooden cabin presents mobility challenges due to its prominent front porch steps and the uneven, natural ground surrounding it. The current lighting may also be insufficient for comprehensive wayfinding, particularly for individuals with vision or cognitive impairments."
+      },
+      "display": "list"
+    },
+    "mood_palette": {
+      "status": "done",
+      "duration_ms": 8659,
+      "output": {
+        "palette": [
+          "#E0B36C",
+          "#7D5B4B",
+          "#2A4B3A",
+          "#6C8B5D",
+          "#4A3D33"
+        ],
+        "luts": [
+          "Warm Forest",
+          "Cine Teal & Orange",
+          "Rustic Tone"
+        ],
+        "film_stocks": [
+          "Kodak Portra 400",
+          "Kodak Ektar 100",
+          "Fuji Pro 400H"
+        ],
+        "narrative": "The chosen palette reflects the warm, golden light emanating from the cabin and the deep greens and earthy browns of the lush forest. The selected LUTs and film stocks aim to enhance the rustic, cozy, and natural mood of this secluded wooden cabin."
+      },
+      "display": "swatches"
+    },
+    "shot_list": {
+      "status": "done",
+      "duration_ms": 9888,
+      "output": {
+        "shots": [
+          {
+            "name": "Cabin in the Embrace",
+            "angle": "Wide shot, slightly low angle",
+            "lens_mm": 24,
+            "time_of_day": "Late Afternoon",
+            "notes": "An establishing shot showing the entire cabin nestled within the lush forest, emphasizing its seclusion. Dappled golden sunlight should highlight the cabin's log construction."
+          },
+          {
+            "name": "Welcoming Porch Light",
+            "angle": "Eye-level, slightly off-center on the front porch",
+            "lens_mm": 50,
+            "time_of_day": "Dusk",
+            "notes": "Focus on the front door, the warm light fixture beside it, and its reflection in the window, suggesting a cozy interior. Emphasize the texture of the wooden logs and railing."
+          },
+          {
+            "name": "Forest Canopy Glimpse",
+            "angle": "Low angle from the forest floor looking up",
+            "lens_mm": 35,
+            "time_of_day": "Mid-morning",
+            "notes": "Capture the tall trees, rich green foliage, and glimpses of the cabin's dark-shingled roof through the leaves, highlighting its integration with nature."
+          },
+          {
+            "name": "Path to Solitude",
+            "angle": "Medium shot, tracking towards the porch steps",
+            "lens_mm": 35,
+            "time_of_day": "Late Morning",
+            "notes": "Simulate a walk towards the cabin, focusing on the sturdy wooden steps and railing, leading the eye to the entrance. Capture sunlight catching the wood grain."
+          },
+          {
+            "name": "Window's Reflection",
+            "angle": "Close-up on a window pane",
+            "lens_mm": 85,
+            "time_of_day": "Early Evening",
+            "notes": "Show the warm light from inside the cabin reflecting on the glass, creating a sense of mystery or warmth, with subtle hints of the surrounding forest in the reflection."
+          },
+          {
+            "name": "Mossy Ground Detail",
+            "angle": "Extreme close-up, very low to the ground",
+            "lens_mm": 100,
+            "time_of_day": "Any time with soft, diffused light",
+            "notes": "Highlight the earthy ground, moss, and small plants around the cabin's base, emphasizing the rustic and natural environment."
+          },
+          {
+            "name": "Cabin Profile Through Trees",
+            "angle": "Medium shot, through a gap in the trees",
+            "lens_mm": 75,
+            "time_of_day": "Afternoon",
+            "notes": "A slightly obscured view of the cabin's side profile, framed by tree trunks and leaves, reinforcing its secluded and hidden nature within the dense woods."
+          }
+        ],
+        "narrative": "These shots aim to capture the rustic charm and secluded nature of the wooden cabin, ranging from wide views that establish its place within the lush forest to close-ups of the welcoming porch light and mossy ground. Emphasis is placed on different times of day to highlight the interplay of natural light and the cabin's warm glow, creating a sense of solitude and natural immersion."
+      },
+      "display": "list"
+    },
+    "hazard_audit": {
+      "status": "done",
+      "duration_ms": 7638,
+      "output": {
+        "hazards": [
+          {
+            "type": "Trip/Structural",
+            "severity": "High",
+            "description": "The wooden stairs and porch railing appear aged and may have deteriorated wood, posing a significant trip hazard and potential for railing failure."
+          },
+          {
+            "type": "Structural",
+            "severity": "High",
+            "description": "The wooden support posts for the front porch are susceptible to rot or pest damage at their base, which could compromise the porch's structural integrity."
+          },
+          {
+            "type": "Structural/Water Damage",
+            "severity": "Medium",
+            "description": "The condition of the rain gutter or potential for clogging could lead to improper water drainage, resulting in water damage to the cabin's foundation or siding."
+          },
+          {
+            "type": "Fire/Structural",
+            "severity": "Medium",
+            "description": "Trees and foliage are in close proximity to the wooden cabin, posing a potential fire hazard during dry conditions and a risk of structural damage from falling branches."
+          }
+        ],
+        "narrative": "The inspection of the wooden cabin revealed several significant hazards, including potential deterioration of the wooden stairs, porch railing, and support posts, which pose structural and trip risks. Additionally, issues with the rain gutter could lead to water damage, and the close proximity of trees presents both fire and structural concerns."
+      },
+      "display": "list"
+    },
+    "real_estate": {
+      "status": "done",
+      "duration_ms": 6083,
+      "output": {
+        "estimated_monthly_rent_usd": 2400,
+        "market": "Pacific Northwest, USA",
+        "reasoning": "Based on average rental costs for a 1050 sqft property (typically a 2-bedroom apartment or small house) in a moderately desirable market within the Pacific Northwest, factoring in areas like the suburbs of Portland or Seattle. The known interior layout supports the accuracy of the square footage.",
+        "narrative": "A 1050 square foot property in the Pacific Northwest is estimated to rent for approximately $2,400 per month, based on typical market rates for a unit of this size with a known interior layout."
+      },
+      "display": "text"
+    },
+    "set_dressing": {
+      "status": "done",
+      "duration_ms": 10112,
+      "output": {
+        "suggestions": [
+          {
+            "theme": "More Lived-in & Cozy",
+            "additions": [
+              "A comfortable rocking chair on the porch",
+              "A woven welcome mat by the front door",
+              "A neatly stacked pile of firewood beside the cabin"
+            ]
+          },
+          {
+            "theme": "Enhanced Wilderness Immersion",
+            "additions": [
+              "Faint animal tracks on the dirt path",
+              "A small bird feeder hanging from a porch support",
+              "Larger, moss-covered boulders partially obscured by foliage"
+            ]
+          },
+          {
+            "theme": "Rustic Charm & Practicality",
+            "additions": [
+              "An old-fashioned water pump situated near the side of the cabin",
+              "A vintage lantern hanging from a hook on the porch",
+              "A small, well-tended herb garden near the steps"
+            ]
+          },
+          {
+            "theme": "Atmospheric & Mysterious",
+            "additions": [
+              "A gentle, swirling mist around the base of the trees",
+              "Rays of dappled sunlight more intensely piercing the canopy",
+              "Faint glowing fungi near the roots of a prominent tree"
+            ]
+          }
+        ],
+        "narrative": "To enrich the scene, suggestions include adding a rocking chair and a welcome mat to evoke a lived-in coziness, introducing animal tracks and a bird feeder for enhanced wilderness immersion, and incorporating a vintage water pump and lantern for rustic charm. Finally, a gentle mist and glowing fungi could be added to create a more atmospheric and mysterious ambiance around the cabin."
+      },
+      "display": "list"
+    },
+    "story_seed": {
+      "status": "done",
+      "duration_ms": 6431,
+      "output": {
+        "premises": [
+          {
+            "title": "The Whispering Woods",
+            "logline": "A reclusive writer seeking solace in a remote forest cabin discovers the woods harbor a dark secret when unsettling whispers and strange occurrences threaten her sanity.",
+            "genre": "Psychological Thriller"
+          },
+          {
+            "title": "Hearthwood Haven",
+            "logline": "After inheriting her estranged grandfather's secluded log cabin, a city-weary artist finds unexpected peace and a hidden artistic legacy that forces her to confront her past.",
+            "genre": "Drama"
+          },
+          {
+            "title": "The Lantern's Glow",
+            "logline": "A lone wanderer takes refuge in an abandoned cabin where a perpetual warm light by the door hints at a gateway to an ancient, forgotten realm, or something far more sinister.",
+            "genre": "Folk Horror"
+          }
+        ],
+        "narrative": "The agent has generated three loglines for short films or novels, each set in a rustic wooden cabin nestled in a lush, green forest. The premises include a psychological thriller about a reclusive writer, a drama focusing on an artist inheriting her grandfather's cabin, and a folk horror story centered around a mysterious lantern's glow."
+      },
+      "display": "list"
+    },
+    "npc_dialogue": {
+      "status": "done",
+      "duration_ms": 8485,
+      "output": {
+        "lines": [
+          {
+            "character": "Elias Vance",
+            "line": "Another seeker of truth, or just a tourist? My words are for the patient, not the hurried."
+          },
+          {
+            "character": "Elias Vance",
+            "line": "The forest whispers tales, if you're quiet enough to listen. Most aren't."
+          },
+          {
+            "character": "Dr. Aris Thorne",
+            "line": "Remarkable specimens thrive here, despite... or perhaps because of... the isolation."
+          },
+          {
+            "character": "Dr. Aris Thorne",
+            "line": "The ecological balance in this region is incredibly delicate. We must tread carefully."
+          },
+          {
+            "character": "Lena Petrova",
+            "line": "The trail gets tricky past the Whispering Falls. Stay sharp, or you'll lose your way."
+          },
+          {
+            "character": "Lena Petrova",
+            "line": "If you hear the 'shadow-song' after dusk, don't follow it. It's a trick of the mist."
+          },
+          {
+            "character": "Silas \"Silas the Sentry\" Croft",
+            "line": "Intruders are not welcome here. State your business, and make it quick."
+          },
+          {
+            "character": "Silas \"Silas the Sentry\" Croft",
+            "line": "The forest has its guardians. Some you see, some you don't."
+          }
+        ],
+        "narrative": "Elias Vance, the reclusive author, reflects on the forest's hidden stories, while Dr. Aris Thorne marvels at its delicate ecology. Lena Petrova, the wilderness guide, offers warnings about the treacherous trails and mystical phenomena, as Silas 'the Sentry' Croft sternly watches over the woods, ever vigilant against intruders."
+      },
+      "display": "list"
+    },
+    "filming_scout": {
+      "status": "done",
+      "duration_ms": 11131,
+      "output": {
+        "locations": [
+          {
+            "name": "Log Cabin Resort, Olympic National Park",
+            "address": "31835 US-101, Port Angeles, WA 98363, USA",
+            "match_reason": "Nestled deep within the temperate rainforest of the Olympic Peninsula, these rustic log cabins feature prominent porches and are surrounded by lush, moss-covered old-growth forest, perfectly matching the secluded, green setting with dappled light."
+          },
+          {
+            "name": "Baker Creek Mountain Resort",
+            "address": "Bow Valley Pkwy, Lake Louise, AB T0L 1E0, Canada",
+            "match_reason": "Located in the heart of Banff National Park, this resort offers individual log cabins with inviting porches, set against a backdrop of dense evergreen forest, providing an ideal rustic and secluded atmosphere with the required natural elements."
+          },
+          {
+            "name": "Algonquin Log Cabin (Algonquin Provincial Park region)",
+            "address": "1045 Algonquin Park Rd, Dwight, ON P0A 1H0, Canada",
+            "match_reason": "The Algonquin region is renowned for its classic Canadian log cabins situated deep within a vast, lush boreal forest. These cabins offer true seclusion, dense foliage, and the quintessential rustic look with a prominent front porch."
+          },
+          {
+            "name": "Bar W Guest Ranch",
+            "address": "2875 US-93, Whitefish, MT 59937, USA",
+            "match_reason": "This ranch features authentic log cabins set within dense Montana forest near Glacier National Park. Each cabin has a front porch, offering a truly rustic ambiance, natural seclusion, and the green surroundings specified."
+          }
+        ],
+        "narrative": "This agent's findings include four excellent locations for a rustic cabin scene: the Log Cabin Resort in Washington's Olympic National Park, Baker Creek Mountain Resort in Banff, Canada, the Algonquin Log Cabin experience in Ontario, Canada, and the Bar W Guest Ranch in Montana. Each location features authentic log cabins with prominent front porches, nestled within lush forests, offering the secluded and natural setting described with ample green foliage."
+      },
+      "display": "list"
+    },
+    "carbon_score": {
+      "status": "done",
+      "duration_ms": 15831,
+      "output": {
+        "embodied_carbon_kg_co2e": 15900,
+        "breakdown": [
+          {
+            "material": "Wood",
+            "kg_co2e": 14000
+          },
+          {
+            "material": "Concrete",
+            "kg_co2e": 900
+          },
+          {
+            "material": "Asphalt Shingles",
+            "kg_co2e": 720
+          },
+          {
+            "material": "Glass",
+            "kg_co2e": 170
+          },
+          {
+            "material": "Metal",
+            "kg_co2e": 110
+          }
+        ],
+        "reasoning": "The estimate is based on the visible exterior elements of the rustic wooden cabin, including a substantial timber structure for logs, porch, railing, and stairs, an asphalt shingle roof, concrete foundation piers, glass windows, and metal components like the rain gutter and outdoor lamp. Material quantities were estimated based on typical construction for a cabin of implied size, and conservative embodied carbon factors were applied for each material, acknowledging the primary contribution of wood and concrete.",
+        "narrative": "The rustic wooden cabin's exterior shell is estimated to embody approximately 15,900 kg CO2e, primarily from its extensive timber construction, concrete foundation, and asphalt shingled roof. This estimate focuses solely on the visible exterior elements, as interior fit-out details were not available from the scene captures."
+      },
+      "display": "text"
+    },
+    "prop_shopping": {
+      "status": "done",
+      "duration_ms": 17196,
+      "output": {
+        "items": [
+          {
+            "name": "Prefabricated Wooden Cabin Kit",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=prefabricated+wooden+cabin+kit",
+            "price_estimate_usd": 25000
+          },
+          {
+            "name": "Outdoor Wood Decking Material Kit",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/outdoor-wood-decking-kit.html",
+            "price_estimate_usd": 4000
+          },
+          {
+            "name": "Cedar Wood Porch Railing Kit",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/cedar-porch-railing.html",
+            "price_estimate_usd": 800
+          },
+          {
+            "name": "Pressure-Treated Wooden Outdoor Stairs",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=pressure+treated+outdoor+wooden+stairs",
+            "price_estimate_usd": 500
+          },
+          {
+            "name": "Rustic Solid Wood Exterior Door",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/rustic-wood-exterior-door.html",
+            "price_estimate_usd": 1800
+          },
+          {
+            "name": "Wood Frame Double-Hung Window",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/wood-frame-double-hung-window.html",
+            "price_estimate_usd": 700
+          },
+          {
+            "name": "Wood Frame Double-Hung Window",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/wood-frame-double-hung-window.html",
+            "price_estimate_usd": 700
+          },
+          {
+            "name": "Farmhouse Outdoor Wall Sconce",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=farmhouse+outdoor+wall+sconce",
+            "price_estimate_usd": 80
+          },
+          {
+            "name": "Architectural Asphalt Shingle Roofing",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=architectural+asphalt+shingles",
+            "price_estimate_usd": 3000
+          },
+          {
+            "name": "Sectional Vinyl Rain Gutter System",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=sectional+vinyl+rain+gutter+system",
+            "price_estimate_usd": 400
+          },
+          {
+            "name": "Pressure-Treated Wood Support Posts",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=pressure+treated+wood+support+posts",
+            "price_estimate_usd": 150
+          },
+          {
+            "name": "Live Conifer Tree Saplings (10-pack)",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=live+conifer+tree+saplings",
+            "price_estimate_usd": 100
+          },
+          {
+            "name": "Shade-Tolerant Grass Seed Mix",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=shade+tolerant+grass+seed+mix",
+            "price_estimate_usd": 50
+          },
+          {
+            "name": "Crushed Stone Landscaping Material",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=crushed+stone+landscaping+material",
+            "price_estimate_usd": 200
+          }
+        ],
+        "narrative": "This charming wooden cabin, complete with a gabled roof and a welcoming front porch, can be brought to life with a prefabricated kit, rustic doors, and sturdy outdoor lighting. The natural surroundings, including trees and a grassy yard, can be enhanced with live saplings and a shade-tolerant grass seed mix."
+      },
+      "display": "products"
+    }
+  }
+}
