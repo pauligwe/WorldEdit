@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AGENTS, AGENTS_BY_ID, CATEGORIES } from "@/lib/agentManifest";
-import { agentverseProfileUrl, asiOneAgentChatUrl } from "@/lib/agentAddresses";
+import { asiOneAgentChatUrl } from "@/lib/agentAddresses";
 import { fetchAgentResults, type AgentEntry, type AgentResults } from "@/lib/agentResults";
 import { renderAgentCard } from "./agent-cards";
 import AgentNetworkGraph from "./AgentNetworkGraph";
@@ -89,15 +89,15 @@ export default function AgentSidebar({
               results={results}
               onNodeClick={(id) => {
                 const def = AGENTS_BY_ID[id];
+                if (!def) return;
                 const entry = results?.agents[id];
-                // Prefer ASI:One deep link with analysis output prefilled,
-                // so the user lands in a live chat where the agent already
-                // "knows" their world. Fall back to the Agentverse profile
-                // page if the agent hasn't completed yet.
-                const url =
-                  def && entry?.status === "done" && entry.output !== undefined
-                    ? asiOneAgentChatUrl(id, def.label, entry.output)
-                    : agentverseProfileUrl(id);
+                // Always open an ASI:One chat targeted at this agent. If the
+                // agent has finished and we have its output, prefill the
+                // chat with that analysis; otherwise send a generic kickoff
+                // so the user still lands in a live conversation.
+                const output =
+                  entry?.status === "done" ? entry.output : undefined;
+                const url = asiOneAgentChatUrl(id, def.label, output);
                 if (url) window.open(url, "_blank", "noopener,noreferrer");
               }}
             />
