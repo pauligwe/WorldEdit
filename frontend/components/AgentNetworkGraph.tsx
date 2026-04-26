@@ -3,35 +3,37 @@ import { useEffect, useRef, useState } from "react";
 import { AGENTS } from "@/lib/agentManifest";
 import type { AgentResults } from "@/lib/agentResults";
 
-const W = 380;
-const H = 360;
+// SVG canvas: wide enough to fit full labels on the leftmost (col 0) and
+// rightmost (col 4) columns. PADDING_X gives ~50px on each side for the
+// outer column labels to breathe.
+const W = 460;
+const H = 380;
 const ROWS = 6;
 const COLS = 5;
-const PADDING = 24;
-const COL_W = (W - PADDING * 2) / (COLS - 1);
-const ROW_H = (H - PADDING * 2) / (ROWS - 1);
+const PADDING_X = 60;
+const PADDING_Y = 30;
+const COL_W = (W - PADDING_X * 2) / (COLS - 1);
+const ROW_H = (H - PADDING_Y * 2) / (ROWS - 1);
 
 const FETCH_BLUE = "#4a90ff";
 const TRACE = "#333";
 const NODE_BG = "#fff";
 
-// How long an inbound edge takes to fill, end-to-end, when an agent is
-// "running" (parents satisfied, agent not yet done). This is purely a
-// visualization estimate — the real Gemini call takes a variable amount of
-// time, so we cap the fill at PROGRESS_CAP until done arrives, then snap.
-// Tuned for our pipeline: most Gemini calls + jitter take ~10-25s.
-const EDGE_FILL_MS = 18000;
-// Cap the synthetic progress so the bar can't reach near-completion before
-// the agent actually finishes. Lower cap = more visible "still running" gap.
-const PROGRESS_CAP = 0.7;
-// On done, smoothly animate from current fillFrac to 1.0 over this many ms
-// before flipping the edge to its final dark-trace state, so the blue bar
-// finishes its travel rather than vanishing.
-const DONE_FINISH_MS = 600;
+// ---- Scripted animation timeline ----
+// 5 tiers × 4s = 20s total. Each tier:
+//   - Inbound edges fill from 0 → 1.0 over `EDGE_FILL_MS`
+//   - Tier nodes light up the moment their edges hit 1.0
+//   - Then a brief settle before the next tier kicks off
+const STAGE_MS = 4000;          // per-tier wall-clock budget
+const EDGE_FILL_MS = 3400;      // edge fill duration within a stage
+const NODE_LIGHTUP_MS = 350;    // node fade-in once edge lands
+const TIER_COUNT = 5;
+const TOTAL_MS = STAGE_MS * TIER_COUNT;
 
 interface Node {
   id: string;
   label: string;
+  tier: number;
   x: number;
   y: number;
 }
@@ -39,8 +41,9 @@ interface Node {
 const CAPTURE_NODE: Node = {
   id: "__capture__",
   label: "CAPTURE",
-  x: PADDING + 2 * COL_W,
-  y: PADDING + 0 * ROW_H,
+  tier: -1,
+  x: PADDING_X + 2 * COL_W,
+  y: PADDING_Y + 0 * ROW_H,
 };
 
 const NODES: Node[] = [
@@ -48,8 +51,9 @@ const NODES: Node[] = [
   ...AGENTS.map((a) => ({
     id: a.id,
     label: a.label.toUpperCase(),
-    x: PADDING + a.col * COL_W,
-    y: PADDING + a.row * ROW_H,
+    tier: a.tier,
+    x: PADDING_X + a.col * COL_W,
+    y: PADDING_Y + a.row * ROW_H,
   })),
 ];
 
@@ -58,26 +62,18 @@ const NODES_BY_ID = Object.fromEntries(NODES.map((n) => [n.id, n]));
 interface Edge {
   from: string;
   to: string;
+  tier: number;
 }
 
 const EDGES: Edge[] = [
-  ...AGENTS.filter((a) => a.tier === 0).map((a) => ({ from: "__capture__", to: a.id })),
-  ...AGENTS.flatMap((a) => a.dependencies.map((d) => ({ from: d, to: a.id }))),
+  ...AGENTS.filter((a) => a.tier === 0).map((a) => ({ from: "__capture__", to: a.id, tier: 0 as number })),
+  ...AGENTS.flatMap((a) => a.dependencies.map((d) => ({ from: d, to: a.id, tier: a.tier as number }))),
 ];
 
-const PARENTS_OF: Record<string, string[]> = (() => {
-  const m: Record<string, string[]> = {};
-  for (const e of EDGES) {
-    (m[e.to] ??= []).push(e.from);
-  }
-  return m;
-})();
-
-// Trim a bit off the destination so the arrowhead doesn't overlap the node
-// rectangle (which is 16x16, so half-extent 8 + a few px of breathing room).
-const ARROW_INSET = 10;
+const ARROW_INSET = 12;
 
 function tracePath(a: Node, b: Node): string {
+  // Orthogonal L-shape: vertical segment from a, then horizontal into b.
   const midX = b.x;
   const midY = a.y;
   const dx = b.x - midX;
@@ -94,116 +90,59 @@ function tracePath(a: Node, b: Node): string {
   return `M ${a.x} ${a.y} L ${midX} ${midY} L ${endX} ${endY}`;
 }
 
+function edgeFillFrac(t: number, tier: number): number {
+  const stageStart = tier * STAGE_MS;
+  if (t < stageStart) return 0;
+  const elapsed = t - stageStart;
+  if (elapsed >= EDGE_FILL_MS) return 1;
+  // Smooth ease-out so the bar accelerates in then settles
+  const x = elapsed / EDGE_FILL_MS;
+  return 1 - Math.pow(1 - x, 2);
+}
+
+function nodeLitFrac(t: number, tier: number): number {
+  if (tier < 0) {
+    // Capture: fades in at t=0
+    return Math.min(1, Math.max(0, t / NODE_LIGHTUP_MS));
+  }
+  // Agent nodes: light up the moment their inbound edges fill (end of stage)
+  const lightStart = tier * STAGE_MS + EDGE_FILL_MS;
+  if (t < lightStart) return 0;
+  return Math.min(1, (t - lightStart) / NODE_LIGHTUP_MS);
+}
+
 export default function AgentNetworkGraph({
-  results,
   onNodeClick,
 }: {
-  results: AgentResults | null;
+  results?: AgentResults | null;
   onNodeClick?: (agentId: string) => void;
 }) {
-  // For each node: when all its parents finished (so the agent is "running"
-  // from the viz's perspective). For capture, this is wall-time of first
-  // results. For agents, this is max(parent.doneAt). We use this to drive
-  // edge fill animation.
-  const startedAtRef = useRef<Record<string, number>>({});
-  // For each node: when it actually reported done. Used to snap edge to 100%.
-  const doneAtRef = useRef<Record<string, number>>({});
-  const [, force] = useState(0);
+  // Wall clock since component mount. Animation is purely scripted —
+  // results data is no longer used for timing (it drives card content
+  // in the sidebar but the network graph is decoupled).
+  const startTsRef = useRef<number>(0);
+  const [now, setNow] = useState(0);
 
-  // Capture is "started and done" the moment we have any results in flight.
-  if (results) {
-    if (startedAtRef.current["__capture__"] == null) {
-      startedAtRef.current["__capture__"] = performance.now();
-      doneAtRef.current["__capture__"] = performance.now();
-    }
-  }
-
-  // Update started/done timestamps from the latest results.
-  if (results) {
-    const nowTs = performance.now();
-    for (const a of AGENTS) {
-      const entry = results.agents[a.id];
-      // An agent has "started" once all its parents are done.
-      if (startedAtRef.current[a.id] == null) {
-        const parents = PARENTS_OF[a.id] ?? [];
-        const allParentsDone = parents.every((p) => doneAtRef.current[p] != null);
-        if (allParentsDone) {
-          // Start time = max(parent doneAt). This way fast agents whose parents
-          // just finished start their bar from 0 right now, while agents whose
-          // parents finished long ago effectively start "in the past" and their
-          // bar is already partially filled.
-          const start = parents.reduce(
-            (acc, p) => Math.max(acc, doneAtRef.current[p] ?? nowTs),
-            nowTs,
-          );
-          startedAtRef.current[a.id] = start;
-        }
-      }
-      // Mark done when status flips.
-      if (entry?.status === "done" && doneAtRef.current[a.id] == null) {
-        doneAtRef.current[a.id] = performance.now();
-      }
-    }
-  }
-
-  // RAF loop: keep ticking while any agent is mid-fill (started but not done)
-  // OR mid-finish (done but DONE_FINISH_MS hasn't elapsed yet).
   useEffect(() => {
+    startTsRef.current = performance.now();
     let raf = 0;
     let running = true;
     function tick() {
       if (!running) return;
-      const nowT = performance.now();
-      const anyAnimating = AGENTS.some((a) => {
-        const s = startedAtRef.current[a.id];
-        const d = doneAtRef.current[a.id];
-        if (s != null && d == null) return true; // still filling
-        if (d != null && nowT - d < DONE_FINISH_MS) return true; // finishing
-        return false;
-      });
-      force((n) => n + 1);
-      if (anyAnimating) raf = requestAnimationFrame(tick);
+      const t = performance.now() - startTsRef.current;
+      setNow(t);
+      // Keep ticking through the full scripted runtime + a small tail
+      // so the final settle frame paints correctly.
+      if (t < TOTAL_MS + 500) {
+        raf = requestAnimationFrame(tick);
+      }
     }
     raf = requestAnimationFrame(tick);
     return () => {
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [results]);
-
-  const now = performance.now();
-
-  // Per-agent progress fraction in [0, 1]:
-  // - 0 if not yet started (parents still running)
-  // - capped at PROGRESS_CAP while running
-  // - on done, smoothly ramps from cap → 1.0 over DONE_FINISH_MS
-  function progressFor(id: string): number {
-    if (id === "__capture__") return 1;
-    const d = doneAtRef.current[id];
-    const s = startedAtRef.current[id];
-    if (d != null) {
-      const sinceDone = now - d;
-      if (sinceDone >= DONE_FINISH_MS) return 1;
-      // Ramp from current running fraction to 1 over DONE_FINISH_MS.
-      const runningFrac = s != null
-        ? Math.min(PROGRESS_CAP, (d - s) / EDGE_FILL_MS)
-        : 0;
-      const t = sinceDone / DONE_FINISH_MS;
-      return runningFrac + (1 - runningFrac) * t;
-    }
-    if (s == null) return 0;
-    const elapsed = now - s;
-    if (elapsed <= 0) return 0;
-    return Math.min(PROGRESS_CAP, elapsed / EDGE_FILL_MS);
-  }
-
-  // An agent is "fully complete" (edge can flip to dark TRACE) only after the
-  // finish animation has played.
-  function isFullyComplete(id: string): boolean {
-    if (id === "__capture__") return true;
-    const d = doneAtRef.current[id];
-    return d != null && now - d >= DONE_FINISH_MS;
-  }
+  }, []);
 
   return (
     <div className="border border-outline-variant rounded bg-[#fafafa] p-2">
@@ -228,53 +167,79 @@ export default function AgentNetworkGraph({
         </defs>
         <rect width={W} height={H} fill="url(#grid-bg)" />
 
-        {/* Render in-flight edges first, fully-complete ones last, so the
-            dark trace of finished edges paints over any blue running edge that
-            shares the same routing. */}
+        {/* Render finished edges first so the dark trace paints UNDER any
+            running blue edge that shares the same routing path. */}
         {[...EDGES]
-          .map((e, i) => ({ e, i, complete: isFullyComplete(e.to) && doneAtRef.current[e.from] != null }))
-          .sort((a, b) => Number(a.complete) - Number(b.complete))
-          .map(({ e, i, complete }) => {
+          .map((e, i) => {
+            const fill = edgeFillFrac(now, e.tier);
+            return { e, i, fill, complete: fill >= 1 };
+          })
+          .sort((a, b) => Number(b.complete) - Number(a.complete))
+          .map(({ e, i, fill, complete }) => {
             const a = NODES_BY_ID[e.from];
             const b = NODES_BY_ID[e.to];
-            const childProgress = progressFor(e.to);
-            const parentDone = doneAtRef.current[e.from] != null;
-            const fillFrac = parentDone ? childProgress : 0;
-            const childDone = doneAtRef.current[e.to] != null;
-            const filling = parentDone && !childDone && fillFrac > 0;
             return (
               <EdgePath
                 key={i}
                 a={a}
                 b={b}
-                fillFrac={fillFrac}
-                filling={filling}
+                fillFrac={fill}
+                filling={fill > 0 && !complete}
                 fullyDone={complete}
               />
             );
           })}
 
         {NODES.map((n) => {
-          const done = doneAtRef.current[n.id] != null;
-          const fill = done ? (n.id === "__capture__" ? FETCH_BLUE : NODE_BG) : "#f0f0f0";
-          const stroke = done ? TRACE : "#ccc";
-          const clickable = n.id !== "__capture__" && onNodeClick;
+          const lit = nodeLitFrac(now, n.tier);
+          const isCapture = n.id === "__capture__";
+          // Lit node: white fill (or blue for capture) with dark stroke.
+          // Unlit node: light grey fill with dim stroke.
+          const fill = lit > 0
+            ? (isCapture ? FETCH_BLUE : NODE_BG)
+            : "#f0f0f0";
+          const stroke = lit > 0 ? TRACE : "#ccc";
+          const clickable = !isCapture && onNodeClick;
+
           return (
             <g
               key={n.id}
               onClick={clickable ? () => onNodeClick(n.id) : undefined}
               style={clickable ? { cursor: "pointer" } : undefined}
             >
-              <rect x={n.x - 8} y={n.y - 8} width={16} height={16}
-                    fill={fill} stroke={stroke} strokeWidth={1.5} />
+              <rect
+                x={n.x - 9}
+                y={n.y - 9}
+                width={18}
+                height={18}
+                rx={3}
+                fill={fill}
+                stroke={stroke}
+                strokeWidth={1.5}
+              />
+              {/* Inner lit dot — only shows on agent nodes once lit */}
+              {!isCapture && lit > 0 && (
+                <circle cx={n.x} cy={n.y} r={3.5 * lit} fill={FETCH_BLUE} opacity={lit} />
+              )}
               {clickable && (
-                <rect x={n.x - 12} y={n.y - 12} width={24} height={24}
+                <rect x={n.x - 14} y={n.y - 14} width={28} height={28}
                       fill="transparent" />
               )}
-              <text x={n.x} y={n.y - 12} textAnchor="middle"
-                    fontFamily="var(--font-geist-sans), system-ui, sans-serif" fontSize="6.5" fill="#666"
-                    style={{ pointerEvents: "none" }}>
-                {n.label.slice(0, 14)}
+              <text
+                x={n.x}
+                y={n.y - 14}
+                textAnchor="middle"
+                fontFamily="var(--font-geist-sans), system-ui, sans-serif"
+                fontSize="7"
+                fill={lit > 0 ? "#222" : "#888"}
+                stroke="#fafafa"
+                strokeWidth={2.5}
+                strokeLinejoin="round"
+                fontWeight={500}
+                letterSpacing="0.04em"
+                style={{ pointerEvents: "none", paintOrder: "stroke" }}
+              >
+                {n.label}
               </text>
             </g>
           );
@@ -284,9 +249,9 @@ export default function AgentNetworkGraph({
   );
 }
 
-// An edge with a dim base and a colored "fill" overlay sized by stroke-dasharray
-// to render only `fillFrac` of the path's length. We measure path length via a
-// ref since the polyline geometry varies per edge.
+// An edge has a permanent dim base. Once it's filling, a blue overlay sized
+// by stroke-dasharray draws only `fillFrac` of the path length. When fully
+// done it flips to a dark trace color.
 function EdgePath({
   a, b, fillFrac, filling, fullyDone,
 }: {
@@ -306,10 +271,9 @@ function EdgePath({
     }
   }, [d]);
 
-  // Color: fully-done edges are dark trace; in-flight edges are blue.
   const fillColor = fullyDone ? TRACE : FETCH_BLUE;
-  const fillStrokeWidth = fullyDone ? 1 : 2;
-  const showArrow = fullyDone || fillFrac >= PROGRESS_CAP - 0.001;
+  const fillStrokeWidth = fullyDone ? 1.25 : 2;
+  const showArrow = fullyDone || fillFrac > 0.95;
 
   return (
     <g>
@@ -317,14 +281,13 @@ function EdgePath({
       <path
         d={d}
         fill="none"
-        stroke="#ccc"
+        stroke="#ddd"
         strokeWidth={1}
         markerEnd={showArrow ? undefined : "url(#arrow-dim)"}
       />
       {/* fill overlay — sized by dasharray. Only render once we have length. */}
       {len != null && fillFrac > 0 && (
         <path
-          ref={pathRef}
           d={d}
           fill="none"
           stroke={fillColor}

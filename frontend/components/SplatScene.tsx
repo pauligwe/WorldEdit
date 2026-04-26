@@ -1,16 +1,10 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import PlayerControls from "./PlayerControls";
 import CrosshairHUD from "./CrosshairHUD";
 import AgentSidebar, { AGENT_SIDEBAR_WIDTH } from "./AgentSidebar";
 import { loadSpark } from "@/lib/sparkLoader";
-
-interface Pose {
-  spawn: [number, number, number];
-  yaw: number;
-  pitch: number;
-}
 
 interface Props {
   splatUrl: string;
@@ -68,20 +62,6 @@ function CameraSpawn({
     camera.updateProjectionMatrix();
     placed.current = true;
   }, [spawn, yaw, pitch, camera]);
-  return null;
-}
-
-// Polls the camera pose every frame and pushes it up to the parent so a fixed
-// HUD outside <Canvas> can show live spawn/yaw/pitch for tuning new worlds.
-function PoseReadout({ onChange }: { onChange: (p: Pose) => void }) {
-  const { camera } = useThree();
-  useFrame(() => {
-    onChange({
-      spawn: [camera.position.x, camera.position.y, camera.position.z],
-      yaw: camera.rotation.y,
-      pitch: camera.rotation.x,
-    });
-  });
   return null;
 }
 
@@ -170,31 +150,10 @@ export default function SplatScene({
 }: Props) {
   const [sparkReady, setSparkReady] = useState(false);
   const [captureMsg, setCaptureMsg] = useState<string | null>(null);
-  const [pose, setPose] = useState<Pose>({ spawn, yaw, pitch });
-  const [copied, setCopied] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const captureRef = useRef<(() => string | null) | null>(null);
   const perceptionRef = useRef<Capture3Fn | null>(null);
   const autoFiredRef = useRef(false);
-  const lastPoseTickRef = useRef(0);
-
-  // Throttle pose state updates to ~5 Hz so we're not re-rendering the whole
-  // tree every frame just to refresh a debug readout.
-  const onPoseChange = useCallback((p: Pose) => {
-    const now = performance.now();
-    if (now - lastPoseTickRef.current < 200) return;
-    lastPoseTickRef.current = now;
-    setPose(p);
-  }, []);
-
-  const copyPose = useCallback(async () => {
-    const text = `spawn: [${pose.spawn[0].toFixed(2)}, ${pose.spawn[1].toFixed(2)}, ${pose.spawn[2].toFixed(2)}], yaw: ${pose.yaw.toFixed(3)}, pitch: ${pose.pitch.toFixed(3)}`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    } catch {}
-  }, [pose]);
 
   useEffect(() => {
     loadSpark().then(() => setSparkReady(true)).catch(() => setSparkReady(true));
@@ -321,7 +280,6 @@ export default function SplatScene({
         <PlayerControls walls={[]} spawn={spawn} enabled={!sidebarOpen} />
         {captureMode && <CaptureBridge captureRef={captureRef} />}
         {captureMode && <PerceptionCaptureBridge captureRef={perceptionRef} />}
-        <PoseReadout onChange={onPoseChange} />
       </Canvas>
       <CrosshairHUD />
       {!sparkReady && (
@@ -339,14 +297,6 @@ export default function SplatScene({
           {captureMsg}
         </div>
       )}
-      <div className="absolute bottom-4 right-4 z-10 text-xs font-sans bg-white/90 text-on-surface px-3 py-2 rounded shadow-soft border border-outline-variant pointer-events-auto flex items-center gap-2">
-        <span>
-          spawn: [{pose.spawn[0].toFixed(2)}, {pose.spawn[1].toFixed(2)}, {pose.spawn[2].toFixed(2)}] · yaw: {pose.yaw.toFixed(3)} · pitch: {pose.pitch.toFixed(3)}
-        </span>
-        <button onClick={copyPose} className="text-xs font-medium bg-primary text-on-primary px-2 py-0.5 rounded hover:opacity-90">
-          {copied ? "copied" : "copy"}
-        </button>
-      </div>
       {captureMode && (
         <AgentSidebar
           worldId={captureMode.id}

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AGENTS, AGENTS_BY_ID, CATEGORIES } from "@/lib/agentManifest";
-import { agentverseProfileUrl } from "@/lib/agentAddresses";
+import { asiOneAgentChatUrl } from "@/lib/agentAddresses";
 import { fetchAgentResults, type AgentEntry, type AgentResults } from "@/lib/agentResults";
 import { renderAgentCard } from "./agent-cards";
 import AgentNetworkGraph from "./AgentNetworkGraph";
@@ -67,7 +67,7 @@ export default function AgentSidebar({
         className="fixed top-4 right-4 z-30 text-xs font-sans bg-white text-on-surface px-3 py-1.5 rounded shadow-soft border border-outline-variant hover:bg-zinc-50"
         style={open ? { right: AGENT_SIDEBAR_WIDTH + 16 } : undefined}
       >
-        {open ? "× close" : "agents"}
+        {open ? "× Close" : "Agents"}
       </button>
       <div
         className={
@@ -88,7 +88,16 @@ export default function AgentSidebar({
             <AgentNetworkGraph
               results={results}
               onNodeClick={(id) => {
-                const url = agentverseProfileUrl(id);
+                const def = AGENTS_BY_ID[id];
+                if (!def) return;
+                const entry = results?.agents[id];
+                // Always open an ASI:One chat targeted at this agent. If the
+                // agent has finished and we have its output, prefill the
+                // chat with that analysis; otherwise send a generic kickoff
+                // so the user still lands in a live conversation.
+                const output =
+                  entry?.status === "done" ? entry.output : undefined;
+                const url = asiOneAgentChatUrl(id, def.label, output);
                 if (url) window.open(url, "_blank", "noopener,noreferrer");
               }}
             />

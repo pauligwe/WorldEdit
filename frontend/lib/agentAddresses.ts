@@ -33,3 +33,37 @@ export function agentverseProfileUrl(agentId: string): string | null {
   if (!addr) return null;
   return `https://agentverse.ai/agents/details/${addr}/profile`;
 }
+
+// Build an ASI:One deep link that opens a chat targeting a specific agent
+// with the analysis output prefilled as the first user message. ASI:One
+// reads `?search=<text>` and auto-sends on page load, with `@<address>`
+// in the text routing the message to that agent. If `output` is missing
+// (agent hasn't reported yet), we still route to the agent with a generic
+// kickoff message so the user always lands in a live chat.
+export function asiOneAgentChatUrl(
+  agentId: string,
+  agentLabel: string,
+  output?: unknown,
+): string | null {
+  const addr = AGENT_ADDRESSES[agentId];
+  if (!addr) return null;
+  let message: string;
+  if (output !== undefined && output !== null) {
+    const outputBlock =
+      typeof output === "string" ? output : JSON.stringify(output, null, 2);
+    message =
+      `@${addr} Hey! Here is the analysis you produced for my generated world ` +
+      `(you are ${agentLabel}):\n\n${outputBlock}\n\n` +
+      `Can you walk me through what stood out to you and what you'd dig into next?`;
+  } else {
+    message =
+      `@${addr} Hey ${agentLabel}! I'm exploring a generated 3D world and want ` +
+      `your take on it. Can you introduce yourself, explain what you analyze, ` +
+      `and walk me through what you'd want to know about a scene to do your job?`;
+  }
+  const params = new URLSearchParams({
+    isAgentic: "true",
+    search: message,
+  });
+  return `https://asi1.ai/chat?${params.toString()}`;
+}

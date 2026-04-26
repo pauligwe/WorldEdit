@@ -12,9 +12,3 @@ reference-brown/
 .claude/
 .superpowers/
 tracks.txt
-
-# Marble splats / colliders (large binary, served from /public)
-frontend/public/worlds/*.spz
-frontend/public/worlds/*.ply
-frontend/public/worlds/*.splat
-frontend/public/worlds/*.glb
