@@ -1,0 +1,745 @@
+{
+  "world_id": "coffee_shop",
+  "generated_at": "2026-04-26T09:47:29.567264+00:00",
+  "schema_version": 1,
+  "agents": {
+    "scene_describer": {
+      "status": "done",
+      "duration_ms": 8084,
+      "output": {
+        "summary": "This inviting two-story cafe blends industrial-chic elements with natural warmth, featuring exposed brick, extensive wood accents, and large windows that overlook lush greenery, creating a bright and contemporary dining experience.",
+        "tags": [
+          "cafe",
+          "modern",
+          "industrial-chic",
+          "warm-lit",
+          "wood accents",
+          "high ceilings",
+          "indoor-outdoor",
+          "contemporary"
+        ],
+        "narrative": "This scene depicts a stylish, two-story cafe or restaurant with a contemporary industrial-chic aesthetic. Floor-to-ceiling windows on the left wall offer a view of lush outdoor greenery and a parked blue car, bringing natural light and a connection to the outside. The interior features high ceilings, exposed red brick accents, and dark wood paneling throughout, creating a warm yet sophisticated atmosphere. Seating options include a long white marble counter with dark stools running along the window, and several round wooden tables paired with dark leather chairs in the central dining area. A fully equipped service counter with coffee machines and various displays occupies the right side of the space, while a modern wooden staircase with a sleek glass railing leads to a mezzanine level above. Overhead, a mix of woven pendant lights and track lighting provides ambient warmth, complementing the rich material palette of marble, wood, brick, and dark metal."
+      },
+      "display": "text"
+    },
+    "spatial_layout": {
+      "status": "done",
+      "duration_ms": 10052,
+      "output": {
+        "rooms": [
+          {
+            "name": "Main Cafe Area (Ground Floor)",
+            "approx_sqft": 1200
+          },
+          {
+            "name": "Mezzanine Seating Area",
+            "approx_sqft": 400
+          }
+        ],
+        "entrances": [
+          "Main Customer Entrance (inferred, ground floor)",
+          "Staircase to Mezzanine"
+        ],
+        "sightlines": [
+          "From Ground Floor Seating to Outdoor Greenery and Street",
+          "From Ground Floor Seating to Service Counter",
+          "From Ground Floor to Mezzanine Seating",
+          "From Mezzanine Seating to Ground Floor",
+          "From Mezzanine Seating to Outdoor Greenery"
+        ],
+        "total_sqft_estimate": 1600,
+        "narrative": "This floor plan features a spacious ground floor main cafe area with bar and table seating, complemented by an open mezzanine seating area overlooking the main space. Prominent sightlines include views to the outdoor greenery and street from both levels, as well as clear lines of sight between the ground floor and mezzanine."
+      },
+      "display": "text"
+    },
+    "era_estimator": {
+      "status": "done",
+      "duration_ms": 4180,
+      "output": {
+        "period": "Contemporary (late 20th - 21st century)",
+        "confidence": 0.95,
+        "reasoning": "The scene explicitly describes 'industrial-chic elements' and a 'contemporary dining experience,' which are hallmarks of design trends from the late 20th century onwards. Features like exposed brick, extensive wood accents, and large windows are common in modern cafe designs aiming for a warm yet industrial aesthetic.",
+        "narrative": "This inviting two-story cafe evokes a contemporary design era, blending industrial-chic elements like exposed brick with natural warmth from extensive wood accents and large windows, creating a bright and modern dining experience."
+      },
+      "display": "text"
+    },
+    "soundscape": {
+      "status": "done",
+      "duration_ms": 4870,
+      "output": {
+        "ambient": [
+          "Soft murmur of cafe chatter",
+          "Gentle clinking of distant tableware",
+          "Subtle jazz music playing from speakers",
+          "Distant street traffic hum filtering through windows",
+          "Low whir of a professional coffee grinder"
+        ],
+        "foley": [
+          "Footsteps on a wooden floor",
+          "A chair scraping as someone sits down",
+          "Coffee cup placed on a wooden table",
+          "Spoon gently stirring in a mug",
+          "Soft rustle of a turning page (menu/book)",
+          "Distant laptop keyboard clicks",
+          "Chime of a bell as the entrance door opens",
+          "Steam wand hiss from an espresso machine",
+          "Quiet laughter from a nearby table"
+        ],
+        "narrative": "The audio design for this inviting cafe features a blend of soft chatter, distant tableware, and jazz music, subtly complemented by the whir of a coffee grinder and street sounds. Specific Foley includes footsteps, chair scrapes, the clinking of coffee cups, and the distinct hiss of an espresso machine, creating a warm and lively atmosphere."
+      },
+      "display": "list"
+    },
+    "architectural_style": {
+      "status": "done",
+      "duration_ms": 4871,
+      "output": {
+        "style": "Industrial Modern",
+        "confidence": 0.9,
+        "reasoning": "The description clearly points to 'industrial-chic' elements like exposed brick and high ceilings, combined with 'modern' and 'contemporary' aspects such as extensive wood accents, large windows, and a focus on natural light and greenery. This fusion defines the Industrial Modern style.",
+        "narrative": "This two-story cafe exemplifies an Industrial Modern aesthetic, blending the raw, utilitarian charm of exposed brick and high ceilings with the warmth of extensive wood accents, large windows, and lush greenery to create a bright and contemporary dining experience."
+      },
+      "display": "text"
+    },
+    "object_inventory": {
+      "status": "done",
+      "duration_ms": 12968,
+      "output": {
+        "objects": [
+          {
+            "name": "Large windows",
+            "position": "Along the left and back walls, providing exterior views"
+          },
+          {
+            "name": "Brick wall",
+            "position": "Upper section of the left wall"
+          },
+          {
+            "name": "Long bar counter",
+            "position": "Along the left side of the cafe"
+          },
+          {
+            "name": "Bar stools",
+            "position": "Lined along the long bar counter"
+          },
+          {
+            "name": "Wicker table lamp",
+            "position": "On the bar counter near the main window"
+          },
+          {
+            "name": "Wall shelves",
+            "position": "On the brick wall at the back-left"
+          },
+          {
+            "name": "Round dining tables",
+            "position": "In the central seating area"
+          },
+          {
+            "name": "Dark dining chairs",
+            "position": "Around the central dining tables and in the far background"
+          },
+          {
+            "name": "Woven pendant lights",
+            "position": "Hanging from the high ceiling"
+          },
+          {
+            "name": "Recessed ceiling spotlights",
+            "position": "Embedded in the ceiling throughout the space"
+          },
+          {
+            "name": "Wooden structural beams",
+            "position": "Crossing the high ceiling"
+          },
+          {
+            "name": "Mezzanine level",
+            "position": "Upper back area of the cafe"
+          },
+          {
+            "name": "Lush outdoor foliage",
+            "position": "Visible through the windows"
+          },
+          {
+            "name": "Blue car",
+            "position": "Parked outside the large left window"
+          },
+          {
+            "name": "Wooden slat paneling",
+            "position": "Along the right wall and supporting structures"
+          },
+          {
+            "name": "Marble-top coffee counter",
+            "position": "On the right side of the cafe"
+          },
+          {
+            "name": "Espresso machines",
+            "position": "On the marble-top coffee counter"
+          },
+          {
+            "name": "Coffee grinders",
+            "position": "On the marble-top coffee counter"
+          },
+          {
+            "name": "Coffee bar shelves",
+            "position": "Behind the marble-top coffee counter"
+          },
+          {
+            "name": "Cash register",
+            "position": "On the far right end of the coffee counter"
+          },
+          {
+            "name": "Metal pitchers",
+            "position": "On the marble-top coffee counter"
+          },
+          {
+            "name": "Wooden staircase",
+            "position": "Leading up to the mezzanine level on the right"
+          },
+          {
+            "name": "Glass stair railing",
+            "position": "Alongside the wooden staircase"
+          },
+          {
+            "name": "Metal stair handrail",
+            "position": "On top of the glass stair railing"
+          },
+          {
+            "name": "Small shakers",
+            "position": "On the bar counter, near the lamp"
+          }
+        ],
+        "narrative": "This spacious cafe features a modern industrial design with exposed brick, wooden elements, and large windows that offer views of outdoor foliage and a blue car. Inside, a long bar counter with stools and a central seating area with round tables are complemented by a marble-top coffee counter equipped with espresso machines, while a wooden staircase with a glass railing leads to an upper mezzanine."
+      },
+      "display": "list"
+    },
+    "character_suggester": {
+      "status": "done",
+      "duration_ms": 5984,
+      "output": {
+        "characters": [
+          {
+            "name": "Leo Chen",
+            "role": "Head Barista",
+            "bio": "Leo crafts exquisite lattes and remembers every regular's order, often sharing a quick joke to brighten their day."
+          },
+          {
+            "name": "Clara Monroe",
+            "role": "Proprietor",
+            "bio": "Clara meticulously designed the cafe, balancing its industrial edge with the warmth of natural wood, and she personally greets many of her guests."
+          },
+          {
+            "name": "Maya Rodriguez",
+            "role": "Freelance Graphic Designer",
+            "bio": "Maya often occupies a corner table near the large windows, drawing inspiration from the greenery while working on her latest client projects."
+          },
+          {
+            "name": "Chef Antoine Dubois",
+            "role": "Pastry Chef & Supplier",
+            "bio": "Antoine delivers his freshly baked croissants and artisanal breads every morning, often stopping for a coffee and chat with Clara."
+          }
+        ],
+        "narrative": "This inviting two-story cafe, with its exposed brick and warm wood, offers a bright and contemporary dining experience, where regulars like Maya find inspiration and Chef Antoine delivers fresh pastries, all overseen by meticulous owner Clara and served by friendly barista Leo."
+      },
+      "display": "list"
+    },
+    "mood_palette": {
+      "status": "done",
+      "duration_ms": 7859,
+      "output": {
+        "palette": [
+          "#B86F5D",
+          "#8B5A3C",
+          "#4A6F54",
+          "#F5F1E8",
+          "#5C6A72"
+        ],
+        "luts": [
+          "Warm Sunlight Enhancer",
+          "Natural Contrast Film Look",
+          "Golden Hour Glow"
+        ],
+        "film_stocks": [
+          "Kodak Portra 400",
+          "Fujifilm Provia 100F",
+          "Kodak Ektar 100"
+        ],
+        "narrative": "The chosen palette reflects the cafe's exposed brick, rich wood, lush greenery, and bright natural light. LUTs like \"Warm Sunlight Enhancer\" and film stocks such as \"Kodak Portra 400\" will enhance the inviting, warm, and contemporary industrial-chic ambiance of the space."
+      },
+      "display": "swatches"
+    },
+    "story_seed": {
+      "status": "done",
+      "duration_ms": 5935,
+      "output": {
+        "premises": [
+          {
+            "title": "The Brick & Beam Brew",
+            "logline": "Two strangers, each nursing their own heartbreak, find an unexpected connection over spilled coffee and shared smiles in a charming two-story cafe.",
+            "genre": "Romantic Drama"
+          },
+          {
+            "title": "Green View Surveillance",
+            "logline": "A reclusive writer, observing the world from his favored second-story window seat, becomes entangled in a dangerous plot after witnessing a suspicious exchange in the park below the cafe.",
+            "genre": "Thriller"
+          },
+          {
+            "title": "Cafe Collective",
+            "logline": "The eclectic regulars of a beloved neighborhood cafe must band together to save their cherished meeting spot from a corporate takeover threatening to replace its unique charm with bland conformity.",
+            "genre": "Dramedy"
+          }
+        ],
+        "narrative": "Three distinct premises have been generated, all set within a contemporary two-story cafe that boasts exposed brick, warm wood accents, and large windows overlooking lush greenery. These include a romantic drama about strangers finding connection, a thriller centered on a writer witnessing a crime from an upper window, and a dramedy about regulars saving their beloved cafe from corporate takeover."
+      },
+      "display": "list"
+    },
+    "geolocator": {
+      "status": "done",
+      "duration_ms": 10855,
+      "output": {
+        "candidates": [
+          {
+            "region": "North America",
+            "confidence": 0.95,
+            "reasoning": "The combination of industrial-chic elements like exposed brick and high ceilings with natural warmth, extensive wood, and large windows overlooking lush greenery is a highly prevalent design trend in contemporary cafes across major North American cities and suburban areas, especially in regions known for their strong coffee culture and modern architecture."
+          },
+          {
+            "region": "Western Europe",
+            "confidence": 0.9,
+            "reasoning": "Many urban centers in Western Europe, particularly in countries with strong design traditions like Scandinavia, Germany, and the Netherlands, feature cafes that blend industrial aesthetics with natural materials and integrate green spaces into their environments. This description aligns well with modern European cafe designs."
+          },
+          {
+            "region": "Australia and New Zealand",
+            "confidence": 0.88,
+            "reasoning": "Australia and New Zealand boast a vibrant and innovative cafe scene where industrial-chic designs, warm wood accents, and a strong emphasis on indoor-outdoor flow, often with views of well-landscaped areas or urban greenery, are very common. The description perfectly fits many popular cafes in cities like Melbourne or Sydney."
+          }
+        ],
+        "narrative": "The inviting two-story cafe, blending industrial-chic elements with natural warmth and large windows overlooking lush greenery, is highly characteristic of modern cafe designs in developed urban and suburban environments. This style is particularly prevalent across North America, Western Europe, and Australia/New Zealand, where contemporary architecture often marries industrial aesthetics with natural materials and integrated green spaces."
+      },
+      "display": "list"
+    },
+    "accessibility": {
+      "status": "done",
+      "duration_ms": 10296,
+      "output": {
+        "issues": [
+          {
+            "category": "Mobility",
+            "description": "The presence of an 'open mezzanine seating area' without explicit mention of an elevator or ramp creates a significant barrier for individuals using wheelchairs or with mobility impairments to access this entire level."
+          },
+          {
+            "category": "Hearing",
+            "description": "The combination of 'industrial-chic elements, exposed brick, extensive wood accents, and large windows' in an 'open mezzanine' setting is likely to create high reverberation, making conversations difficult for patrons with hearing impairments."
+          },
+          {
+            "category": "Vision/Mobility",
+            "description": "The 'bar and table seating' may not include a sufficient number of tables at accessible heights or with adequate knee/toe clearance, and specific circulation path widths on the 'spacious ground floor' are not detailed to ensure ease of movement for wheelchair users."
+          },
+          {
+            "category": "Vision",
+            "description": "The 'large windows that overlook lush greenery' could cause significant glare, impacting individuals with light sensitivity or visual impairments, especially at certain times of day."
+          }
+        ],
+        "suggestions": [
+          "Install an accessible elevator or a code-compliant ramp to provide equitable access to the 'open mezzanine seating area'.",
+          "Incorporate acoustic panels, ceiling baffles, or other sound-absorbing materials throughout the 'spacious ground floor' and mezzanine to reduce reverberation and improve speech intelligibility.",
+          "Provide a variety of accessible table seating options on the ground floor with appropriate height clearances and ensure clear, unobstructed circulation paths between tables and to the 'bar' area.",
+          "Install adjustable window treatments (e.g., blinds, shades, or smart glass) on the 'large windows' to manage glare and excessive brightness throughout the day."
+        ],
+        "narrative": "This cafe presents potential accessibility challenges, notably the lack of an elevator or ramp to the open mezzanine. The industrial-chic design, featuring exposed brick and large windows, may contribute to poor acoustics and glare, while specific accessible seating options and clear pathways require verification."
+      },
+      "display": "list"
+    },
+    "npc_dialogue": {
+      "status": "done",
+      "duration_ms": 7130,
+      "output": {
+        "lines": [
+          {
+            "character": "Clara Monroe",
+            "line": "Good morning, everyone! Antoine, your delivery is right on time, as always."
+          },
+          {
+            "character": "Chef Antoine Dubois",
+            "line": "And it is magnificent this morning, Clara! Each pastry, a work of art."
+          },
+          {
+            "character": "Leo Chen",
+            "line": "Chef, your croissants are already flying out. Had to make an extra batch of Americanos to keep up."
+          },
+          {
+            "character": "Clara Monroe",
+            "line": "Maya, how's that new menu design coming along? Need another inspiration boost?"
+          },
+          {
+            "character": "Maya Rodriguez",
+            "line": "Almost there, Clara! Just tweaking a font. And yes, Leo, a large cold brew, please!"
+          },
+          {
+            "character": "Leo Chen",
+            "line": "Coming right up, Maya. Keep that creative spark going."
+          },
+          {
+            "character": "Chef Antoine Dubois",
+            "line": "Remember, Leo, the secret is in the butter. Always the butter."
+          },
+          {
+            "character": "Clara Monroe",
+            "line": "He's right, Chef. That's why your pastries are the best in the city."
+          }
+        ],
+        "narrative": "The dialogue captures a busy morning at a cafe, where the proprietor Clara welcomes the pastry chef Antoine's fresh delivery while checking in with Leo, the head barista, about the popular croissants. Maya, a freelance graphic designer, is engrossed in her work and requests a cold brew from Leo, while Antoine emphasizes the quality of his ingredients."
+      },
+      "display": "list"
+    },
+    "shot_list": {
+      "status": "done",
+      "duration_ms": 11271,
+      "output": {
+        "shots": [
+          {
+            "name": "Grand Cafe Welcome",
+            "angle": "Wide shot from just inside the main entrance, slightly low to emphasize height.",
+            "lens_mm": 24,
+            "time_of_day": "Mid-morning",
+            "notes": "Capture the full expanse of the two-story space, blending exposed brick, warm wood accents, and the inviting staircase to the mezzanine. Show general, soft activity."
+          },
+          {
+            "name": "Mezzanine Overlook",
+            "angle": "High-angle shot looking down from the mezzanine railing towards the main cafe floor and service counter.",
+            "lens_mm": 35,
+            "time_of_day": "Early afternoon",
+            "notes": "Emphasize the open connection between floors, the energy of the ground level, and the harmonious blend of materials from above."
+          },
+          {
+            "name": "Window Seat Serenity",
+            "angle": "Medium shot from behind a patron sitting at a ground floor window table, looking out at the lush greenery.",
+            "lens_mm": 50,
+            "time_of_day": "Late afternoon",
+            "notes": "Highlight the natural light filtering in, creating warmth, and the tranquil view of the outdoor greenery that defines the cafe's connection to nature."
+          },
+          {
+            "name": "Industrial-Chic Detail",
+            "angle": "Close-up on a specific architectural detail, such as the textured exposed brick meeting a reclaimed wood beam, or a unique light fixture.",
+            "lens_mm": 85,
+            "time_of_day": "Any (controlled lighting)",
+            "notes": "Focus on the material contrast and craftsmanship that define the industrial-chic aesthetic, with a shallow depth of field to isolate the detail."
+          },
+          {
+            "name": "Barista's Craft",
+            "angle": "Medium close-up of a barista preparing a drink at the service counter, framed by warm, inviting lighting.",
+            "lens_mm": 50,
+            "time_of_day": "Morning rush",
+            "notes": "Showcase the 'contemporary dining experience' through the activity and skill at the heart of the cafe, with steam and motion."
+          },
+          {
+            "name": "Mezzanine Nook Intimacy",
+            "angle": "Medium shot of a small, cozy seating arrangement on the mezzanine, perhaps with a book or laptop.",
+            "lens_mm": 35,
+            "time_of_day": "Late morning",
+            "notes": "Convey the inviting and warm aspect of the mezzanine, suggesting a perfect, intimate spot for quiet work or conversation, bathed in soft, diffuse light."
+          },
+          {
+            "name": "Staircase Ascent",
+            "angle": "Low-angle looking up the prominent staircase from the ground floor, emphasizing its design and leading the eye to the mezzanine.",
+            "lens_mm": 28,
+            "time_of_day": "Mid-day",
+            "notes": "Show the architectural flow between levels, highlighting the wood and industrial railing design of the staircase, with bright, even lighting."
+          }
+        ],
+        "narrative": "These shots emphasize the cafe's inviting two-story layout, blending industrial-chic elements like exposed brick with natural warmth from wood and abundant natural light. Key visuals include wide views of the entire space, detailed architectural features, and glimpses of patrons enjoying the lush greenery outside from both levels."
+      },
+      "display": "list"
+    },
+    "hazard_audit": {
+      "status": "done",
+      "duration_ms": 8700,
+      "output": {
+        "hazards": [
+          {
+            "type": "Code-related",
+            "severity": "High",
+            "description": "The glass stair railing to and around the mezzanine level may not meet current building code requirements for height, load capacity, or baluster spacing, posing a significant fall hazard."
+          },
+          {
+            "type": "Trip",
+            "severity": "Medium",
+            "description": "The wooden staircase may have inconsistent riser heights or inadequate handrail extension/grip, increasing the risk of trips and falls for patrons."
+          },
+          {
+            "type": "Fire",
+            "severity": "High",
+            "description": "Depending on the occupancy load and building classification, the mezzanine level may lack adequate fire suppression systems or sufficient independent egress paths, posing a high risk in an emergency."
+          },
+          {
+            "type": "Fire",
+            "severity": "Medium",
+            "description": "The recessed ceiling spotlights may not be properly installed or insulated (e.g., non-IC rated fixtures in contact with insulation), creating a potential fire hazard due to overheating."
+          }
+        ],
+        "narrative": "A building inspector would flag several high-priority hazards, including potential code violations for the glass railing on the mezzanine level and the wooden staircase, which pose significant fall risks. Additionally, the mezzanine itself may require updated fire safety measures, and the recessed ceiling spotlights could present an electrical fire hazard."
+      },
+      "display": "list"
+    },
+    "set_dressing": {
+      "status": "done",
+      "duration_ms": 9672,
+      "output": {
+        "suggestions": [
+          {
+            "theme": "More Lived-in and Welcoming",
+            "additions": [
+              "A stack of current newspapers and lifestyle magazines on a small side table or communal area.",
+              "Small, decorative potted plants (e.g., succulents, ferns) on dining tables and wall shelves.",
+              "Soft cushions or throw pillows on the mezzanine seating to invite relaxation."
+            ]
+          },
+          {
+            "theme": "More Functional and Appealing",
+            "additions": [
+              "An attractive glass display case showcasing a variety of fresh pastries and baked goods near the coffee counter.",
+              "A clearly written chalkboard menu detailing daily specials or seasonal drinks.",
+              "Fresh fruit in a decorative bowl on the main bar counter for display."
+            ]
+          },
+          {
+            "theme": "More Artistic and Personal",
+            "additions": [
+              "Framed local artwork or abstract prints hanging on the exposed brick walls.",
+              "Unique, handcrafted ceramic mugs and various coffee paraphernalia (e.g., pour-over sets) on the coffee bar shelves.",
+              "Elegant, slender vases with fresh-cut flowers on select dining tables or the bar counter."
+            ]
+          }
+        ],
+        "narrative": "To enhance the cafe's inviting atmosphere, consider adding soft cushions on the mezzanine, a variety of fresh pastries in a display case, and local artwork adorning the exposed brick walls."
+      },
+      "display": "list"
+    },
+    "real_estate": {
+      "status": "done",
+      "duration_ms": 4191,
+      "output": {
+        "estimated_monthly_rent_usd": 2800,
+        "market": "North America (General Suburban Market)",
+        "reasoning": "For a 1600 sqft property in a general North American suburban market, the estimated monthly rent falls within a broad range. This estimate assumes a moderately priced area, not a high-cost urban center or a very rural, low-cost region. The square footage suggests a typical family home, likely 3 bedrooms and 2 bathrooms, which would command such a rent in many suburban areas.",
+        "narrative": "Based on a 1600 sqft property in a general North American suburban market, the estimated monthly rent is around $2800. This figure reflects a typical family home in a moderately priced area."
+      },
+      "display": "text"
+    },
+    "prop_shopping": {
+      "status": "done",
+      "duration_ms": 17301,
+      "output": {
+        "items": [
+          {
+            "name": "Large Fixed Picture Window",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/large-fixed-picture-window.html",
+            "price_estimate_usd": 800
+          },
+          {
+            "name": "Faux Brick Wall Panels",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=faux+brick+wall+panels",
+            "price_estimate_usd": 150
+          },
+          {
+            "name": "Commercial Bar Counter Unit",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/commercial-bar-counter.html",
+            "price_estimate_usd": 2500
+          },
+          {
+            "name": "Modern Counter Stool",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=modern+counter+stool",
+            "price_estimate_usd": 70
+          },
+          {
+            "name": "Woven Table Lamp",
+            "vendor": "West Elm",
+            "url": "https://www.westelm.com/shop/lighting/table-lamps/?q=woven+lamp",
+            "price_estimate_usd": 180
+          },
+          {
+            "name": "Floating Wall Shelf Set",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/search/?q=floating%20wall%20shelf",
+            "price_estimate_usd": 30
+          },
+          {
+            "name": "Modern Round Dining Table",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/round-dining-table.html",
+            "price_estimate_usd": 400
+          },
+          {
+            "name": "Upholstered Dining Chair",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=upholstered+dining+chair+dark",
+            "price_estimate_usd": 80
+          },
+          {
+            "name": "Rattan Pendant Light",
+            "vendor": "West Elm",
+            "url": "https://www.westelm.com/shop/lighting/pendant-lights/?q=rattan+pendant",
+            "price_estimate_usd": 250
+          },
+          {
+            "name": "LED Recessed Lighting Kit",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=led+recessed+lighting+kit",
+            "price_estimate_usd": 40
+          },
+          {
+            "name": "Faux Wood Ceiling Beam",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=faux+wood+ceiling+beam",
+            "price_estimate_usd": 100
+          },
+          {
+            "name": "Large Artificial Ficus Tree",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=large+artificial+ficus+tree",
+            "price_estimate_usd": 150
+          },
+          {
+            "name": "Decorative Wood Wall Panels",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/wood-wall-panels.html",
+            "price_estimate_usd": 200
+          },
+          {
+            "name": "Commercial Coffee Bar Counter",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/commercial-coffee-bar-counter.html",
+            "price_estimate_usd": 3000
+          },
+          {
+            "name": "Commercial Espresso Machine",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=commercial+espresso+machine",
+            "price_estimate_usd": 1500
+          },
+          {
+            "name": "Commercial Coffee Grinder",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=commercial+coffee+grinder",
+            "price_estimate_usd": 300
+          },
+          {
+            "name": "Industrial Wall Shelving Unit",
+            "vendor": "IKEA",
+            "url": "https://www.ikea.com/us/en/search/?q=industrial%20wall%20shelving",
+            "price_estimate_usd": 60
+          },
+          {
+            "name": "POS Cash Register System",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=pos+cash+register+system",
+            "price_estimate_usd": 400
+          },
+          {
+            "name": "Stainless Steel Milk Frothing Pitcher",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=stainless+steel+milk+frothing+pitcher",
+            "price_estimate_usd": 15
+          },
+          {
+            "name": "Modular Wooden Staircase Kit",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/modular-wooden-staircase.html",
+            "price_estimate_usd": 2000
+          },
+          {
+            "name": "Glass Panel Stair Railing",
+            "vendor": "Wayfair",
+            "url": "https://www.wayfair.com/keyword/sb0/glass-stair-railing.html",
+            "price_estimate_usd": 150
+          },
+          {
+            "name": "Wall-Mounted Metal Handrail",
+            "vendor": "Amazon",
+            "url": "https://www.amazon.com/s?k=wall+mounted+metal+handrail",
+            "price_estimate_usd": 50
+          },
+          {
+            "name": "Salt and Pepper Shaker Set",
+            "vendor": "Target",
+            "url": "https://www.target.com/s?searchTerm=salt+and+pepper+shaker+set",
+            "price_estimate_usd": 10
+          }
+        ],
+        "narrative": "This cafe features modern furnishings including commercial bar and coffee counters, complemented by a woven table lamp and rattan pendant lights. Functional elements such as LED recessed lighting, industrial wall shelving, and a modular wooden staircase with glass railing are also suggested."
+      },
+      "display": "products"
+    },
+    "filming_scout": {
+      "status": "done",
+      "duration_ms": 13728,
+      "output": {
+        "locations": [
+          {
+            "name": "The Grounds of Liberty",
+            "address": "295 Grand St, Brooklyn, NY 11211",
+            "match_reason": "This cafe boasts exposed brick and extensive wood accents, creating a warm industrial-chic vibe. It features large street-facing windows for ample light and includes a mezzanine level, giving it a two-story feel. Indoor plants contribute to the 'natural warmth' aspect."
+          },
+          {
+            "name": "Cafe Presse",
+            "address": "1117 12th Ave, Seattle, WA 98122",
+            "match_reason": "Cafe Presse offers an inviting atmosphere with exposed brick walls, warm wood tones, and large windows that let in abundant natural light. Its distinct two-level layout, with a main floor and an elevated/mezzanine area, provides the desired two-story characteristic. Seattle's environment also makes a lush greenery view plausible."
+          },
+          {
+            "name": "Cafe Landwer (Richmond Hill location)",
+            "address": "8750 Yonge St, Richmond Hill, ON L4C 6R7, Canada",
+            "match_reason": "Many Cafe Landwer locations, including this one, are designed with a contemporary two-story layout, blending exposed brick with modern industrial elements and natural wood. Large windows ensure a bright dining experience, and its suburban setting offers potential for views of surrounding greenery."
+          },
+          {
+            "name": "Union Street Cafe at The Press Hotel",
+            "address": "119 Exchange St, Portland, ME 04101",
+            "match_reason": "Housed in a former newspaper building, this cafe within The Press Hotel embodies an industrial-chic aesthetic with original exposed brick, warm wood finishes, and large windows. Its spacious design includes distinct multi-level areas that can simulate a two-story environment, and Portland's scenic setting offers lush views."
+          }
+        ],
+        "narrative": "I've scouted four vibrant cafes that perfectly capture the desired industrial-chic yet naturally warm ambiance. The Grounds of Liberty in Brooklyn and Cafe Presse in Seattle both offer exposed brick, extensive wood, and a two-story feel with large windows. For Canadian options, Cafe Landwer in Richmond Hill provides a bright, contemporary two-story space, while the Union Street Cafe at The Press Hotel in Portland, Maine, transforms a historic building into an inviting, multi-level cafe with lush surroundings."
+      },
+      "display": "list"
+    },
+    "carbon_score": {
+      "status": "done",
+      "duration_ms": 38808,
+      "output": {
+        "embodied_carbon_kg_co2e": 41000,
+        "breakdown": [
+          {
+            "material": "Concrete",
+            "kg_co2e": 18000
+          },
+          {
+            "material": "Brick",
+            "kg_co2e": 13500
+          },
+          {
+            "material": "Wood",
+            "kg_co2e": 5400
+          },
+          {
+            "material": "Steel/Metal",
+            "kg_co2e": 3000
+          },
+          {
+            "material": "Glass",
+            "kg_co2e": 840
+          },
+          {
+            "material": "Marble",
+            "kg_co2e": 228
+          },
+          {
+            "material": "Wicker",
+            "kg_co2e": 14
+          }
+        ],
+        "reasoning": "Estimates are based on typical material densities and embodied carbon factors for commercial construction, applied to estimated quantities for a two-story cafe of approximately 300 m\u00b2 total floor area. Concrete for foundations and slabs, extensive brickwork for walls, and significant wood for structural beams and various finishes contribute the most. This conservative estimate includes major visible elements and assumed core structural components, but excludes detailed MEP (Mechanical, Electrical, Plumbing) systems or extensive underground works, which would increase the total.",
+        "narrative": "The construction of this two-story cafe, featuring extensive brick, wooden structural beams, and a variety of wood and metal furnishings, is estimated to have an embodied carbon footprint of approximately 41,000 kg CO2e, with concrete and brick being the largest contributors."
+      },
+      "display": "text"
+    }
+  }
+}

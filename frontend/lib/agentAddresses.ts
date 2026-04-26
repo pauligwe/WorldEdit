@@ -6,6 +6,12 @@
 // The address is derived deterministically from the seed; if seeds change
 // in the registry these addresses must be regenerated.
 
+// Conjure-Coordinator: the entry point for the homepage prompt-bar.
+// Receives the user's world prompt, gates a $5 Stripe checkout, then fans
+// out to the pre-gen pipeline. Derived from seed "conjure-coordinator-v1".
+export const COORDINATOR_ADDRESS =
+  "agent1q2nehsygyq37c4hwej0w4xzkxqkrxdjlw3gkjnpnts0q8ufq9a7sulp5wsr";
+
 export const AGENT_ADDRESSES: Record<string, string> = {
   'scene_describer': 'agent1qfcpacmzrpll5ggejjft60fs4ekruny8qzagndag9mxm5hddax6dxk84hve',
   'object_inventory': 'agent1qv4xur7g6s6zrq8sltssejezfg83y0llm7gh5663afd7a4vjlnw8zck6h9l',
@@ -61,6 +67,19 @@ export function asiOneAgentChatUrl(
       `your take on it. Can you introduce yourself, explain what you analyze, ` +
       `and walk me through what you'd want to know about a scene to do your job?`;
   }
+  const params = new URLSearchParams({
+    isAgentic: "true",
+    search: message,
+  });
+  return `https://asi1.ai/chat?${params.toString()}`;
+}
+
+// Open ASI:One targeting the Coordinator with the user's world prompt
+// pre-routed. The Coordinator handles ChatMessage by issuing a Stripe
+// RequestPayment, then on CommitPayment runs the full pipeline.
+export function asiOneCoordinatorChatUrl(prompt: string): string {
+  const trimmed = prompt.trim();
+  const message = `@${COORDINATOR_ADDRESS} ${trimmed}`;
   const params = new URLSearchParams({
     isAgentic: "true",
     search: message,

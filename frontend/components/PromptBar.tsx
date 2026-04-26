@@ -6,6 +6,7 @@ import {
   CLOUDINARY_FOLDER,
   isCloudinaryConfigured,
 } from "@/lib/cloudinary";
+import { asiOneCoordinatorChatUrl } from "@/lib/agentAddresses";
 
 interface UploadedImage {
   publicId: string;
@@ -24,7 +25,13 @@ export default function PromptBar() {
     e.preventDefault();
     if (!prompt.trim() || submitting) return;
     setSubmitting(true);
-    setTimeout(() => setSubmitting(false), 1800);
+    // Open ASI:One in a new tab routed at the Conjure-Coordinator with the
+    // user's prompt. The Coordinator then issues a Stripe RequestPayment and,
+    // on CommitPayment, runs the 10-stage pre-gen pipeline.
+    const url = asiOneCoordinatorChatUrl(prompt);
+    window.open(url, "_blank", "noopener,noreferrer");
+    // Quick visual reset so the user can submit again if the popup was blocked.
+    setTimeout(() => setSubmitting(false), 1200);
   }
 
   return (

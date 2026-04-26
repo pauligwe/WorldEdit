@@ -40,6 +40,8 @@ from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
     EndSessionContent,
+    EndStreamContent,
+    StartStreamContent,
     TextContent,
     chat_protocol_spec,
 )
@@ -226,6 +228,37 @@ async def _send_text(ctx: Context, recipient: str, text: str, end: bool = False)
     )
 
 
+async def _send_stream_chunk(
+    ctx: Context, recipient: str, stream_id, text: str
+) -> None:
+    """Send one streaming chunk. The pairing of TextContent + StartStreamContent
+    (with the same stream_id every time) tells ASI:One to append this text to
+    the bubble identified by stream_id — i.e. a single bubble that grows in
+    place rather than a new bubble per message."""
+    await ctx.send(
+        recipient,
+        ChatMessage(
+            timestamp=datetime.now(timezone.utc),
+            msg_id=uuid4(),
+            content=[
+                TextContent(type="text", text=text),
+                StartStreamContent(stream_id=stream_id),
+            ],
+        ),
+    )
+
+
+async def _send_stream_end(ctx: Context, recipient: str, stream_id) -> None:
+    await ctx.send(
+        recipient,
+        ChatMessage(
+            timestamp=datetime.now(timezone.utc),
+            msg_id=uuid4(),
+            content=[EndStreamContent(stream_id=stream_id)],
+        ),
+    )
+
+
 # ---------- Status card rendering ----------
 BAR_TOTAL = 10  # one square per pipeline stage
 
@@ -263,22 +296,17 @@ def _render_status_card(active_idx: int | None, done_ids: set[str]) -> str:
 # ---------- Pipeline runner (extracted; called after CommitPayment is verified) ----------
 async def _run_pipeline(ctx: Context, sender: str, prompt: str) -> None:
     request_id = uuid4().hex
-    await _send_text(
-        ctx, sender,
-        f"Routing '{prompt}' through the pre-gen pipeline "
-        f"({len(WORKERS)} agents)…",
-    )
 
+    # One short line per stage, arrow pointing at the current worker.
+    # No repeats, no progress bar, no cumulative checklist — each
+    # message is fresh content so the bubble grows by one line per
+    # stage instead of restating prior state.
     context: dict = {}
-    done_ids: set[str] = set()
     for i, spec in enumerate(WORKERS):
-        # Send one status card per stage (active row marked, prior
-        # rows checked). Cadence == STAGE_DURATION_S, well under the
-        # ASI:One/Flockx rate-limit threshold.
-        await _send_text(ctx, sender, _render_status_card(i, done_ids))
+        await _send_text(
+            ctx, sender, f"➡ [{i+1}/{len(WORKERS)}] {spec.label}"
+        )
 
-        # Run the worker handler in-process AND wait out the stage's
-        # fixed wall-clock budget so the user has time to read.
         handler = _make_handler(spec.id)
         req = BuildRequest(request_id=request_id, prompt=prompt, context=context)
         artifact, _ = await asyncio.gather(
@@ -295,17 +323,12 @@ async def _run_pipeline(ctx: Context, sender: str, prompt: str) -> None:
             return
 
         context[spec.id] = artifact.payload
-        done_ids.add(spec.id)
-
-    # Final all-checked card.
-    await _send_text(ctx, sender, _render_status_card(None, done_ids))
 
     world_id = context.get("marble_dispatcher", {}).get("world_id", "cabin")
     world_url = f"{FRONTEND_BASE}/world/{world_id}"
     await _send_text(
         ctx, sender,
-        f"\n🎉 World ready — open it here:\n{world_url}\n\n"
-        "(The post-generation analysis swarm runs once you load the world.)",
+        f"Your world is ready at: {world_url}",
         end=True,
     )
 
@@ -469,7 +492,8 @@ async def on_commit(ctx: Context, sender: str, msg: CommitPayment):
         )
         return
 
-    await _send_text(ctx, sender, "✅ Payment received. Starting your build now…")
+    # No "payment received" ack message — see _run_pipeline for why. The
+    # status cards must be the first content the UI renders post-commit.
     await _run_pipeline(ctx, sender, pending["prompt"])
 
 
