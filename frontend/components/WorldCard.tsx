@@ -1,5 +1,8 @@
+"use client";
 import Link from "next/link";
+import { CldImage } from "next-cloudinary";
 import type { WorldDef } from "@/lib/worlds";
+import { isCloudinaryConfigured } from "@/lib/cloudinary";
 
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime();
@@ -13,13 +16,26 @@ function formatRelative(iso: string): string {
 
 export default function WorldCard({ world }: { world: WorldDef }) {
   const slug = world.title.toUpperCase();
+  const useCloudinary = isCloudinaryConfigured && Boolean(world.cloudinaryId);
+
   return (
     <Link
       href={`/world/${world.id}`}
       className="shrink-0 w-72 group block"
     >
-      <div className="aspect-[16/10] rounded-md overflow-hidden bg-surface-container border border-outline-variant">
-        {world.thumbnail ? (
+      <div className="aspect-[16/10] rounded-md overflow-hidden bg-surface-container border border-outline-variant relative">
+        {useCloudinary ? (
+          <CldImage
+            src={world.cloudinaryId!}
+            width={576}
+            height={360}
+            alt={world.title}
+            sizes="(max-width: 768px) 80vw, 288px"
+            crop="fill"
+            gravity="auto"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          />
+        ) : world.thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={world.thumbnail}

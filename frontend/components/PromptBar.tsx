@@ -1,16 +1,28 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { CldUploadWidget, CldImage } from "next-cloudinary";
+import {
+  CLOUDINARY_UPLOAD_PRESET,
+  CLOUDINARY_FOLDER,
+  isCloudinaryConfigured,
+} from "@/lib/cloudinary";
+
+interface UploadedImage {
+  publicId: string;
+  url: string;
+  originalFilename: string;
+}
 
 export default function PromptBar() {
   const [prompt, setPrompt] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<UploadedImage | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const uploadEnabled = isCloudinaryConfigured && Boolean(CLOUDINARY_UPLOAD_PRESET);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!prompt.trim() || submitting) return;
-    // No real submit yet — simulate a brief working state, then reset.
     setSubmitting(true);
     setTimeout(() => setSubmitting(false), 1800);
   }
@@ -20,26 +32,44 @@ export default function PromptBar() {
       onSubmit={onSubmit}
       className="w-full max-w-3xl bg-surface-lowest border border-outline-variant rounded-xl shadow-soft flex items-center gap-3 px-4 py-3"
     >
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        className="shrink-0 w-9 h-9 rounded grid place-items-center text-on-surface-variant hover:bg-surface-low"
-        aria-label="Attach image"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <circle cx="9" cy="9" r="2" />
-          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-        </svg>
-      </button>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => setImage(e.target.files?.[0] ?? null)}
-      />
+      {uploadEnabled ? (
+        <CldUploadWidget
+          uploadPreset={CLOUDINARY_UPLOAD_PRESET}
+          options={{ folder: `${CLOUDINARY_FOLDER}/prompts`, sources: ["local", "url", "camera"], multiple: false }}
+          onSuccess={(result) => {
+            const info = (result as { info?: { public_id?: string; secure_url?: string; original_filename?: string } }).info;
+            if (info?.public_id && info.secure_url) {
+              setImage({
+                publicId: info.public_id,
+                url: info.secure_url,
+                originalFilename: info.original_filename ?? "image",
+              });
+            }
+          }}
+        >
+          {({ open }) => (
+            <button
+              type="button"
+              onClick={() => open()}
+              className="shrink-0 w-9 h-9 rounded grid place-items-center text-on-surface-variant hover:bg-surface-low"
+              aria-label="Attach image via Cloudinary"
+              title="Attach image (uploads to Cloudinary)"
+            >
+              <AttachIcon />
+            </button>
+          )}
+        </CldUploadWidget>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="shrink-0 w-9 h-9 rounded grid place-items-center text-on-surface-variant opacity-40"
+          aria-label="Attach image (Cloudinary not configured)"
+          title="Cloudinary not configured — set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET"
+        >
+          <AttachIcon />
+        </button>
+      )}
 
       <input
         type="text"
@@ -51,9 +81,26 @@ export default function PromptBar() {
       />
 
       {image && (
-        <span className="text-xs text-on-surface-variant truncate max-w-[10rem]">
-          {image.name}
-        </span>
+        <div className="flex items-center gap-2 max-w-[14rem]">
+          <CldImage
+            src={image.publicId}
+            width={40}
+            height={40}
+            alt={image.originalFilename}
+            crop="thumb"
+            gravity="auto"
+            className="w-7 h-7 rounded object-cover border border-outline-variant"
+          />
+          <span className="text-xs text-on-surface-variant truncate">{image.originalFilename}</span>
+          <button
+            type="button"
+            onClick={() => setImage(null)}
+            className="text-xs text-outline hover:text-on-surface"
+            aria-label="Remove attached image"
+          >
+            ×
+          </button>
+        </div>
       )}
 
       <button
@@ -75,5 +122,15 @@ export default function PromptBar() {
         )}
       </button>
     </form>
+  );
+}
+
+function AttachIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </svg>
   );
 }
