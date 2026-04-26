@@ -13,8 +13,5 @@ reference-brown/
 .superpowers/
 tracks.txt
 
-# Marble splats / colliders (large binary, served from /public)
-frontend/public/worlds/*.spz
-frontend/public/worlds/*.ply
-frontend/public/worlds/*.splat
-frontend/public/worlds/*.glb
+# Generated agent analysis output — regenerated on each world load.
+frontend/public/worlds/*.agents.json
