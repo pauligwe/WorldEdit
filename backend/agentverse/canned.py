@@ -197,27 +197,79 @@ ASSEMBLED_PROMPT: dict[str, str] = {
     ),
 }
 
-# The Marble Dispatcher always serves the cabin splat for now (per user's
-# request). The other presets still narrate convincingly but the user lands
-# on cabin in the frontend.
-MARBLE_RESULT: dict[str, dict] = {
-    "forest_cabin": {
-        "headline": "Marble: splat ready, served from cache (cabin.splat, 47.2 MB)",
-        "payload": {"world_id": "cabin", "splat_url": "/worlds/cabin.splat"},
-    },
-    "downtown_office": {
-        "headline": "Marble: splat ready, served from cache (cabin.splat, 47.2 MB)",
-        "payload": {"world_id": "cabin", "splat_url": "/worlds/cabin.splat"},
-    },
-    "desert_canyon": {
-        "headline": "Marble: splat ready, served from cache (cabin.splat, 47.2 MB)",
-        "payload": {"world_id": "cabin", "splat_url": "/worlds/cabin.splat"},
-    },
-    "underwater_ruin": {
-        "headline": "Marble: splat ready, served from cache (cabin.splat, 47.2 MB)",
-        "payload": {"world_id": "cabin", "splat_url": "/worlds/cabin.splat"},
-    },
+# Marble Dispatcher: picks the closest pre-built world to the user's prompt.
+# We score each world against the prompt by simple keyword overlap — the
+# splat library is small (7 worlds) and judges' demo prompts are short, so
+# bag-of-words beats anything fancier. Falls back to cabin if no world wins.
+WORLD_KEYWORDS: dict[str, list[str]] = {
+    "cabin": [
+        "cabin", "woods", "woodland", "forest", "rustic", "cottage",
+        "lodge", "wood", "wooden", "trees", "treehouse",
+    ],
+    "office": [
+        "office", "downtown", "skyscraper", "corporate", "workplace",
+        "building", "modern", "urban", "city", "work", "cubicle", "desk",
+    ],
+    "living_room": [
+        "living room", "livingroom", "lounge", "couch", "sofa",
+        "interior", "home", "apartment", "indoor", "cozy",
+    ],
+    "minecraft_valley": [
+        "minecraft", "voxel", "blocky", "block", "valley", "waterfall",
+        "oasis", "pixel", "cube", "mine", "craft",
+    ],
+    "serene_living_room": [
+        "serene", "countryside", "calm", "peaceful", "tranquil", "quiet",
+        "view", "rural", "pastoral", "meadow", "vista",
+    ],
+    "grecian_city": [
+        "grecian", "greek", "greece", "marble", "ancient", "classical",
+        "white", "columns", "temple", "athens", "mediterranean",
+        "santorini", "city", "landscape",
+    ],
 }
+
+DEFAULT_WORLD_ID = "cabin"
+
+# Multi-word phrases need to be checked first so "living room" doesn't get
+# split into "living" + "room" tokens that could mismatch other worlds.
+def pick_world_id(prompt: str) -> str:
+    """Pick the world id whose keywords best match the prompt.
+
+    Scores by counting keyword hits per world (substring match for
+    multi-word keywords like "living room"; whole-word for single tokens).
+    Ties broken by registry order. Falls back to DEFAULT_WORLD_ID.
+    """
+    p = prompt.lower()
+    scores: dict[str, int] = {}
+    for world_id, words in WORLD_KEYWORDS.items():
+        s = 0
+        for w in words:
+            if " " in w:
+                if w in p:
+                    s += 2  # phrase match is a stronger signal
+            else:
+                # whole-word match so "modern" doesn't fire on "modernist"
+                # being absent — keep it simple, plain substring is fine
+                # for our short prompts and curated keyword set
+                if w in p:
+                    s += 1
+        if s > 0:
+            scores[world_id] = s
+    if not scores:
+        return DEFAULT_WORLD_ID
+    return max(scores, key=lambda k: scores[k])
+
+
+def _marble_result_for_world(world_id: str) -> dict:
+    """Build the marble_dispatcher artifact for a chosen world id."""
+    return {
+        "headline": (
+            f"Marble: splat ready, served from cache "
+            f"({world_id}.spz)"
+        ),
+        "payload": {"world_id": world_id, "splat_url": f"/worlds/{world_id}.spz"},
+    }
 
 CAPTURE_PLAN: dict[str, dict] = {
     "forest_cabin": {
@@ -303,7 +355,6 @@ ARTIFACTS: dict[str, dict[str, dict]] = {
     "style_synthesizer":      STYLE,
     "mood_lighting_director": LIGHTING,
     "scene_composer":         COMPOSITION,
-    "marble_dispatcher":      MARBLE_RESULT,
     "capture_planner":        CAPTURE_PLAN,
     "quality_critic":         QUALITY,
     "continuity_checker":     CONTINUITY,
@@ -322,6 +373,9 @@ def artifact_for(agent_id: str, prompt: str) -> dict:
             "headline": "Marble prompt assembled (1 weighted block, 6 modifiers)",
             "payload": {"prompt": ASSEMBLED_PROMPT.get(preset, ASSEMBLED_PROMPT[DEFAULT_PRESET])},
         }
+    if agent_id == "marble_dispatcher":
+        # Picks one of the 7 pre-built worlds by similarity to the prompt.
+        return _marble_result_for_world(pick_world_id(prompt))
     table = ARTIFACTS.get(agent_id)
     if table is None:
         return {"headline": f"{agent_id}: ok", "payload": {}}

@@ -195,7 +195,7 @@ async def on_chat(ctx: Context, sender: str, msg: ChatMessage):
     await _send_text(ctx, sender, _render_status_card(None, done_ids))
 
     world_id = context.get("marble_dispatcher", {}).get("world_id", "cabin")
-    world_url = f"{FRONTEND_BASE}/?world={world_id}"
+    world_url = f"{FRONTEND_BASE}/world/{world_id}"
     await _send_text(
         ctx, sender,
         f"\n🎉 World ready — open it here:\n{world_url}\n\n"
