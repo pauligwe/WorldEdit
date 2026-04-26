@@ -34,6 +34,7 @@ export default function WorldPage({
         yaw={world.yaw}
         pitch={world.pitch}
         thumbnailUrl={world.thumbnail}
+        worldTitle={world.title}
         captureMode={captureMode}
       />
       <div className="fixed top-4 left-4 z-10 pointer-events-auto">

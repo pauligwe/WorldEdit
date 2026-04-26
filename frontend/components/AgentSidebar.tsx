@@ -6,15 +6,20 @@ import { fetchAgentResults, type AgentEntry, type AgentResults } from "@/lib/age
 import { renderAgentCard } from "./agent-cards";
 import AgentNetworkGraph from "./AgentNetworkGraph";
 import AgentDetailModal from "./AgentDetailModal";
+import ExportPanel from "./ExportPanel";
 
 export const AGENT_SIDEBAR_WIDTH = 440;
 
 export default function AgentSidebar({
   worldId,
+  worldTitle,
+  thumbnailUrl,
   open,
   onOpenChange,
 }: {
   worldId: string;
+  worldTitle: string;
+  thumbnailUrl?: string;
   open: boolean;
   onOpenChange: (next: boolean) => void;
 }) {
@@ -102,6 +107,37 @@ export default function AgentSidebar({
               }}
             />
           )}
+
+          <section>
+            <button
+              type="button"
+              onClick={() =>
+                setExpanded((prev) => ({ ...prev, __export: !prev.__export }))
+              }
+              className="w-full flex items-center justify-between mb-3 group"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-on-surface-variant text-xs font-sans transition-transform"
+                  style={{ transform: expanded.__export ? "rotate(90deg)" : "none" }}
+                >
+                  ▶
+                </span>
+                <h3 className="label-caps text-on-surface-variant text-xs">EXPORT</h3>
+              </div>
+              <span className="text-[10px] font-sans text-on-surface-variant">
+                {results ? "ready" : "—"}
+              </span>
+            </button>
+            {expanded.__export && (
+              <ExportPanel
+                results={results}
+                worldId={worldId}
+                worldTitle={worldTitle}
+                thumbnailUrl={thumbnailUrl}
+              />
+            )}
+          </section>
 
           {CATEGORIES.map((cat) => {
             const agentsInCat = AGENTS.filter((a) => a.category === cat.name);

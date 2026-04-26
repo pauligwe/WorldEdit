@@ -12,6 +12,7 @@ interface Props {
   yaw?: number;
   pitch?: number;
   thumbnailUrl?: string;
+  worldTitle?: string;
   captureMode?: { id: string; force?: boolean; reset?: boolean };
 }
 
@@ -146,6 +147,7 @@ export default function SplatScene({
   yaw = 0,
   pitch = 0,
   thumbnailUrl,
+  worldTitle,
   captureMode,
 }: Props) {
   const [sparkReady, setSparkReady] = useState(false);
@@ -300,6 +302,8 @@ export default function SplatScene({
       {captureMode && (
         <AgentSidebar
           worldId={captureMode.id}
+          worldTitle={worldTitle ?? captureMode.id}
+          thumbnailUrl={thumbnailUrl}
           open={sidebarOpen}
           onOpenChange={setSidebarOpen}
         />

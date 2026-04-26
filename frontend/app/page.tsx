@@ -12,10 +12,12 @@ export default function Home() {
 
       <section className="flex-1 flex flex-col items-center justify-center px-6 -mt-8">
         <h1 className="text-5xl md:text-6xl font-semibold tracking-[-0.03em] leading-[0.95] text-center">
-          Build your reality.
+          Build a world.
         </h1>
-        <p className="mt-6 max-w-xl text-center text-on-surface-variant text-lg leading-relaxed">
-          Describe a world, an environment, or an architectural concept to begin the synthesis.
+        <p className="mt-6 max-w-2xl text-center text-on-surface-variant text-lg leading-relaxed">
+          Describe a place. Step inside it. Then export everything you need to make it real —
+          palette, props, story, shots, and 19 dimensions of grounded context — for game devs,
+          filmmakers, writers, designers, or any agent that needs more than a single prompt.
         </p>
         <div className="mt-14 w-full flex justify-center">
           <PromptBar />
