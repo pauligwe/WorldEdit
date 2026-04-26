@@ -12,6 +12,3 @@ reference-brown/
 .claude/
 .superpowers/
 tracks.txt
-
-# Generated agent analysis output — regenerated on each world load.
-frontend/public/worlds/*.agents.json
